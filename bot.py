@@ -2,10 +2,8 @@ import config
 from telebot import *
 import telegraph
 
-
 bot = TeleBot(config.token2)
 ph = telegraph.Telegraph()
-
 
 """
     Usage of Telegraph api. Integration of telegraph api for "about" features.
@@ -56,18 +54,14 @@ def keyboard(message):
     button2 = types.KeyboardButton(text="2")
     button3 = types.KeyboardButton(text="3")
     reply.add(button1, button2, button3)
-
-
-
     bot.send_message(message.chat.id, message.text, reply_markup=reply)
+
 
 @bot.message_handler(commands=["hooj"])
 def hooj(message):
     inline = types.InlineKeyboardMarkup()
     button4 = types.InlineKeyboardButton(text="ya dolbaeb", url="https://ya.ru")
     button5 = types.InlineKeyboardButton(text="hooj", url="https://ya.ru")
-    button6 = types.InlineKeyboardButton(text="idinahooj", url="https://ya.ru")
-    inline.add(button4,button5,button6)
+    button6 = types.InlineKeyboardButton(text="Bookat'", url="https://ya.ru")
+    inline.add(button4, button5, button6)
     bot.send_message(message.chat.id, message.text, reply_markup=inline)
-
-
