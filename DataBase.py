@@ -36,3 +36,10 @@ def updateRank(id, new_info):
     d = separate_json(getUser("" + id))
     d.update(new_info)
     __db.child("Users").child("" + id).update(d)
+
+
+def dictForBook(description, ref):
+    d = {}
+    d["description"] = description
+    d["reference"] = ref
+    return d
