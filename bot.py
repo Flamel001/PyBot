@@ -1,6 +1,9 @@
+import types
+
 import config
 from telebot import *
 import telegraph
+import datetime as date
 
 bot = TeleBot(config.token2)
 ph = telegraph.Telegraph()
@@ -18,50 +21,38 @@ response = ph.create_page('Bruce Eckels Thinking in Java',
                                        " it’s also the first book I turn to whenever I have a Java question. </p>")
 
 
-@bot.message_handler(commands=['Books'])
+@bot.message_handler(regexp="Docs")
 def telegraph_func(message):
-    bot.reply_to(message, 'http://telegra.ph/{}'.format(response['path']))
-    bot.reply_to(message, 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29')
+    markup = types.InlineKeyboardMarkup()
+    callback_btn = types.InlineKeyboardButton(text="Reserve",callback_data="Book")
+    left_btn = types.InlineKeyboardButton(text="3 left", callback_data="Left")
+    markup.add(callback_btn)
+    markup.add(left_btn)
+    bot.send_message(message.chat.id, 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29',reply_markup=markup)
 
 
-@bot.message_handler(commands=['help'])
-def send_welcome(message):
-    bot.reply_to(message, "Howdy,how are you doing?")
+@bot.callback_query_handler(func=lambda call: call.data == 'Book')
+def left(call):
+    bot.send_message(call.message.chat.id, "You have been ordered a book on: " + str(date.date.today()) +
+                                           "\nYour book will expire on:                  " + str(date.date.fromtimestamp(7)))
 
 
-# @bot.message_handler(func=lambda message: True)
-# def echo_all(message):
-#     bot.reply_to(message, message.text)
 
-
-@bot.message_handler(regexp="hui")
-def keyboard(message):
-    markup = types.ReplyKeyboardMarkup(True, False)
-    markup.row('Books')
-    markup.row('My orders')
-    markup.row('Help')
-    bot.send_message(message.chat.id, "Please,choose the option.", reply_markup=markup)
-
-
-if __name__ == '__main__':
-    bot.polling(none_stop=True)
+@bot.message_handler(regexp='help')
+def help_func(message):
+    bot.reply_to(message, "Help func is currently unavailable")
 
 
 @bot.message_handler(commands=["start"])
 def keyboard(message):
-    reply = types.ReplyKeyboardMarkup()
-    button1 = types.KeyboardButton(text="1")
-    button2 = types.KeyboardButton(text="2")
-    button3 = types.KeyboardButton(text="3")
+    reply = types.ReplyKeyboardMarkup(True,False)
+
+    button1 = types.KeyboardButton(text="Docs")
+    button2 = types.KeyboardButton(text="My books")
+    button3 = types.KeyboardButton(text="Help")
     reply.add(button1, button2, button3)
-    bot.send_message(message.chat.id, message.text, reply_markup=reply)
+    bot.send_message(message.chat.id, "Welcome to Innopolis Library Management System", reply_markup=reply)
 
 
-@bot.message_handler(commands=["hooj"])
-def hooj(message):
-    inline = types.InlineKeyboardMarkup()
-    button4 = types.InlineKeyboardButton(text="ya dolbaeb", url="https://ya.ru")
-    button5 = types.InlineKeyboardButton(text="hooj", url="https://ya.ru")
-    button6 = types.InlineKeyboardButton(text="Bookat'", url="https://ya.ru")
-    inline.add(button4, button5, button6)
-    bot.send_message(message.chat.id, message.text, reply_markup=inline)
+if __name__ == '__main__':
+    bot.polling(none_stop=True)
