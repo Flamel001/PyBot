@@ -5,6 +5,11 @@ import telegraph
 bot = telebot.TeleBot(config.token2)
 ph = telegraph.Telegraph()
 
+
+"""
+    Usage of Telegraph api. Integration of telegraph api for "about" features.
+    
+"""
 ph.create_account(short_name='InnoLib')
 response = ph.create_page('Bruce Eckels Thinking in Java',
                           html_content="<p> Thinking in Java should be read cover to cover by every Java programmer, "
@@ -15,7 +20,7 @@ response = ph.create_page('Bruce Eckels Thinking in Java',
 
 
 @bot.message_handler(commands=['Books'])
-def send_book(message):
+def telegraph_func(message):
     bot.reply_to(message, 'http://telegra.ph/{}'.format(response['path']))
     bot.reply_to(message, 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29')
 
