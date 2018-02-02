@@ -12,12 +12,12 @@ __config = {
 __firebase = pyrebase.initialize_app(__config)
 __db = __firebase.database()
 
-def insertUser(id, json_string):
-    __db.child("Users").child("" + id).set(json_string)
+def insertUser(id, dict):
+    __db.child("Users").child("" + id).set(dict)
 
 
-def insertBook(name, json):
-    __db.child("Books").child("" + name).set(json)
+def insertBook(name, dict):
+    __db.child("Books").child("" + name).set(dict)
 
 
 def getUser(id):
@@ -28,19 +28,11 @@ def getBook(name):
     return __db.child("Books").child("" + name).get().val()
 
 
-def create_json_stirng(name, email, rank):
-    d = {}
-    d["name"] = name
-    d["email"] = email
-    d["rank"] = rank
-    return json.dumps(d)
-
-
 def separate_json(json_string):
     return json.loads(json_string)
 
 
-def updateRank(id, new_rank):
+def updateRank(id, new_info):
     d = separate_json(getUser("" + id))
-    d["rank"] = new_rank
+    d.update(new_info)
     __db.child("Users").child("" + id).update(d)
