@@ -52,6 +52,12 @@ class Patron():
     def remove_document(self, id):
         self.__user_documents.pop(id)
 
+    def get_docs_list(self):
+        list =[]
+        for doc in self.__user_documents:
+            list.append(doc)
+        return list
+
     def get_rating(self):
         return self.__user_rating
 
