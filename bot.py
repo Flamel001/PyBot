@@ -33,8 +33,10 @@ def telegraph_func(message):
 
 @bot.callback_query_handler(func=lambda call: call.data == 'Book')
 def left(call):
+    init_date = date.datetime.toordinal(date.datetime.today())
+    exp_date = date.datetime.fromordinal(init_date + 14)
     bot.send_message(call.message.chat.id, "You have been ordered a book on: " + str(date.date.today()) +
-                                           "\nYour book will expire on:                  " + str(date.date.fromtimestamp(7)))
+                                           "\nYour book will expire on:                  " + str(exp_date))
 
 
 
