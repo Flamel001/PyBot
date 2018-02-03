@@ -19,18 +19,19 @@ def greeting(message):
                                      "\nPlease press /setup to setup your profile.")
 
 
-@bot.message_handler(command=["setup"])
-def call_f(message):
-    authentication(email=message)
-
-@bot.message_handler(func=lambda command)
+@bot.message_handler(commands=["setup"])
 def authentication(email):
-    domain = "@blablabla.ru"
-    if email.text[11:] != domain:
-        bot.send_message(email.chat.id, "Invalid e-mail")
-    else:
-        db.insertUser(email.chat.id, email)
+    msg = bot.send_message(email.chat.id, "Enter you email")
+    bot.register_next_step_handler(msg, auth)
 
+
+def auth(msg):
+    domain = "@innopolis.ru"
+    if msg.text[-13:] != domain:
+        bot.send_message(msg.chat.id, "Invalid e-mail.")
+    else:
+        db.insertUser(msg.chat.id, msg)
+        bot.send_message(msg.chat.id, "Done!")
 
 
 
