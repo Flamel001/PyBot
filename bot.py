@@ -51,13 +51,26 @@ def auth4(message):
 
 @bot.message_handler(commands=["options"])
 def keyboard(message):
-    reply = types.ReplyKeyboardMarkup(True,False)
+    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=u.reply)
 
-    button1 = types.KeyboardButton(text="Docs")
-    button2 = types.KeyboardButton(text="My books")
-    button3 = types.KeyboardButton(text="Help")
-    reply.add(button1, button2, button3)
-    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=reply)
+
+@bot.message_handler(regexp='Back')
+def back(message):
+    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=u.reply)
+
+
+@bot.message_handler(regexp='Docs')
+def genres(message):
+    reply = types.ReplyKeyboardMarkup(True, False, True, 1)
+    math_btn = types.KeyboardButton(text="Math")
+    java_btn = types.KeyboardButton(text="Java",)
+    prog_btn = types.KeyboardButton(text="Programming")
+    reply.add(math_btn, java_btn, prog_btn)
+    bot.send_message(message.chat.id, "Choose category", reply_markup=reply)
+
+
+
+
 
 
 
