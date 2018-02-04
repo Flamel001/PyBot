@@ -84,22 +84,24 @@ class Article(Document):
 
     def set_journal(self, new_journal):
         self.__journal = new_journal
+
     def get_journal(self):
         return self.__journal
 
     def set_pub_date(self, new_date):
         self.__publication_date = new_date
+
     def get_pub_date(self):
         return self.__publication_date
 
     def set_editor(self, new_editor):
         self.__editor = new_editor
+
     def get_editor(self):
         return self.__editor
+
 
 class AV_Materials(Document):
     def __init__(self, title, author, value):
         super.__init__(title, author)
         self.set_value(value)
-
-

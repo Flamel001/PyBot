@@ -1,7 +1,52 @@
 import datetime
+import Documents as dc
 
 
-class Patron():
+class User:
+    pass
+
+
+class Librarian(User):
+
+    def __init__(self, name, mail, number, alias, ID):
+        self.__librarian_name = name
+        self.__librarian_mail = mail
+        self.__phone_number = number
+        self.__librarian_alias = alias
+        self.librarian_id = ID
+
+    def new_book(self, title, author, publisher, edition, genre):
+        new = dc.Book
+        new.__init__(title, author, publisher, edition, genre)
+        return new
+
+    def set_book_bestseller(self, book, is_not):
+        book.set_bestseller(is_not)
+
+    def new_article(self, title, author, journal, publication_date, editor):
+        new = dc.Article
+        new.__init__(title, author, journal, publication_date, editor)
+        return new
+
+    def new_AV_material(self, title, author, value):
+        new = dc.AV_Materials
+        new.__init__(title, author, value)
+        return new
+
+    def get_name(self):
+        return self.__librarian_name
+
+    def get_mail(self):
+        return self.__librarian_mail
+
+    def get_number(self):
+        return self.__phone_number
+
+    def get_alias(self):
+        return self.__librarian_alias
+
+
+class Patron(User):
 
     def __init__(self, name, mail, number, alias):
         self.__user_name = name
@@ -53,7 +98,7 @@ class Patron():
         self.__user_documents.pop(id)
 
     def get_docs_list(self):
-        list =[]
+        list = []
         for doc in self.__user_documents:
             list.append(doc)
         return list
@@ -77,9 +122,9 @@ class Student(Patron):
         super().__init__(name, mail, number, alias)
         self.set_documents_duration(3)
 
-class Professor(Patron):
+
+class Faculty(Patron):
 
     def __init__(self, name, mail, number, alias):
         super().__init__(name, mail, number, alias)
         self.set_documents_duration(4)
-

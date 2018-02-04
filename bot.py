@@ -24,11 +24,12 @@ response = ph.create_page('Bruce Eckels Thinking in Java',
 @bot.message_handler(regexp="Docs")
 def telegraph_func(message):
     markup = types.InlineKeyboardMarkup()
-    callback_btn = types.InlineKeyboardButton(text="Reserve",callback_data="Book")
+    callback_btn = types.InlineKeyboardButton(text="Reserve", callback_data="Book")
     left_btn = types.InlineKeyboardButton(text="3 left", callback_data="Left")
     markup.add(callback_btn)
     markup.add(left_btn)
-    bot.send_message(message.chat.id, 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29',reply_markup=markup)
+    bot.send_message(message.chat.id, 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29',
+                     reply_markup=markup)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'Book')
@@ -36,8 +37,7 @@ def left(call):
     init_date = date.datetime.toordinal(date.datetime.today())
     exp_date = date.datetime.fromordinal(init_date + 14)
     bot.send_message(call.message.chat.id, "You have been ordered a book on: " + str(date.date.today()) +
-                                           "\nYour book will expire on:                  " + str(exp_date))
-
+                     "\nYour book will expire on:                  " + str(exp_date))
 
 
 @bot.message_handler(regexp='help')
@@ -47,7 +47,7 @@ def help_func(message):
 
 @bot.message_handler(commands=["start"])
 def keyboard(message):
-    reply = types.ReplyKeyboardMarkup(True,False)
+    reply = types.ReplyKeyboardMarkup(True, False)
 
     button1 = types.KeyboardButton(text="Docs")
     button2 = types.KeyboardButton(text="My books")
