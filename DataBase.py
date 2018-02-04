@@ -43,7 +43,7 @@ def updateRank(id, new_info):
     __db.child("Users").child("" + str(id)).update(d)
 
 
-def dictForBook(description = None, ref = None):
+def dictForBook(description=None, ref=None):
     d = dict()
     if description:
         d["description"] = description
