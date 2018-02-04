@@ -1,4 +1,5 @@
 import datetime
+import DataBase as db
 
 
 class Patron():
@@ -76,6 +77,11 @@ class Student(Patron):
     def __init__(self, name, mail, number, alias):
         super().__init__(name, mail, number, alias)
         self.set_documents_duration(3)
+
+
+    def result(self):
+        return db.dictForUser(self.get_mail(), self.get_name(), self.get_surname)
+
 
 class Professor(Patron):
 

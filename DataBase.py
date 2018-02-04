@@ -12,8 +12,9 @@ __config = {
 __firebase = pyrebase.initialize_app(__config)
 __db = __firebase.database()
 
+
 def insertUser(id, dict):
-    __db.child("Users").child("" + id).set(dict)
+    __db.child("Users").child("" + str(id)).set(dict)
 
 
 def insertBook(name, dict):
@@ -35,7 +36,7 @@ def separate_json(json_string):
 def updateRank(id, new_info):
     d = separate_json(getUser("" + id))
     d.update(new_info)
-    __db.child("Users").child("" + id).update(d)
+    __db.child("Users").child("" + str(id)).update(d)
 
 
 def dictForBook(description, ref):
@@ -43,3 +44,42 @@ def dictForBook(description, ref):
     d["description"] = description
     d["reference"] = ref
     return d
+
+
+def user_name(name):
+    return name
+
+
+def user_surname(surname):
+    return surname
+
+
+def user_mail(mail):
+    return mail
+
+
+def user_num(number):
+    return number
+
+
+def dictForUser(email, name, surname, number):
+    d = {}
+    d["email"] = user_mail(email)
+    d["name"] = user_name(name)
+    d["surname"] = user_surname(surname)
+    d["number"] = user_num(number)
+    return d
+
+
+def printAllUsers():
+    allUser = __db.child("Users").get()
+    for user in allUser.each():
+        print("UserKey " + user.key())
+        print("UserVal " + json.dumps(user.val()))
+
+
+def printAllBooks():
+    allBooks = __db.child("Books").get()
+    for book in allBooks.each():
+       print("BookKey " + book.key())
+       print("BookVal " + json.dumps(book.val()))

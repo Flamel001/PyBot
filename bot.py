@@ -5,6 +5,8 @@ from telebot import *
 import telegraph
 import datetime as date
 import DataBase as db
+import utilities as u
+import Patron as p
 
 bot = TeleBot(config.token2)
 ph = telegraph.Telegraph()
@@ -12,11 +14,7 @@ ph = telegraph.Telegraph()
 
 @bot.message_handler(commands=["start"])
 def greeting(message):
-    bot.send_message(message.chat.id,"Welcome to Innopolis Library Management System."
-                                     "\nPlease enter your e-mail address."
-                                     "\nRemember it should contain @innopolis.ru domain, otherwise you won't be able"
-                                     "to authorise."
-                                     "\nPlease press /setup to setup your profile.")
+    bot.send_message(message.chat.id, u.greeting)
 
 
 @bot.message_handler(commands=["setup"])
@@ -26,14 +24,30 @@ def authentication(email):
 
 
 def auth(msg):
-    domain = "@innopolis.ru"
-    if msg.text[-13:] != domain:
-        bot.send_message(msg.chat.id, "Invalid e-mail.")
+    if msg.text[-13:] != u.domain:
+        bot.send_message(msg.chat.id, u.err_mail)
     else:
-        db.insertUser(msg.chat.id, msg)
-        bot.send_message(msg.chat.id, "Done!")
+        split = msg.text.split('@')[0]
+        # db.insertUser(msg.chat.id, db.dictForUser(split, "Pidor", "Zashekansky", "+98812312314"))
+        db.user_mail(split)
+        reply = bot.send_message(msg.chat.id, "Great! Now enter your Name: ")
+        bot.register_next_step_handler(reply, auth2)
+
+def auth2(message):
+    db.user_name(message)
+    reply = bot.send_message(message.chat.id, "Wonderful! Now your surname: ")
+    bot.register_next_step_handler(reply, auth3)
 
 
+def auth3(message):
+    db.user_surname(message)
+    reply = bot.send_message(message.chat.id, "Excellent! Now the last step. Leave your number: ")
+    bot.register_next_step_handler(reply, auth4)
+
+
+def auth4(message):
+    db.insertUser(message.chat.id, db.dictForUser(p.Patron.get_mail()))
+    bot.send_message(message.chat.id, "Congratulations! Your sign up has been done!")
 
 @bot.message_handler(commands=["options"])
 def keyboard(message):
@@ -47,9 +61,9 @@ def keyboard(message):
 
 
 
+
 """
     Usage of Telegraph api. Integration of telegraph api for "about" features.
-    
 """
 ph.create_account(short_name='InnoLib')
 response = ph.create_page('Bruce Eckels Thinking in Java',
@@ -83,6 +97,11 @@ def left(call):
 @bot.message_handler(regexp='help')
 def help_func(message):
     bot.reply_to(message, "Help func is currently unavailable")
+
+
+@bot.message_handler(regexp='Hooj')
+def printAllUsersInBot(message):
+    db.printAllUsers()
 
 
 if __name__ == '__main__':
