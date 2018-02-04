@@ -34,40 +34,34 @@ def separate_json(json_string):
 
 
 def updateRank(id, new_info):
-    d = separate_json(getUser("" + id))
+    dict = getUser(str(id))
+    if(type(dict)==type("")):
+        d = separate_json(dict)
+    else:
+        d = dict
     d.update(new_info)
     __db.child("Users").child("" + str(id)).update(d)
 
 
-def dictForBook(description, ref):
-    d = {}
-    d["description"] = description
-    d["reference"] = ref
+def dictForBook(description = None, ref = None):
+    d = dict()
+    if description:
+        d["description"] = description
+    if ref:
+        d["reference"] = ref
     return d
 
 
-def user_name(name):
-    return name
-
-
-def user_surname(surname):
-    return surname
-
-
-def user_mail(mail):
-    return mail
-
-
-def user_num(number):
-    return number
-
-
-def dictForUser(email, name, surname, number):
-    d = {}
-    d["email"] = user_mail(email)
-    d["name"] = user_name(name)
-    d["surname"] = user_surname(surname)
-    d["number"] = user_num(number)
+def dictForUser(email=None, name=None, surname=None, number=None):
+    d = dict()
+    if email:
+        d["email"] = email
+    if name:
+        d["name"] = name
+    if surname:
+        d["surname"] = surname
+    if number:
+        d["number"] = number
     return d
 
 
