@@ -4,7 +4,7 @@ import config
 from telebot import *
 import telegraph
 import datetime as date
-import DataBase as db
+import database as db
 import utilities as u
 import verification as veri
 import emoji
@@ -51,20 +51,39 @@ def auth(msg):
 
     else:
         pin = veri.pin_generator()
-        veri.pin_sender(msg.text,pin)
+        veri.pin_sender(msg.text, pin)
         u.tempData['userId'] = pin
         userEmail = msg.text
+        print(userEmail)
         m = bot.send_message(msg.chat.id, u.pin_enter)
         bot.register_next_step_handler(m, auth_1)
 
 
 def auth_1(pin):
-
     if verification(pin):
-        m = bot.send_message(pin.chat.id, "YAY")
+        m = bot.send_message(pin.chat.id, u.step1)
         print(userEmail)
-        db.insertUser(pin.chat.id, db.dictForUser(userEmail))
-        #bot.register_next_step_handler(m, auth_2)
+        bot.register_next_step_handler(m, auth_2)
+
+
+def auth_2(msg):
+    userName = msg.text
+    reply = bot.send_message(msg.chat.id, u.step2)
+    bot.register_next_step_handler(reply, auth3)
+
+
+def auth3(message):
+    userSurname = message.text
+    print(userSurname)
+    reply = bot.send_message(message.chat.id, u.step3)
+    bot.register_next_step_handler(reply, auth4)
+
+
+def auth4(message):
+    userNumber = message.text
+    print(userNumber)
+    db.insertUser(message.chat.id, db.dictForUser(userEmail, userName, userSurname, userNumber))
+    bot.send_message(message.chat.id, u.step4)
 
 
 def verification(pin):
@@ -137,7 +156,7 @@ def left(call):
 
 
 @bot.message_handler(regexp='jopaenota')
-def printAllUsersInBot():
+def printAllUsersInBot(message):
     db.printAllUsers()
 
 

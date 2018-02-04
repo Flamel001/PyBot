@@ -9,7 +9,7 @@ err_mail = "Invalid e-mail"
 
 # auth literals
 step0 = "Enter you email"
-step1 = "Great! Now enter your Name: "
+step1 = "Now enter your Name: "
 step2 = "Wonderful! Now your surname: "
 step3 = "Excellent! Now the last step. Leave your number: "
 step4 = "Congratulations! Your sign up has been done!"
