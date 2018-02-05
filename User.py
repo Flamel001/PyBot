@@ -123,6 +123,8 @@ class Student(Patron):
         self.set_documents_duration(3)
 
 
+
+
 class Faculty(Patron):
 
     def __init__(self, name, mail, number, alias):
