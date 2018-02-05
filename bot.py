@@ -7,7 +7,6 @@ import datetime as date
 import database as db
 import utilities as u
 import verification as veri
-import emoji
 
 bot = TeleBot(config.token2)
 ph = telegraph.Telegraph()
@@ -131,14 +130,14 @@ def genres(message):
 @bot.message_handler(regexp="Books")
 def telegraph_func(message):
     markup = types.InlineKeyboardMarkup()
-    callback_btn = types.InlineKeyboardButton(text="Reserve",callback_data="Book")
+    callback_btn = types.InlineKeyboardButton(text="Reserve", callback_data="Book")
     left_btn = types.InlineKeyboardButton(text="3 left", callback_data="Left")
-    next_btn = types.InlineKeyboardButton(text=emoji.emojize(':arrow_right:'), callback_data='next')
-    prev_btn = types.InlineKeyboardButton(text=emoji.emojize(':arrow_left:'), callback_data='prev')
+    next_btn = types.InlineKeyboardButton(text="➡", callback_data='next')
+    counter = types.InlineKeyboardButton(text=u.exp, callback_data='counter')
+    prev_btn = types.InlineKeyboardButton(text='⬅', callback_data='prev')
     markup.add(callback_btn)
     markup.add(left_btn)
-    markup.add(next_btn)
-    markup.add(prev_btn)
+    markup.row(prev_btn, counter, next_btn)
     bot.send_message(message.chat.id, 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29',
                      reply_markup=markup)
 

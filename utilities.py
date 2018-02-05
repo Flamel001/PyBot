@@ -19,11 +19,16 @@ domain = "@innopolis.ru"
 pin_enter = "Please enter PIN I've sent to you. "
 
 "Keybord for main menu"
-reply = types.ReplyKeyboardMarkup(True,False)
+reply = types.ReplyKeyboardMarkup(True, False)
 docs_btn = types.KeyboardButton(text="Docs")
 my_books_btn = types.KeyboardButton(text="My books")
 help_btn = types.KeyboardButton(text="Help")
 reply.add(docs_btn, my_books_btn, help_btn)
+
+"counter for books"
+number = 1
+max = 5
+exp = '{}/{}'.format(number, max)
 
 
 tempData = {'userId': '0'}
