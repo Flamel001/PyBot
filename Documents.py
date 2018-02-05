@@ -74,6 +74,12 @@ class Book(Document):
     def get_is_bestseller(self):
         return self.__is_bestseller
 
+    def get_duration(self):
+        if self.get_is_bestseller():
+            return 2
+        else:
+            return 3
+
 
 class Article(Document):
     def __init__(self, title, author, journal, publication_date, editor):
@@ -100,8 +106,14 @@ class Article(Document):
     def get_editor(self):
         return self.__editor
 
+    def get_duration(self):
+        return 2
+
 
 class AV_Materials(Document):
     def __init__(self, title, author, value):
         super.__init__(title, author)
         self.set_value(value)
+
+    def get_duration(self):
+        return 2
