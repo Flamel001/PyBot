@@ -73,6 +73,7 @@ class Patron(User):
         self.__user_rating = 5
         self.__user_documents = dict
         self.__registration_date = datetime.datetime.now()
+        self.__user_debt = 0
 
     def __init__(self, dictionary):
         temp = dict(dictionary)
@@ -149,6 +150,15 @@ class Patron(User):
     def get_rank(self):
         return self.__rank
 
+    def increase_debt(self, value):
+        self.__user_debt += value
+
+    def decrease_debt(self,value):
+        self.__user_debt -= value
+
+    def get_debt(self):
+        return self.__user_debt
+
     def summary(self):
         d = dict()
         d["User name"] = self.get_name()
@@ -160,6 +170,7 @@ class Patron(User):
         d["User's books duration"] = self.get_documents_duration()
         d["Users documents"] = self.get_docs_list()
         d["Users rank"] = self.get_rank()
+        d["User debt"] = self.get_debt()
         return d
 
 
@@ -176,9 +187,11 @@ class Student(Patron):
         mail = temp.pop("User mail")
         number = temp.pop("User number")
         alias = temp.pop("User alias")
+        debt = temp.pop("User debt")
         super().__init__(name, mail, number, alias)
         self.set_documents_duration(3)
         self.__rank = 0
+        self.increase_debt(debt)
 
 
 class Faculty(Patron):
@@ -194,6 +207,8 @@ class Faculty(Patron):
         mail = temp.pop("User mail")
         number = temp.pop("User number")
         alias = temp.pop("User alias")
+        debt = temp.pop("User debt")
         super().__init__(name, mail, number, alias)
         self.set_documents_duration(4)
         self.__rank = 1
+        self.increase_debt(debt)
