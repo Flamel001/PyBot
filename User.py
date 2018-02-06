@@ -14,6 +14,20 @@ class Librarian(User):
         self.__phone_number = number
         self.__librarian_alias = alias
         self.librarian_id = ID
+        self.__rank = 2
+
+    def __init__(self, dictionary):
+        temp = dict(dictionary)
+        name = temp.pop("User name")
+        mail = temp.pop("User mail")
+        number = temp.pop("User number")
+        alias = temp.pop("User alias")
+
+        self.__librarian_name = name
+        self.__librarian_mail = mail
+        self.__phone_number = number
+        self.__librarian_alias = alias
+        self.__rank = 2
 
     def new_book(self, title, author, publisher, edition, genre):
         new = dc.Book
@@ -45,10 +59,27 @@ class Librarian(User):
     def get_alias(self):
         return self.__librarian_alias
 
+    def get_rank(self):
+        return self.__rank
+
 
 class Patron(User):
 
     def __init__(self, name, mail, number, alias):
+        self.__user_name = name
+        self.__user_mail = mail
+        self.__phone_number = number
+        self.__user_alias = alias
+        self.__user_rating = 5
+        self.__user_documents = dict
+        self.__registration_date = datetime.datetime.now()
+
+    def __init__(self, dictionary):
+        temp = dict(dictionary)
+        name = temp.pop("User name")
+        mail = temp.pop("User mail")
+        number = temp.pop("User number")
+        alias = temp.pop("User alias")
         self.__user_name = name
         self.__user_mail = mail
         self.__phone_number = number
@@ -115,14 +146,39 @@ class Patron(User):
     def get_documents_duration(self):
         return self.__documents_duration
 
+    def get_rank(self):
+        return self.__rank
+
+    def summary(self):
+        d = dict()
+        d["User name"] = self.get_name()
+        d["User mail"] = self.get_mail()
+        d["User number"] = self.get_number()
+        d["User alias"] = self.get_alias()
+        d["User rating"] = self.get_rating()
+        d["User ID"] = self.get_id()
+        d["User's books duration"] = self.get_documents_duration()
+        d["Users documents"] = self.get_docs_list()
+        d["Users rank"] = self.get_rank()
+        return d
+
 
 class Student(Patron):
 
     def __init__(self, name, mail, number, alias):
         super().__init__(name, mail, number, alias)
         self.set_documents_duration(3)
+        self.__rank = 0
 
-
+    def __init__(self, dictionary):
+        temp = dict(dictionary)
+        name = temp.pop("User name")
+        mail = temp.pop("User mail")
+        number = temp.pop("User number")
+        alias = temp.pop("User alias")
+        super().__init__(name, mail, number, alias)
+        self.set_documents_duration(3)
+        self.__rank = 0
 
 
 class Faculty(Patron):
@@ -130,3 +186,14 @@ class Faculty(Patron):
     def __init__(self, name, mail, number, alias):
         super().__init__(name, mail, number, alias)
         self.set_documents_duration(4)
+        self.__rank = 1
+
+    def __init__(self, dictionary):
+        temp = dict(dictionary)
+        name = temp.pop("User name")
+        mail = temp.pop("User mail")
+        number = temp.pop("User number")
+        alias = temp.pop("User alias")
+        super().__init__(name, mail, number, alias)
+        self.set_documents_duration(4)
+        self.__rank = 1
