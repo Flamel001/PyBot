@@ -81,7 +81,7 @@ def auth3(message):
 def auth4(message):
     userNumber = message.text
     print(userNumber)
-    db.insertUser(message.chat.id, db.dictForUser(userEmail, userName, userSurname, userNumber))
+    db.insert_user(message.chat.id, db.dict_for_user(userEmail, userName, userSurname, userNumber))
     bot.send_message(message.chat.id, u.step4)
 
 
@@ -156,7 +156,7 @@ def left(call):
 
 @bot.message_handler(regexp='jopaenota')
 def printAllUsersInBot(message):
-    db.printAllUsers()
+    db.print_all_users()
 
 
 if __name__ == '__main__':
