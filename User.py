@@ -13,15 +13,15 @@ class Librarian(User):
         self.__librarian_mail = mail
         self.__phone_number = number
         self.__librarian_alias = alias
-        self.librarian_id = ID
+        self.__librarian_id = ID
         self.__rank = 2
 
     def __init__(self, dictionary):
         temp = dict(dictionary)
-        name = temp.pop("User name")
-        mail = temp.pop("User mail")
-        number = temp.pop("User number")
-        alias = temp.pop("User alias")
+        name = temp.pop("Librarian name")
+        mail = temp.pop("Librarian mail")
+        number = temp.pop("Librarian number")
+        alias = temp.pop("Librarian alias")
 
         self.__librarian_name = name
         self.__librarian_mail = mail
@@ -62,6 +62,17 @@ class Librarian(User):
     def get_rank(self):
         return self.__rank
 
+    def get_ID(self):
+        return self.__librarian_id
+
+    def summary(self):
+        d = dict()
+        d["Librarian name"] = self.get_name()
+        d["Librarian mail"] = self.get_mail()
+        d["Librarian number"] = self.get_number()
+        d["Librarian alias"] = self.get_alias()
+        d["Librarian ID"] = self.get_ID()
+        return d
 
 class Patron(User):
 
