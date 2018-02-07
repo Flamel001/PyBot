@@ -19,11 +19,11 @@ class Document:
     def get_author(self):
         return self.__doc_author
 
-    def set_value(self, new_value):
-        self.__doc_value = new_value
+    def set_price(self, new_value):
+        self.__doc_price = new_value
 
-    def get_value(self):
-        return self.__doc_value
+    def get_price(self):
+        return self.__doc_price
 
     def set_owner(self, new_owner):
         self.__doc_owner = new_owner
@@ -120,7 +120,7 @@ class Book(Document):
         d["Book owner"] = self.get_owner()
         d["Book copies"] = self.get_copies_id()
         d["Book is reference"] = self.get_is_reference()
-        d["Book value"] = self.get_value()
+        d["Book value"] = self.get_price()
         return d
 
 
@@ -174,14 +174,14 @@ class Article(Document):
         d["Article duration"] = self.get_duration()
         d["Article owner"] = self.get_owner()
         d["Article copies ID"] = self.get_copies_id()
-        d["Article value"] = self.get_value()
+        d["Article value"] = self.get_price()
         return d
 
 
 class AV_Materials(Document):
     def __init__(self, title, author, value):
         super.__init__(title, author)
-        self.set_value(value)
+        self.set_price(value)
 
     def __init__(self, dictionary):
         d = dict(dictionary)
@@ -189,7 +189,7 @@ class AV_Materials(Document):
         author = d["AV author"]
         value = d["AV value"]
         super.__init__(title, author)
-        self.set_value(value)
+        self.set_price(value)
 
     def get_duration(self):
         return 2
@@ -198,7 +198,7 @@ class AV_Materials(Document):
         d = dict()
         d["AV title"] = self.get_title()
         d["AV author"] = self.get_author()
-        d["AV value"] = self.get_value()
+        d["AV value"] = self.get_price()
         d["AV duration"] = self.get_duration()
         d["AV owner"] = self.get_owner()
         d["AV copies"] = self.get_copies_id()
