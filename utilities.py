@@ -1,6 +1,6 @@
 from telebot import *
-import database as db
 import booking as b
+import database as db
 greeting = """Welcome to Innopolis Library Management System.
               Please enter your e-mail address.
               Remember it should contain @innopolis.ru domain, otherwise you won't be able

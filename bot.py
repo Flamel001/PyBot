@@ -130,7 +130,7 @@ def genres(message):
 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29'
 @bot.message_handler(regexp="Books")
 def telegraph_func(message):
-    bot.send_message(message.chat.id, db.list_of_all_books()[0],
+    bot.send_message(message.chat.id, u.list_of_books[0].get_title(),
                      reply_markup=u.markup)
 
 
@@ -156,13 +156,7 @@ def to_right(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == 'Book')
 def booking(call):
-    b.check_out(call.message.chat.id)
-    init_date = date.datetime.toordinal(date.datetime.today())
-    exp_date = date.datetime.fromordinal(init_date + 14)
-
-    bot.send_message(call.message.chat.id, "You have been ordered a book on: " + "\n" + str(date.date.today()) +
-                                           "\nYour book will expire on: " + "\n" + str(exp_date))
-
+    b.check_out(b.user1, u.list_of_books[0])
 
 # @bot.callback_query_handler(func=lambda call: call.data == 'next')
 # def next(call):
