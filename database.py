@@ -87,10 +87,17 @@ def dict_for_user(email=None, name=None, surname=None, number=None):
 
 
 def all_books():
-    dict=[]
+    dict={}
     all_books = __db.child(__books).get()
     for book in all_books.each():
         dict[book.key()] = book.val()
+    return dict
+
+def list_of_all_books():
+    books_list=[]
+    for key in all_books().keys():
+        books_list.append(key)
+    return books_list
 
 
 def print_all_users():

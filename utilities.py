@@ -1,4 +1,5 @@
 from telebot import *
+import database as db
 greeting = """Welcome to Innopolis Library Management System.
               Please enter your e-mail address.
               Remember it should contain @innopolis.ru domain, otherwise you won't be able
@@ -24,11 +25,25 @@ docs_btn = types.KeyboardButton(text="Docs")
 my_books_btn = types.KeyboardButton(text="My books")
 help_btn = types.KeyboardButton(text="Help")
 reply.add(docs_btn, my_books_btn, help_btn)
-
 "counter for books"
-number = 1
-max = 5
-exp = '{}/{}'.format(number, max)
+
+
+
+number = 0
+max = len(db.list_of_all_books())
+exp = '{}/{}'.format(number+1, max)
+
+markup = types.InlineKeyboardMarkup()
+callback_btn = types.InlineKeyboardButton(text="Reserve", callback_data="Book")
+left_btn = types.InlineKeyboardButton(text="3 left", callback_data="Left")
+next_btn = types.InlineKeyboardButton(text="➡", callback_data='next')
+counter = types.InlineKeyboardButton(text=exp, callback_data='counter')
+prev_btn = types.InlineKeyboardButton(text='⬅', callback_data='prev')
+markup.add(callback_btn)
+markup.add(left_btn)
+markup.add(prev_btn, counter, next_btn)
+
+
 
 
 tempData = {'userId': '0'}

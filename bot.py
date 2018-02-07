@@ -126,20 +126,32 @@ def genres(message):
 
 """     #######                  Telegraph API              #######         """
 
-
+'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29'
 @bot.message_handler(regexp="Books")
 def telegraph_func(message):
-    markup = types.InlineKeyboardMarkup()
-    callback_btn = types.InlineKeyboardButton(text="Reserve", callback_data="Book")
-    left_btn = types.InlineKeyboardButton(text="3 left", callback_data="Left")
-    next_btn = types.InlineKeyboardButton(text="➡", callback_data='next')
-    counter = types.InlineKeyboardButton(text=u.exp, callback_data='counter')
-    prev_btn = types.InlineKeyboardButton(text='⬅', callback_data='prev')
-    markup.add(callback_btn)
-    markup.add(left_btn)
-    markup.row(prev_btn, counter, next_btn)
-    bot.send_message(message.chat.id, 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29',
-                     reply_markup=markup)
+    bot.send_message(message.chat.id, db.list_of_all_books()[0],
+                     reply_markup=u.markup)
+
+
+@bot.callback_query_handler(func=lambda call: call.data == 'next')
+def to_right(call):
+    u.number=(u.number+1)%u.max-1
+    # if u.number+1<u.max:
+    #     u.number+=1
+    # else:
+    #     u.number=0
+    bot.send_message(call.message.chat.id, db.list_of_all_books()[u.number], reply_markup=u.markup)
+
+
+@bot.callback_query_handler(func=lambda call: call.data == 'prev')
+def to_right(call):
+    u.number=(u.number-1)%u.max-1
+    # if u.number==0:
+    #     u.number=u.max-1
+    # else:
+    #     u.number-=1
+    bot.send_message(call.message.chat.id, db.list_of_all_books()[u.number], reply_markup=u.markup)
+
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'Book')
