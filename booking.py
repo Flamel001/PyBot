@@ -2,11 +2,12 @@ from user import *
 import documents as docs
 import database as db
 import datetime as date
+from documents import Book
 
 # title, author, publisher, edition, genre
-book1 = ("One Hundred Years of Solitude", "Gabriel García Márquez", "Innopolis", "1", "Magical Realism")
-book2 = ("Thinking in Java", "Bruce Eckel", "Innopolis", "4th", "Computer Science")
-book3 = ("Think python", "Allen B. Downey", "O'REILEY", "2nd", "Computer Science")
+book1 = Book("One Hundred Years of Solitude", "Gabriel García Márquez", "Innopolis", "1", "Magical Realism")
+book2 = Book("Thinking in Java", "q", "Innopolis", "4th", "Computer Science")
+book3 = Book("Think python", "Allen B. Downey", "O'REILEY", "2nd", "Computer Science")
 
 
 

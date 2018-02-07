@@ -1,5 +1,6 @@
 from telebot import *
 import database as db
+import booking as b
 greeting = """Welcome to Innopolis Library Management System.
               Please enter your e-mail address.
               Remember it should contain @innopolis.ru domain, otherwise you won't be able
@@ -27,10 +28,10 @@ help_btn = types.KeyboardButton(text="Help")
 reply.add(docs_btn, my_books_btn, help_btn)
 "counter for books"
 
-
+list_of_books = [b.book1,b.book2,b.book3]
 
 number = 0
-max = len(db.list_of_all_books())
+max = len(list_of_books)
 exp = '{}/{}'.format(number+1, max)
 
 markup = types.InlineKeyboardMarkup()

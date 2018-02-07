@@ -52,8 +52,8 @@ class Document:
 class Book(Document):
     def __init__(self, title, author, publisher, edition, genre):
         #super.__init__(title, author)
-        self.__doc_title = title
-        self.__doc_author = author
+        self.set_title(title)
+        self.set_author(author)
         self.__publisher = publisher
         self.__edition = edition
         self.__genre = genre

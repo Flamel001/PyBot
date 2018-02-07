@@ -169,9 +169,31 @@ def booking(call):
 #     bot.edit_message_text()
 
 
-@bot.message_handler(regexp='jopaenota')
-def printAllUsersInBot(message):
-    db.print_all_users()
+# @bot.message_handler(regexp='jopaenota')
+# def printAllUsersInBot(message):
+#     db.print_all_users()
+
+
+@bot.message_handler(regexp='author')
+def author(message):
+    bot.send_message(message.chat.id, "Enter author's name")
+    @bot.message_handler(content_types=["text"])
+    def get_author(message):
+        book_exist = False
+        for i in range(len(u.list_of_books)):
+            if u.list_of_books[i].get_author() == message.text:
+                book_exist = True
+                bot.send_message(message.chat.id, "Book {} of author {} exist".format(u.list_of_books[i].get_title(),
+                                                                                      u.list_of_books[i].get_author()))
+        if not book_exist:
+            bot.send_message(message.chat.id, "There is no book with this author")
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
