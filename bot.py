@@ -7,6 +7,7 @@ import datetime as date
 import database as db
 import utilities as u
 import verification as veri
+import booking as b
 
 bot = TeleBot(config.token2)
 ph = telegraph.Telegraph()
@@ -155,11 +156,14 @@ def to_right(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'Book')
-def left(call):
+def booking(call):
+    b.check_out(call.message.chat.id)
     init_date = date.datetime.toordinal(date.datetime.today())
     exp_date = date.datetime.fromordinal(init_date + 14)
+
     bot.send_message(call.message.chat.id, "You have been ordered a book on: " + "\n" + str(date.date.today()) +
                                            "\nYour book will expire on: " + "\n" + str(exp_date))
+
 
 # @bot.callback_query_handler(func=lambda call: call.data == 'next')
 # def next(call):
