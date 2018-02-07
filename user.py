@@ -1,6 +1,7 @@
 import datetime
 import documents as dc
 
+
 class User:
     pass
 
@@ -23,7 +24,7 @@ class Librarian(User):
         self.__librarian_mail = mail
         self.__phone_number = number
         self.__librarian_alias = alias
-        #self.__librarian_id = ID
+        # self.__librarian_id = ID
         self.__rank = 2
 
     def setData(self, dictionary):
@@ -81,8 +82,9 @@ class Librarian(User):
         d["Librarian mail"] = self.get_mail()
         d["Librarian number"] = self.get_number()
         d["Librarian alias"] = self.get_alias()
-        #d["Librarian ID"] = self.get_ID()
+        # d["Librarian ID"] = self.get_ID()
         return d
+
 
 class Patron(User):
 
@@ -110,7 +112,6 @@ class Patron(User):
         self.__user_rating = temp.pop("")
         self.__user_documents = dict()
         self.__registration_date = datetime.datetime.now()
-
 
     def get_name(self):
         return self.__user_name
@@ -145,10 +146,21 @@ class Patron(User):
     # def get_id(self):
     #     return self.__user_ID
 
-    def add_document(self, id):
-        init_date = datetime.datetime.toordinal(datetime.datetime.today())
-        exp_date = datetime.datetime.fromordinal(init_date + 14)
-        self.__user_documents[str(id)] = id + " " + str(exp_date.date())
+    def add_document(self, book):
+        if not book.get_is_reference():
+            init_date = datetime.datetime.toordinal(datetime.datetime.today())
+            if(self.get_rank() == 1):
+                exp_date = datetime.datetime.fromordinal(init_date + 28)
+            elif(self.get_rank() == 0):
+                if book.get_is_bestseller():
+                    exp_date = datetime.datetime.fromordinal(init_date + 14)
+                else:
+                    exp_date = datetime.datetime.fromordinal(init_date + 21)
+
+            self.__user_documents[str(book.get_title())] = book.get_title() + " " + str(exp_date.date())
+            return "DONE"
+        else:
+            return "Reference book"
 
     def remove_document(self, id):
         self.__user_documents.pop(id)
@@ -174,7 +186,7 @@ class Patron(User):
     def increase_debt(self, value):
         self.__user_debt += value
 
-    def decrease_debt(self,value):
+    def decrease_debt(self, value):
         self.__user_debt -= value
 
     def get_debt(self):
