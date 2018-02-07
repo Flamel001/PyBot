@@ -51,14 +51,17 @@ class Document:
 
 class Book(Document):
     def __init__(self, title, author, publisher, edition, genre):
-        super.__init__(title, author)
+        #super.__init__(title, author)
+        self.__doc_title = title
+        self.__doc_author = author
         self.__publisher = publisher
         self.__edition = edition
         self.__genre = genre
         self.__is_bestseller = False
         self.__is_reference = False
+        self.__number_of_books = 3
 
-    def __init__(self, dictionary):
+    def setData(self, dictionary):
         d = dict(dictionary)
         title = d["Book title"]
         author = d["Book author"]
@@ -110,17 +113,18 @@ class Book(Document):
 
     def summary(self):
         d = dict()
-        d["Book title"] = self.get_title()
-        d["Book author"] = self.get_author()
-        d["Book publisher"] = self.get_publisher()
-        d["Book edition"] = self.get_edition()
-        d["Book genre"] = self.get_genre()
-        d["Is bestseller"] = self.get_is_bestseller()
+        d["Book title"] = self.__doc_title
+        d["Book author"] = self.__doc_author
+        d["Book publisher"] = self.__publisher
+        d["Book edition"] = self.__edition
+        d["Book genre"] = self.__genre
+        d["Is bestseller"] = self.__is_bestseller
         d["Book duration"] = self.get_duration()
-        d["Book owner"] = self.get_owner()
-        d["Book copies"] = self.get_copies_id()
-        d["Book is reference"] = self.get_is_reference()
-        d["Book value"] = self.get_value()
+        #d["Book owner"] = self.get_owner()
+        #d["Book copies"] = self.get_copies_id()
+        d["Book is reference"] = self.__is_reference
+        d["Number of books"] = self.__number_of_books
+        #d["Book value"] = self.get_value()
         return d
 
 
@@ -131,7 +135,7 @@ class Article(Document):
         self.__publication_date = publication_date
         self.__editor = editor
 
-    def __init__(self, dictionary):
+    def setData(self, dictionary):
         d = dict(dictionary)
         title = d["Article title"]
         author = d["Article author"]
@@ -183,7 +187,7 @@ class AV_Materials(Document):
         super.__init__(title, author)
         self.set_value(value)
 
-    def __init__(self, dictionary):
+    def setData(self, dictionary):
         d = dict(dictionary)
         title = d["AV title"]
         author = d["AV author"]
