@@ -1,7 +1,13 @@
 from user import *
-from documents import *
-from database import *
+import documents as docs
+import database as db
 import datetime as date
+
+# title, author, publisher, edition, genre
+book1 = ("One Hundred Years of Solitude", "Gabriel García Márquez", "Innopolis", "1", "Magical Realism")
+book2 = ("Thinking in Java", "Bruce Eckel", "Innopolis", "4th", "Computer Science")
+book3 = ("Think python", "Allen B. Downey", "O'REILEY", "2nd", "Computer Science")
+
 
 
 def check_out(user, book):
@@ -9,8 +15,20 @@ def check_out(user, book):
     exp_date = date.datetime.fromordinal(init_date + 14)
 
     if user == Patron:
-        get_book(book)
-        print(user + ' checked out the book called ' + book + ' on: ' + str(init_date) + '. Expiry date is: ' + str(exp_date))
+        if book == docs.Book.get_is_bestseller(True):
+            db.get_book(book)
+            print(user + ' checked out the book called ' + book + ' on: ' + str(init_date) + '. Expiry date is: ' +
+                  str(exp_date - 7))
+        else:
+            db.get_book(book)
+            print(user + ' checked out the book called ' + book + ' on: ' + str(init_date) + '. Expiry date is: ' +
+                  str(exp_date))
     elif user == Faculty:
-        get_book(book)
-        print(user + ' checked out the book called ' + book + ' on: ' + str(init_date) + '. Expiry date is: ' + str(exp_date))
+        db.get_book(book)
+        print(user + ' checked out the book called ' + book + ' on: ' + str(init_date) + '. Expiry date is: ' +
+              str(exp_date + 14))
+
+
+# check_out(db.get_patron("9038594898558545ID")[user_name], db.get_book("Thinking in Java")[docs.Book.get_title()])
+print(db.get_patron("9038594898558545ID")[user_name])
+print(db.get_book("Thinking in Java"))

@@ -154,7 +154,6 @@ def to_right(call):
     bot.send_message(call.message.chat.id, db.list_of_all_books()[u.number], reply_markup=u.markup)
 
 
-
 @bot.callback_query_handler(func=lambda call: call.data == 'Book')
 def booking(call):
     b.check_out(call.message.chat.id)

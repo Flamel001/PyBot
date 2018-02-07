@@ -158,9 +158,9 @@ class Patron(User):
                     exp_date = datetime.datetime.fromordinal(init_date + 21)
 
             self.__user_documents[str(book.get_title())] = book.get_title() + " " + str(exp_date.date())
-            return "DONE"
+            return "DONE. You will have to return this book untill:" + str(exp_date)
         else:
-            return "Reference book"
+            return "The book is unavailable"
 
     def remove_document(self, id):
         self.__user_documents.pop(id)

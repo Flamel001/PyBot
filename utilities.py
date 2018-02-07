@@ -43,8 +43,4 @@ markup.add(callback_btn)
 markup.add(left_btn)
 markup.add(prev_btn, counter, next_btn)
 
-
-
-
 tempData = {'userId': '0'}
-
