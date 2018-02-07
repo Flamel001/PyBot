@@ -1,4 +1,27 @@
+document_title = "title"
+document_author = "author"
+document_owner = "owner"
+document_keywords = "keywords"
+document_copies = "copies"
+document_price = "price"
+document_duration = "duration"
+
+book_publisher = "publisher"
+book_edition = "edition"
+book_genre = "genre"
+book_bestseller = "bestseller"
+count_of_books = "count"
+book_is_reference = "reference"
+
+article_journal = "journal"
+article_pub_date = "publication"
+article_editor = "editor"
+
+
+
+
 class Document:
+
     def __init__(self, title, author):
         self.__doc_title = title
         self.__doc_author = author
@@ -19,11 +42,11 @@ class Document:
     def get_author(self):
         return self.__doc_author
 
-    def set_value(self, new_value):
-        self.__doc_value = new_value
+    def set_price(self, new_value):
+        self.__doc_price = new_value
 
-    def get_value(self):
-        return self.__doc_value
+    def get_price(self):
+        return self.__doc_price
 
     def set_owner(self, new_owner):
         self.__doc_owner = new_owner
@@ -48,10 +71,13 @@ class Document:
     def get_copies_id(self):
         return self.__copies_id
 
+    def get_count_of_copies(self):
+        return len(self.__copies_id)
+
 
 class Book(Document):
     def __init__(self, title, author, publisher, edition, genre):
-        #super.__init__(title, author)
+        # super.__init__(title, author)
         self.__doc_title = title
         self.__doc_author = author
         self.__publisher = publisher
@@ -63,11 +89,11 @@ class Book(Document):
 
     def setData(self, dictionary):
         d = dict(dictionary)
-        title = d["Book title"]
-        author = d["Book author"]
-        publisher = d["Book publisher"]
-        edition = d["Book edition"]
-        genre = d["Book genre"]
+        title = d[document_title]
+        author = d[document_author]
+        publisher = d[book_publisher]
+        edition = d[book_edition]
+        genre = d[book_genre]
         super.__init__(title, author)
         self.__publisher = publisher
         self.__edition = edition
@@ -96,7 +122,7 @@ class Book(Document):
     def set_bestseller(self, is_it):
         self.__is_bestseller = is_it
 
-    def get_is_bestseller(self):
+    def is_bestseller(self):
         return self.__is_bestseller
 
     def get_duration(self):
@@ -108,29 +134,30 @@ class Book(Document):
     def set_is_reference(self, is_not):
         self.__is_reference = is_not
 
-    def get_is_reference(self):
+    def is_reference(self):
         return self.__is_reference
 
     def summary(self):
         d = dict()
-        d["Book title"] = self.__doc_title
-        d["Book author"] = self.__doc_author
-        d["Book publisher"] = self.__publisher
-        d["Book edition"] = self.__edition
-        d["Book genre"] = self.__genre
-        d["Is bestseller"] = self.__is_bestseller
-        d["Book duration"] = self.get_duration()
-        #d["Book owner"] = self.get_owner()
-        #d["Book copies"] = self.get_copies_id()
-        d["Book is reference"] = self.__is_reference
-        d["Number of books"] = self.__number_of_books
-        #d["Book value"] = self.get_value()
+        d[document_title] = self.__doc_title
+        d[document_author] = self.__doc_author
+        d[book_publisher] = self.__publisher
+        d[book_edition] = self.__edition
+        d[book_genre] = self.__genre
+        d[book_bestseller] = self.__is_bestseller
+        d[document_duration] = self.get_duration()
+        # d["Book owner"] = self.get_owner()
+        # d["Book copies"] = self.get_copies_id()
+        d[book_is_reference] = self.__is_reference
+        d[count_of_books] = self.__number_of_books
+        # d["Book value"] = self.get_price()
         return d
 
 
 class Article(Document):
     def __init__(self, title, author, journal, publication_date, editor):
-        super.__init__(title, author)
+        self.__doc_title = title
+        self.__doc_author = author
         self.__journal = journal
         self.__publication_date = publication_date
         self.__editor = editor
@@ -178,14 +205,14 @@ class Article(Document):
         d["Article duration"] = self.get_duration()
         d["Article owner"] = self.get_owner()
         d["Article copies ID"] = self.get_copies_id()
-        d["Article value"] = self.get_value()
+        d["Article value"] = self.get_price()
         return d
 
 
 class AV_Materials(Document):
-    def __init__(self, title, author, value):
+    def __init__(self, title, author, price):
         super.__init__(title, author)
-        self.set_value(value)
+        self.set_price(price)
 
     def setData(self, dictionary):
         d = dict(dictionary)
@@ -193,7 +220,7 @@ class AV_Materials(Document):
         author = d["AV author"]
         value = d["AV value"]
         super.__init__(title, author)
-        self.set_value(value)
+        self.set_price(value)
 
     def get_duration(self):
         return 2
@@ -202,7 +229,7 @@ class AV_Materials(Document):
         d = dict()
         d["AV title"] = self.get_title()
         d["AV author"] = self.get_author()
-        d["AV value"] = self.get_value()
+        d["AV value"] = self.get_price()
         d["AV duration"] = self.get_duration()
         d["AV owner"] = self.get_owner()
         d["AV copies"] = self.get_copies_id()
