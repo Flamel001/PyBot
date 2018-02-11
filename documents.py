@@ -5,6 +5,7 @@ document_keywords = "keywords"
 document_copies = "copies"
 document_price = "price"
 document_duration = "duration"
+document_keywords_count = "keywords_count"
 
 book_publisher = "publisher"
 book_edition = "edition"
@@ -18,219 +19,183 @@ article_pub_date = "publication"
 article_editor = "editor"
 
 
-
-
 class Document:
 
     def __init__(self, title, author):
-        self.__doc_title = title
-        self.__doc_author = author
-        self.__doc_owner = None
-        self.__keywords = dict
-        self.__keywords_count = 0
-        self.__copies_id = []
+        self.__info = dict()
+        self.__info[document_title] = title
+        self.__info[document_author] = author
+        self.__info[document_owner] = None
+        self.__info[document_keywords] = dict
+        self.__info[document_keywords_count] = 0
+        self.__info[document_copies] = []
 
     def set_title(self, new_title):
-        self.__doc_title = new_title
+        self.__info[document_title] = new_title
 
     def get_title(self):
-        return self.__doc_title
+        return self.__info[document_title]
 
     def set_author(self, new_author):
-        self.__doc_author = new_author
+        self.__info[document_author] = new_author
 
     def get_author(self):
-        return self.__doc_author
+        return self.__info[document_author]
 
     def set_price(self, new_value):
-        self.__doc_price = new_value
+        self.__info[document_price] = new_value
 
     def get_price(self):
-        return self.__doc_price
+        return self.__info[document_price]
 
     def set_owner(self, new_owner):
-        self.__doc_owner = new_owner
+        self.__info[document_owner] = new_owner
 
     def get_owner(self):
-        return self.__doc_owner
+        return self.__info[document_owner]
 
     def remove_owner(self):
-        self.__doc_owner = None
+        self.__info[document_owner] = None
 
     def add_keyword(self, word):
-        self.__keywords_count += 1
-        self.__keywords[word] = self.__keywords_count
+        self.__info[document_keywords_count] = self.__info[document_keywords_count] + 1
+        self.__info[document_keywords][word] = self.__info[document_keywords_count]
 
     def remove_keyword(self, word):
-        self.__keywords.pop(word)
-        self.__keywords_count -= 1
+        self.__info[document_keywords].pop(word)
+        self.__info[document_keywords_count] = self.__info[document_keywords_count] - 1
 
     def add_copy(self, id):
-        self.__copies_id.append(str(id))
+        self.__info[document_copies].append(str(id))
 
     def get_copies_id(self):
-        return self.__copies_id
+        return self.__info[document_copies]
 
     def get_count_of_copies(self):
-        return len(self.__copies_id)
+        return len(self.__info[document_copies])
+
+    def summary(self):
+        return self.__info
 
 
 class Book(Document):
     def __init__(self, title, author, publisher, edition, genre):
-        # super.__init__(title, author)
-        self.set_title(title)
-        self.set_author(author)
-        self.__publisher = publisher
-        self.__edition = edition
-        self.__genre = genre
-        self.__is_bestseller = False
-        self.__is_reference = False
-        self.__number_of_books = 3
+        super().__init__(title, author)
+        self.__info = super().summary()
+        self.set_publisher(publisher)
+        self.set_edition(edition)
+        self.set_genre(genre)
+        self.set_bestseller(False)
+        self.set_is_reference(False)
 
     def setData(self, dictionary):
-        d = dict(dictionary)
-        title = d[document_title]
-        author = d[document_author]
-        publisher = d[book_publisher]
-        edition = d[book_edition]
-        genre = d[book_genre]
-        super.__init__(title, author)
-        self.__publisher = publisher
-        self.__edition = edition
-        self.__genre = genre
-        self.__is_bestseller = False
-        self.__is_reference = False
+        tmp = dict(dictionary)
+        self.set_title(tmp[document_title])
+        self.set_author(tmp[document_author])
+        self.set_publisher(tmp[book_publisher])
+        self.set_edition(tmp[book_edition])
+        self.set_genre(tmp[book_genre])
+        self.set_bestseller(tmp[book_bestseller])
+        self.set_is_reference(tmp[book_is_reference])
 
     def set_publisher(self, new_publisher):
-        self.__publisher = new_publisher
+        self.__info[book_publisher] = new_publisher
 
     def get_publisher(self):
-        return self.__publisher
+        return self.__info[book_publisher]
 
     def set_edition(self, new_edition):
-        self.__edition = new_edition
+        self.__info[book_edition] = new_edition
 
     def get_edition(self):
-        return self.__edition
+        return self.__info[book_edition]
 
     def set_genre(self, new_genre):
-        self.__genre = new_genre
+        self.__info[book_genre] = new_genre
 
     def get_genre(self):
-        return self.__genre
+        return self.__info[book_genre]
 
     def set_bestseller(self, is_it):
-        self.__is_bestseller = is_it
+        self.__info[book_bestseller] = is_it
 
     def is_bestseller(self):
-        return self.__is_bestseller
+        return self.__info[book_bestseller]
 
     def get_duration(self):
-        if self.get_is_bestseller():
+        if self.is_bestseller():
             return 2
         else:
             return 3
 
     def set_is_reference(self, is_not):
-        self.__is_reference = is_not
+        self.__info[book_is_reference] = is_not
 
     def is_reference(self):
-        return self.__is_reference
+        return self.__info[book_is_reference]
 
     def summary(self):
-        d = dict()
-        d[document_title] = self.__doc_title
-        d[document_author] = self.__doc_author
-        d[book_publisher] = self.__publisher
-        d[book_edition] = self.__edition
-        d[book_genre] = self.__genre
-        d[book_bestseller] = self.__is_bestseller
-        d[document_duration] = self.get_duration()
-        # d["Book owner"] = self.get_owner()
-        # d["Book copies"] = self.get_copies_id()
-        d[book_is_reference] = self.__is_reference
-        d[count_of_books] = self.__number_of_books
-        # d["Book value"] = self.get_price()
-        return d
+        return self.__info
 
 
 class Article(Document):
     def __init__(self, title, author, journal, publication_date, editor):
-        self.__doc_title = title
-        self.__doc_author = author
-        self.__journal = journal
-        self.__publication_date = publication_date
-        self.__editor = editor
+        super().__init__(title, author)
+        self.__info = super().summary()
+        self.__info[article_journal] = journal
+        self.__info[article_pub_date] = publication_date
+        self.__info[article_editor] = editor
 
     def setData(self, dictionary):
-        d = dict(dictionary)
-        title = d["Article title"]
-        author = d["Article author"]
-        journal = d["Article journal"]
-        publication_date = d["Article publication date"]
-        editor = d["Aricle editor"]
-        super.__init__(title, author)
-        self.__journal = journal
-        self.__publication_date = publication_date
-        self.__editor = editor
+        tmp = dict(dictionary)
+        self.set_title(tmp[document_title])
+        self.set_author(tmp[document_author])
+        self.set_journal(tmp[article_journal])
+        self.set_pub_date(tmp[article_pub_date])
+        self.set_editor(tmp[article_editor])
 
     def set_journal(self, new_journal):
-        self.__journal = new_journal
+        self.__info[article_journal] = new_journal
 
     def get_journal(self):
-        return self.__journal
+        return self.__info[article_journal]
 
     def set_pub_date(self, new_date):
-        self.__publication_date = new_date
+        self.__info[article_pub_date] = new_date
 
     def get_pub_date(self):
-        return self.__publication_date
+        return self.__info[article_pub_date]
 
     def set_editor(self, new_editor):
-        self.__editor = new_editor
+        self.__info[article_editor] = new_editor
 
     def get_editor(self):
-        return self.__editor
+        return self.__info[article_editor]
 
     def get_duration(self):
         return 2
 
     def summary(self):
-        d = dict()
-        d["Article title"] = self.get_title()
-        d["Article author"] = self.get_author()
-        d["Article journal"] = self.get_journal()
-        d["Article publication date"] = self.get_pub_date()
-        d["Aricle editor"] = self.get_editor()
-        d["Article duration"] = self.get_duration()
-        d["Article owner"] = self.get_owner()
-        d["Article copies ID"] = self.get_copies_id()
-        d["Article value"] = self.get_price()
-        return d
+        return self.__info
 
 
 class AV_Materials(Document):
     def __init__(self, title, author, price):
-        super.__init__(title, author)
+        super().__init__(title, author)
+        self.__info = super().summary()
         self.set_price(price)
 
     def setData(self, dictionary):
-        d = dict(dictionary)
-        title = d["AV title"]
-        author = d["AV author"]
-        value = d["AV value"]
-        super.__init__(title, author)
-        self.set_price(value)
+        tmp = dict(dictionary)
+        self.set_title(tmp[document_title])
+        self.set_author(tmp[document_author])
+        self.set_price(tmp[document_price])
+
+    def get_author(self):
+        return self.__info[document_author]
 
     def get_duration(self):
         return 2
 
     def summary(self):
-        d = dict()
-        d["AV title"] = self.get_title()
-        d["AV author"] = self.get_author()
-        d["AV value"] = self.get_price()
-        d["AV duration"] = self.get_duration()
-        d["AV owner"] = self.get_owner()
-        d["AV copies"] = self.get_copies_id()
-        return d
+        return self.__info

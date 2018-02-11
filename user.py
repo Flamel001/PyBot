@@ -21,25 +21,17 @@ user_registration_date = "registration_date"
 class Librarian(User):
 
     def __init__(self, name, mail, number, alias):
-        self.__librarian_name = name
-        self.__librarian_mail = mail
-        self.__phone_number = number
-        self.__librarian_alias = alias
+        self.__info = dict()
+        self.__info[user_name] = name
+        self.__info[user_mail] = mail
+        self.__info[number] = number
+        self.__info[user_alias] = alias
         # self.__librarian_id = ID
-        self.__rank = 2
+        self.__info[user_rank] = 2
 
     def setData(self, dictionary):
-        temp = dict(dictionary)
-        name = temp.pop("Librarian name")
-        mail = temp.pop("Librarian mail")
-        number = temp.pop("Librarian number")
-        alias = temp.pop("Librarian alias")
-
-        self.__librarian_name = name
-        self.__librarian_mail = mail
-        self.__phone_number = number
-        self.__librarian_alias = alias
-        self.__rank = 2
+        self.__info = dict(dictionary)
+        self.__info[user_rank] = 2
 
     def new_book(self, title, author, publisher, edition, genre):
         new = dc.Book
@@ -60,31 +52,25 @@ class Librarian(User):
         return new
 
     def get_name(self):
-        return self.__librarian_name
+        return self.__info[user_name]
 
     def get_mail(self):
-        return self.__librarian_mail
+        return self.__info[user_mail]
 
     def get_number(self):
-        return self.__phone_number
+        return self.__info[user_number]
 
     def get_alias(self):
-        return self.__librarian_alias
+        return self.__info[user_alias]
 
     def get_rank(self):
-        return self.__rank
+        return self.__info[user_rank]
 
     # def get_ID(self):
     #     return self.__librarian_id
 
     def summary(self):
-        d = dict()
-        d["Librarian name"] = self.get_name()
-        d["Librarian mail"] = self.get_mail()
-        d["Librarian number"] = self.get_number()
-        d["Librarian alias"] = self.get_alias()
-        # d["Librarian ID"] = self.get_ID()
-        return d
+        return self.__info
 
 
 class Patron(User):
@@ -113,21 +99,6 @@ class Patron(User):
         self.set_rank(temp[user_rank])
         self.set_debt(temp[user_debt])
 
-    def dictionary_constructor(self, dictionary):
-        self.__info = dict(dictionary)
-
-    # name = temp.pop("User name")
-    # mail = temp.pop("User mail")
-    # number = temp.pop("User number")
-    # alias = temp.pop("User alias")
-    # self.__user_name = name
-    # self.__user_mail = mail
-    # self.__phone_number = number
-    # self.__user_alias = alias
-    # self.__user_rating = temp.pop("")
-    # self.__user_documents = dict()
-    # self.__registration_date = datetime.datetime.now()
-
     def get_name(self):
         return self.__info[user_name]
 
@@ -154,12 +125,6 @@ class Patron(User):
 
     def decrease_rating(self):
         self.__info[user_rating] = self.__info[user_rating] - 1
-
-    # def set_id(self, ID):
-    #     self.__user_ID = ID
-
-    # def get_id(self):
-    #     return self.__user_ID
 
     def add_document(self, book, count):
         string = ""
@@ -199,7 +164,6 @@ class Patron(User):
         temp = dict(new_list)
         self.__info[user_document_list] = temp
 
-
     def get_rating(self):
         return self.__info[user_rating]
 
@@ -226,7 +190,8 @@ class Patron(User):
 
     def get_debt(self):
         return self.__info[user_debt]
-    def set_debt(self,debt):
+
+    def set_debt(self, debt):
         self.__info[user_debt] = debt
 
     def summary(self):
@@ -249,17 +214,9 @@ class Student(Patron):
         mail = temp[user_mail]
         number = temp[user_number]
         alias = temp[user_alias]
-        super().__init__(name, mail,number,alias)
+        super().__init__(name, mail, number, alias)
         self.set_rank(0)
         self.set_documents_duration(3)
-
-
-
-        # debt = temp.pop("User debt")
-        # super().__init__(name, mail, number, alias)
-        # self.set_documents_duration(3)
-        # self.__rank = 0
-        # self.increase_debt(debt)
 
 
 class Faculty(Patron):
@@ -271,12 +228,11 @@ class Faculty(Patron):
 
     def setData(self, dictionary):
         temp = dict(dictionary)
-        name = temp(user_name)
-        mail = temp(user_mail)
-        number = temp(user_number)
-        alias = temp(user_alias)
+        name = temp[user_name]
+        mail = temp[user_mail]
+        number = temp[user_number]
+        alias = temp[user_alias]
 
         super().__init__(name, mail, number, alias)
         self.set_documents_duration(4)
         self.set_rank(1)
-        # self.increase_debt(debt)
