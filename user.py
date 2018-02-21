@@ -1,5 +1,5 @@
-import datetime
 import documents as dc
+import datetime
 
 
 class User:
@@ -75,7 +75,7 @@ class Librarian(User):
 
 class Patron(User):
 
-    def __init__(self, name, mail, number, alias):
+    def __init__(self, name=None, mail=None, number=None, alias=None):
         self.__info = dict()
         self.__info[user_name] = name
         self.__info[user_mail] = mail
@@ -86,18 +86,6 @@ class Patron(User):
         self.__info[user_registration_date] = datetime.datetime.now()
         self.__info[user_rank] = 0
         self.__info[user_debt] = 0
-
-    def setData(self, dictionary):
-        temp = dict(dictionary)
-        self.set_name(temp[user_name])
-        self.set_mail(temp[user_mail])
-        self.set_number(temp[user_number])
-        self.set_alias(temp[user_alias])
-        self.set_rating(temp[user_rating])
-        self.set_docs_list(temp[user_document_list])
-        self.__info[user_registration_date] = temp[user_registration_date]
-        self.set_rank(temp[user_rank])
-        self.set_debt(temp[user_debt])
 
     def get_name(self):
         return self.__info[user_name]
@@ -203,36 +191,48 @@ class Patron(User):
 
 class Student(Patron):
 
-    def __init__(self, name, mail, number, alias):
-        super().__init__(name, mail, number, alias)
-        self.set_documents_duration(3)
-        self.set_rank(0)
+    def __init__(self, name=None, mail=None, number=None, alias=None):
+        if name and mail and number and alias:
+            super().__init__(name, mail, number, alias)
+            self.__info = super().summary()
+            self.set_documents_duration(3)
+            self.set_rank(0)
+        else:
+            super().__init__("", "", "", "")
+            self.__info = super().summary()
+            self.set_documents_duration(3)
+            self.set_rank(0)
 
     def setData(self, dictionary):
         temp = dict(dictionary)
-        name = temp.pop(user_name)
-        mail = temp[user_mail]
-        number = temp[user_number]
-        alias = temp[user_alias]
-        super().__init__(name, mail, number, alias)
-        self.set_rank(0)
+        self.set_name(temp[user_name])
+        self.set_mail(temp[user_mail])
+        self.set_number(temp[user_number])
+        self.set_alias(temp[user_alias])
         self.set_documents_duration(3)
+        self.set_rank(0)
 
 
 class Faculty(Patron):
 
-    def __init__(self, name, mail, number, alias):
-        super().__init__(name, mail, number, alias)
-        self.set_documents_duration(4)
-        self.set_rank(1)
+    def __init__(self, name=None, mail=None, number=None, alias=None):
+        if name and mail and number and alias:
+            super().__init__(name, mail, number, alias)
+            self.set_documents_duration(4)
+            self.set_rank(1)
+        else:
+            super().__init__("", "", "", "")
+            self.set_documents_duration(4)
+            self.set_rank(1)
 
     def setData(self, dictionary):
         temp = dict(dictionary)
-        name = temp[user_name]
-        mail = temp[user_mail]
-        number = temp[user_number]
-        alias = temp[user_alias]
+        self.set_name(temp[user_name])
+        self.set_mail(temp[user_mail])
+        self.set_number(temp[user_number])
+        self.set_alias(temp[user_alias])
+        self.set_documents_duration(3)
+        self.set_rank(0)
 
-        super().__init__(name, mail, number, alias)
         self.set_documents_duration(4)
         self.set_rank(1)

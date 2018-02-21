@@ -79,14 +79,23 @@ class Document:
 
 
 class Book(Document):
-    def __init__(self, title, author, publisher, edition, genre):
-        super().__init__(title, author)
-        self.__info = super().summary()
-        self.set_publisher(publisher)
-        self.set_edition(edition)
-        self.set_genre(genre)
-        self.set_bestseller(False)
-        self.set_is_reference(False)
+    def __init__(self, title=None, author=None, publisher=None, edition=None, genre=None):
+        if title and author and publisher and edition and genre:
+            super().__init__(title, author)
+            self.__info = super().summary()
+            self.set_publisher(publisher)
+            self.set_edition(edition)
+            self.set_genre(genre)
+            self.set_bestseller(False)
+            self.set_is_reference(False)
+        else:
+            super().__init__("", "")
+            self.__info = super().summary()
+            self.set_publisher(publisher)
+            self.set_edition(edition)
+            self.set_genre(genre)
+            self.set_bestseller(False)
+            self.set_is_reference(False)
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
@@ -139,12 +148,19 @@ class Book(Document):
 
 
 class Article(Document):
-    def __init__(self, title, author, journal, publication_date, editor):
-        super().__init__(title, author)
-        self.__info = super().summary()
-        self.__info[article_journal] = journal
-        self.__info[article_pub_date] = publication_date
-        self.__info[article_editor] = editor
+    def __init__(self, title=None, author=None, journal=None, publication_date=None, editor=None):
+        if title and author and journal and publication_date and editor:
+            super().__init__(title, author)
+            self.__info = super().summary()
+            self.__info[article_journal] = journal
+            self.__info[article_pub_date] = publication_date
+            self.__info[article_editor] = editor
+        else:
+            super().__init__("", "")
+            self.__info = super().summary()
+            self.__info[article_journal] = journal
+            self.__info[article_pub_date] = publication_date
+            self.__info[article_editor] = editor
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
@@ -180,10 +196,15 @@ class Article(Document):
 
 
 class AV_Materials(Document):
-    def __init__(self, title, author, price):
-        super().__init__(title, author)
-        self.__info = super().summary()
-        self.set_price(price)
+    def __init__(self, title=None, author=None, price=None):
+        if title and author and price:
+            super().__init__(title, author)
+            self.__info = super().summary()
+            self.set_price(price)
+        else:
+            super().__init__("", "")
+            self.__info = super().summary()
+            self.set_price(price)
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
