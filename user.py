@@ -1,5 +1,6 @@
 import documents as dc
 import datetime
+import booking as booking
 
 
 class User:
@@ -114,32 +115,8 @@ class Patron(User):
     def decrease_rating(self):
         self.__info[user_rating] = self.__info[user_rating] - 1
 
-    def add_document(self, book, count):
-        string = ""
-        try:
-            string = str(self.__user_documents[str(book.get_title())])
-        except:
-            print("Poshel noj")
-        if not string:
-            if count > 0:
-                if not book.is_reference():
-                    init_date = datetime.datetime.toordinal(datetime.datetime.today())
-                    print("Rank " + str(self.get_rank()))
-                    if (self.get_rank() == 1):
-                        exp_date = datetime.datetime.fromordinal(init_date + 28)
-                    else:
-                        if book.is_bestseller():
-                            exp_date = datetime.datetime.fromordinal(init_date + 14)
-                        else:
-                            exp_date = datetime.datetime.fromordinal(init_date + 21)
-                    self.__user_documents[book.get_title()] = exp_date
-                    return "DONE. You will have to return this book untill:" + str(exp_date)
-                else:
-                    return "The book is unavailable"
-            else:
-                return "No copies"
-        else:
-            return "You are owning this book already"
+    def add_doc(self, book):
+        booking.book_doc(Patron, book)
 
     def remove_document(self, id):
         self.__info[user_document_list].pop(id)
@@ -203,6 +180,9 @@ class Student(Patron):
             self.set_documents_duration(3)
             self.set_rank(0)
 
+    def add_doc(self, book):
+        booking.book_doc(Student, book)
+
     def setData(self, dictionary):
         temp = dict(dictionary)
         self.set_name(temp[user_name])
@@ -224,6 +204,9 @@ class Faculty(Patron):
             super().__init__("", "", "", "")
             self.set_documents_duration(4)
             self.set_rank(1)
+
+    def add_doc(self, book):
+        booking.book_doc(Faculty, book)
 
     def setData(self, dictionary):
         temp = dict(dictionary)
