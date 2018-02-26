@@ -21,54 +21,86 @@ user_registration_date = "registration_date"
 
 class Librarian(User):
 
-    def __init__(self, name, mail, number, alias):
-        self.__info = dict()
-        self.__info[user_name] = name
-        self.__info[user_mail] = mail
-        self.__info[number] = number
-        self.__info[user_alias] = alias
-        # self.__librarian_id = ID
-        self.__info[user_rank] = 2
+    def __init__(self, name=None, mail=None, number=None, alias=None):
+        if name and mail and number and alias:
+            self.__info = dict()
+            self.__info[user_name] = name
+            self.__info[user_mail] = mail
+            self.__info[user_number] = number
+            self.__info[user_alias] = alias
+            self.__info[user_rank] = 2
+        else:
+            self.__info = dict()
+            self.__info[user_name] = ""
+            self.__info[user_mail] = ""
+            self.__info[user_number] = ""
+            self.__info[user_alias] = ""
+            self.__info[user_rank] = 2
 
-    def setData(self, dictionary):
+    def setData(self, dictionary: dict):
         self.__info = dict(dictionary)
+        self.set_name(dictionary[user_name])
+        self.set_mail(dictionary[user_mail])
+        self.set_number(dictionary[user_number])
+        self.set_alias(dictionary[user_alias])
         self.__info[user_rank] = 2
 
     def new_book(self, title, author, publisher, edition, genre):
-        new = dc.Book
-        new.__init__(title, author, publisher, edition, genre)
+        new = dc.Book(title, author, publisher, edition, genre)
+        return new
+
+    def new_book_dict(self, dictionary):
+        new = dc.Book()
+        new.setData(dictionary)
         return new
 
     def set_book_bestseller(self, book, is_not):
         book.set_bestseller(is_not)
 
     def new_article(self, title, author, journal, publication_date, editor):
-        new = dc.Article
-        new.__init__(title, author, journal, publication_date, editor)
+        new = dc.Article(title, author, journal, publication_date, editor)
+        return new
+
+    def new_article_dict(self, dictionary):
+        new = dc.Article()
+        new.setData(dictionary)
         return new
 
     def new_AV_material(self, title, author, value):
-        new = dc.AV_Materials
-        new.__init__(title, author, value)
+        new = dc.AV_Materials(title, author, value)
+        return new
+
+    def new_AV_dict(self, dictionary):
+        new = dc.AV_Materials()
+        new.setData(dictionary)
         return new
 
     def get_name(self):
         return self.__info[user_name]
 
+    def set_name(self, new):
+        self.__info[user_name] = new
+
     def get_mail(self):
         return self.__info[user_mail]
+
+    def set_mail(self, new):
+        self.__info[user_mail] = new
 
     def get_number(self):
         return self.__info[user_number]
 
+    def set_number(self, new):
+        self.__info[user_number] = new
+
     def get_alias(self):
         return self.__info[user_alias]
 
+    def set_alias(self, new):
+        self.__info[user_alias] = new
+
     def get_rank(self):
         return self.__info[user_rank]
-
-    # def get_ID(self):
-    #     return self.__librarian_id
 
     def summary(self):
         return self.__info
