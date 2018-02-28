@@ -1,6 +1,7 @@
 from telebot import *
 import booking as b
 import database as db
+
 greeting = """Welcome to Innopolis Library Management System.
               Please enter your e-mail address.
               Remember it should contain @innopolis.ru domain, otherwise you won't be able
@@ -8,6 +9,10 @@ greeting = """Welcome to Innopolis Library Management System.
               Please press /setup to setup your profile."""
 
 err_mail = "Invalid e-mail"
+booking_success = "DONE. You will have to return this book until:"
+booking_book_is_unavailable = "The book is unavailable"
+booking_no_copies = "No copies."
+booking_already_have_it = "You are owning this book already"
 
 # auth literals
 step0 = "Enter you email"
@@ -20,28 +25,28 @@ verification_failed = "It's not that PIN that I've sent you :( "
 domain = "@innopolis.ru"
 pin_enter = "Please enter PIN I've sent to you. "
 
-"Keybord for main menu"
-reply = types.ReplyKeyboardMarkup(True, False)
-docs_btn = types.KeyboardButton(text="Docs")
-my_books_btn = types.KeyboardButton(text="My books")
-help_btn = types.KeyboardButton(text="Help")
-reply.add(docs_btn, my_books_btn, help_btn)
-"counter for books"
-
-list_of_books = [b.book1,b.book2,b.book3]
-
-number = 0
-max = len(list_of_books)
-exp = '{}/{}'.format(number+1, max)
-
-markup = types.InlineKeyboardMarkup()
-callback_btn = types.InlineKeyboardButton(text="Reserve", callback_data="Book")
-left_btn = types.InlineKeyboardButton(text="3 left", callback_data="Left")
-next_btn = types.InlineKeyboardButton(text="➡", callback_data='next')
-counter = types.InlineKeyboardButton(text=exp, callback_data='counter')
-prev_btn = types.InlineKeyboardButton(text='⬅', callback_data='prev')
-markup.add(callback_btn)
-markup.add(left_btn)
-markup.add(prev_btn, counter, next_btn)
-
-tempData = {'userId': '0'}
+# "Keybord for main menu"
+# reply = types.ReplyKeyboardMarkup(True, False)
+# docs_btn = types.KeyboardButton(text="Docs")
+# my_books_btn = types.KeyboardButton(text="My books")
+# help_btn = types.KeyboardButton(text="Help")
+# reply.add(docs_btn, my_books_btn, help_btn)
+# "counter for books"
+#
+# list_of_books = [b.book1, b.book2, b.book3]
+#
+# number = 0
+# max = len(list_of_books)
+# exp = '{}/{}'.format(number + 1, max)
+#
+# markup = types.InlineKeyboardMarkup()
+# callback_btn = types.InlineKeyboardButton(text="Reserve", callback_data="Book")
+# left_btn = types.InlineKeyboardButton(text="3 left", callback_data="Left")
+# next_btn = types.InlineKeyboardButton(text="➡", callback_data='next')
+# counter = types.InlineKeyboardButton(text=exp, callback_data='counter')
+# prev_btn = types.InlineKeyboardButton(text='⬅', callback_data='prev')
+# markup.add(callback_btn)
+# markup.add(left_btn)
+# markup.add(prev_btn, counter, next_btn)
+#
+# tempData = {'userId': '0'}

@@ -156,7 +156,7 @@ def to_right(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == 'Book')
 def booking(call):
-    b.check_out(b.user1, u.list_of_books[0])
+    bot.send_message(call.message.chat.id, b.book_doc(b.user1, u.list_of_books[0]))
 
 # @bot.callback_query_handler(func=lambda call: call.data == 'next')
 # def next(call):

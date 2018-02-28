@@ -1,6 +1,5 @@
 import pyrebase
 import json
-import types
 
 __config = {
     "apiKey": "AIzaSyATPtq7AeRK5D4u6rP4BhEoPSA3ofiqDaE",
@@ -17,27 +16,27 @@ __books = "Books"
 __libs = "Libs"
 
 
-def insert_patron(id, dict):
-    __db.child(__patrons).child(str(id)).set(dict)
+def insert_patron(patron_id, dictionary):
+    __db.child(__patrons).child(str(patron_id)).set(dictionary)
 
 
-def insert_book(name, dict):
-    __db.child(__books).child(str(name)).set(dict)
+def insert_book(name, dictionary):
+    __db.child(__books).child(str(name)).set(dictionary)
 
 
-def insert_librarian(id, dict):
-    __db.child(__libs).child(str(id)).set(dict)
+def insert_librarian(librarian_id, dictionary):
+    __db.child(__libs).child(str(librarian_id)).set(dictionary)
 
 
-def get_patron(id):
-    return __db.child(__patrons).child(str(id)).get().val()
+def get_patron(patron_id):
+    return __db.child(__patrons).child(str(patron_id)).get().val()
 
 
 def get_book(name):
     return __db.child(__books).child(str(name)).get().val()
 
 
-def get_all_ibrarians():
+def get_all_librarians():
     all_libs = __db.child(__libs).get()
     a = list()
     for lib in all_libs.each():
@@ -45,81 +44,45 @@ def get_all_ibrarians():
     return a
 
 
-def remove_patron(id):
-    __db.child(__patrons).child(str(id)).remove()
+def remove_patron(patron_id):
+    __db.child(__patrons).child(str(patron_id)).remove()
 
 
 def remove_book(name):
     __db.child(__books).child(str(name)).remove()
 
 
-def remove_librarian(id):
-    __db.child(__libs).child(str(id)).remove()
+def remove_librarian(librarian_id):
+    __db.child(__libs).child(str(librarian_id)).remove()
 
 
 def separate_json(json_string):
     return json.loads(json_string)
 
 
-def update_patron(id, new_info):
-    dict = get_patron(id)
+def update_patron(patron_id, new_info):
+    dictionary = get_patron(patron_id)
     if isinstance(dict, str):
-        d = separate_json(dict)
+        d = separate_json(dictionary)
     else:
-        d = dict
+        d = dictionary
     d.update(new_info)
     __db.child(__patrons).child(str(id)).update(d)
 
 
 def update_book(name, new_info):
-    dict = get_book(name)
+    dictionary = get_book(name)
     if isinstance(dict, str):
-        d = separate_json(dict)
+        d = separate_json(dictionary)
     else:
-        d = dict
+        d = dictionary
     d.update(new_info)
     __db.child(__books).child(str(name)).update(d)
 
 
-def dict_for_book(description=None, ref=None):
-    d = dict()
-    if description:
-        d["description"] = description
-    if ref:
-        d["reference"] = ref
-    return d
-
-
-def dict_for_user(email=None, name=None, surname=None, number=None):
-    d = dict()
-    if email:
-        d["email"] = email
-    if name:
-        d["name"] = name
-    if surname:
-        d["surname"] = surname
-    if number:
-        d["number"] = number
-    return d
-
-
-def all_books():
-    dict={}
+def get_all_books():
+    dictionary = dict()
     all_books = __db.child(__books).get()
     for book in all_books.each():
-        dict[book.key()] = book.val()
+        dictionary[book.key()] = book.val()
     return dict
-
-
-def print_all_users():
-    all_users = __db.child(__patrons).get()
-    for user in all_users.each():
-        print("UserKey " + user.key())
-        print("UserVal " + json.dumps(user.val()))
-
-
-def print_all_books():
-    all_books = __db.child(__books).get()
-    for book in all_books.each():
-       print("BookKey " + book.key())
-       print("BookVal " + json.dumps(book.val()))

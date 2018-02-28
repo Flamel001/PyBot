@@ -1,10 +1,7 @@
-from database import *
 from user import *
 from documents import *
-import documents as docs
-import database as db
-from bot import *
 import datetime
+import utilities
 
 # title, author, publisher, edition, genre
 
@@ -17,19 +14,14 @@ user2 = Faculty("BigBrother", "9afiwe@ifrefre", "+013123", "@hahhahaha")
 
 
 def book_doc(user, book):
-    string = ""
-    string = book.get_title()
-    print(string)
-    print(user)
-    cnt = 2
-    if string:
-        if cnt > 0:
+    has = user.has_book(book.get_title())
+    number_of_copies = book.get_number_of_copies()
+    if not has:
+        if number_of_copies > 0:
             if not book.is_reference():
-                print("Book is not reference")
 
                 init_date = datetime.datetime.toordinal(datetime.datetime.today())
 
-                print("Rank " + str(user.get_rank()))
                 if user.get_rank() == 1:
                     exp_date = datetime.datetime.fromordinal(init_date + 28)
                 else:
@@ -37,15 +29,11 @@ def book_doc(user, book):
                         exp_date = datetime.datetime.fromordinal(init_date + 14)
                     else:
                         exp_date = datetime.datetime.fromordinal(init_date + 21)
-
-                return "DONE. You will have to return this book until:" + str(exp_date)
+                    user.add_document(book.get_title(), str(exp_date))
+                return utilities.booking_success + str(exp_date)
             else:
-                return "The book is unavailable"
+                return utilities.booking_book_is_unavailable
         else:
-            return "No copies."
+            return utilities.booking_no_copies
     else:
-        return "You are owning this book already"
-
-
-def check_out(user, book):
-    user.add_doc(book)
+        return utilities.booking_already_have_it

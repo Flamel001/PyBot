@@ -68,10 +68,10 @@ class Document:
     def add_copy(self, id):
         self.__info[document_copies].append(str(id))
 
-    def get_copies_id(self):
+    def get_list_of_copies(self):
         return self.__info[document_copies]
 
-    def get_count_of_copies(self):
+    def get_number_of_copies(self):
         return len(self.__info[document_copies])
 
     def summary(self):

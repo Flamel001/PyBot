@@ -1,6 +1,5 @@
 import documents as dc
 import datetime
-import booking as booking
 
 
 class User:
@@ -116,7 +115,7 @@ class Patron(User):
         self.__info[user_alias] = alias
         self.__info[user_rating] = 5
         self.__info[user_document_list] = dict()
-        self.__info[user_registration_date] = datetime.datetime.now()
+        self.__info[user_registration_date] = str(datetime.datetime.now())
         self.__info[user_rank] = 0
         self.__info[user_debt] = 0
 
@@ -147,11 +146,14 @@ class Patron(User):
     def decrease_rating(self):
         self.__info[user_rating] = self.__info[user_rating] - 1
 
-    def add_doc(self, book):
-        booking.book_doc(Patron, book)
-
     def remove_document(self, id):
         self.__info[user_document_list].pop(id)
+
+    def add_document(self, title, date):
+        self.__info[user_document_list][title] = date
+
+    def has_book(self, title):
+        return True if title in self.__info[user_document_list] else False
 
     def get_docs_list(self):
         temp = dict(self.__info[user_document_list])
@@ -212,9 +214,6 @@ class Student(Patron):
             self.set_documents_duration(3)
             self.set_rank(0)
 
-    def add_doc(self, book):
-        booking.book_doc(Student, book)
-
     def setData(self, dictionary):
         temp = dict(dictionary)
         self.set_name(temp[user_name])
@@ -236,9 +235,6 @@ class Faculty(Patron):
             super().__init__("", "", "", "")
             self.set_documents_duration(4)
             self.set_rank(1)
-
-    def add_doc(self, book):
-        booking.book_doc(Faculty, book)
 
     def setData(self, dictionary):
         temp = dict(dictionary)
