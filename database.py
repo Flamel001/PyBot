@@ -85,4 +85,12 @@ def get_all_books():
     all_books = __db.child(__books).get()
     for book in all_books.each():
         dictionary[book.key()] = book.val()
-    return dict
+    return dictionary
+
+
+def get_list_of_books():
+    books = []
+    dict = get_all_books()
+    for book in dict:
+        books.append(book)
+    return books

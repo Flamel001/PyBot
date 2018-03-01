@@ -1,4 +1,3 @@
-from telebot import *
 import booking as b
 import database as db
 
@@ -35,9 +34,9 @@ pin_enter = "Please enter PIN I've sent to you. "
 #
 # list_of_books = [b.book1, b.book2, b.book3]
 #
-# number = 0
-# max = len(list_of_books)
-# exp = '{}/{}'.format(number + 1, max)
+number = 0
+max = len(db.get_list_of_books())
+exp = '{}/{}'.format(number + 1, max)
 #
 # markup = types.InlineKeyboardMarkup()
 # callback_btn = types.InlineKeyboardButton(text="Reserve", callback_data="Book")
@@ -49,4 +48,4 @@ pin_enter = "Please enter PIN I've sent to you. "
 # markup.add(left_btn)
 # markup.add(prev_btn, counter, next_btn)
 #
-# tempData = {'userId': '0'}
+tempData = {'userId': '0'}

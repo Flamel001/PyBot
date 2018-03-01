@@ -8,6 +8,7 @@ import database as db
 import utilities as u
 import verification as veri
 import booking as b
+import keyboards
 
 bot = TeleBot(config.token2)
 ph = telegraph.Telegraph()
@@ -42,7 +43,7 @@ userNumber = ""
 @bot.message_handler(commands=["setup"])
 def authentication(email):
     msg = bot.send_message(email.chat.id, u.step0)
-    bot.register_next_step_handler(msg, auth)
+    bot.register_next_step_handler(msg, auth)#Принимает новое сообщение
 
 
 def auth(msg):
@@ -52,7 +53,7 @@ def auth(msg):
     else:
         pin = veri.pin_generator()
         veri.pin_sender(msg.text, pin)
-        u.tempData['userId'] = pin
+        u.tempData['userId'] = pin# что такое tempdata?
         userEmail = msg.text
         print(userEmail)
         m = bot.send_message(msg.chat.id, u.pin_enter)
@@ -79,10 +80,15 @@ def auth3(message):
     bot.register_next_step_handler(reply, auth4)
 
 
-def auth4(message):
+def auth4(message):#можно номер телефона привязать кнопкой
     userNumber = message.text
     print(userNumber)
-    db.insert_user(message.chat.id, db.dict_for_user(userEmail, userName, userSurname, userNumber))
+    #TODO:
+    # if userEmail in db.list_vajnix_shishek
+    #     db.insert_prof()
+    # else:
+    #     db.insert_patron()
+    db.insert_patron(message.chat.id, db.dict_for_user(userEmail, userName, userSurname, userNumber))#oyaeby dict_for_user, доделайте, чтоли
     bot.send_message(message.chat.id, u.step4)
 
 
@@ -106,12 +112,12 @@ def help_func(message):
 
 @bot.message_handler(commands=["options"])
 def keyboard(message):
-    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=u.reply)
+    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=keyboards.reply)
 
 
 @bot.message_handler(regexp='Back')
 def back(message):
-    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=u.reply)
+    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=keyboards.reply)
 
 
 @bot.message_handler(regexp='Docs')
@@ -130,8 +136,8 @@ def genres(message):
 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29'
 @bot.message_handler(regexp="Books")
 def telegraph_func(message):
-    bot.send_message(message.chat.id, u.list_of_books[0].get_title(),
-                     reply_markup=u.markup)
+    bot.send_message(message.chat.id, db.get_list_of_books()[0].get_title(),#не уверен, что get title, мб просто хватит
+                     reply_markup=keyboards.markup)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'next')
@@ -141,7 +147,7 @@ def to_right(call):
     #     u.number+=1
     # else:
     #     u.number=0
-    bot.send_message(call.message.chat.id, db.list_of_all_books()[u.number], reply_markup=u.markup)
+    bot.send_message(call.message.chat.id, db.get_list_of_books()[u.number], reply_markup=keyboards.markup)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'prev')
@@ -151,12 +157,12 @@ def to_right(call):
     #     u.number=u.max-1
     # else:
     #     u.number-=1
-    bot.send_message(call.message.chat.id, db.list_of_all_books()[u.number], reply_markup=u.markup)
+    bot.send_message(call.message.chat.id, db.get_list_of_books()[u.number], reply_markup=keyboards.markup)
 
 
-@bot.callback_query_handler(func=lambda call: call.data == 'Book')
+@bot.callback_query_handler(func=lambda call: call.data == 'Book')#ya ebal vas vsex v rot
 def booking(call):
-    bot.send_message(call.message.chat.id, b.book_doc(b.user1, u.list_of_books[0]))
+    bot.send_message(call.message.chat.id, b.book_doc(b.user1, db.get_list_of_books()[u.number]))
 
 # @bot.callback_query_handler(func=lambda call: call.data == 'next')
 # def next(call):
@@ -168,26 +174,20 @@ def booking(call):
 #     db.print_all_users()
 
 
-@bot.message_handler(regexp='author')
+@bot.message_handler(regexp='author')#это вообще zalypa, но переделаю как нибудь в другой раз
 def author(message):
     bot.send_message(message.chat.id, "Enter author's name")
     @bot.message_handler(content_types=["text"])
     def get_author(message):
         book_exist = False
-        for i in range(len(u.list_of_books)):
-            if u.list_of_books[i].get_author() == message.text:
+        list_of_books = db.get_list_of_books()
+        for i in range(len(list_of_books)):
+            if list_of_books[i].get_author() == message.text:
                 book_exist = True
-                bot.send_message(message.chat.id, "Book {} of author {} exist".format(u.list_of_books[i].get_title(),
-                                                                                      u.list_of_books[i].get_author()))
+                bot.send_message(message.chat.id, "Book {} of author {} exist".format(list_of_books[i].get_title(),
+                                                                                      list_of_books[i].get_author()))
         if not book_exist:
             bot.send_message(message.chat.id, "There is no book with this author")
-
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
