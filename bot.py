@@ -8,10 +8,10 @@ import database as db
 import utilities as u
 import verification as veri
 import booking as b
+import bot_features
 
 bot = TeleBot(config.token2)
 ph = telegraph.Telegraph()
-
 
 
 """
@@ -28,7 +28,7 @@ response = ph.create_page('Bruce Eckels Thinking in Java',
 
 @bot.message_handler(commands=["start"])
 def greeting(message):
-    bot.send_message(message.chat.id, u.greeting)
+    bot.send_message(message.chat.id, u.greeting, reply_markup=bot_features.get_reply_markup(["Docs", "My Books", "Help"]))
 
 
 """ #######                Authentication functions                 ####### """
@@ -82,7 +82,7 @@ def auth3(message):
 def auth4(message):
     userNumber = message.text
     print(userNumber)
-    db.insert_user(message.chat.id, db.dict_for_user(userEmail, userName, userSurname, userNumber))
+    db.insert_patron(message.chat.id, db.dict_for_user(userEmail, userName, userSurname, userNumber))
     bot.send_message(message.chat.id, u.step4)
 
 
@@ -104,68 +104,52 @@ def help_func(message):
 """     #######                 GUI elements         #######                """
 
 
+@bot.message_handler(regexp='Docs')
+def genres(message):
+    bot.send_message(message.chat.id, "Choose category", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_docs))
+
+
 @bot.message_handler(commands=["options"])
 def keyboard(message):
-    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=u.reply)
+    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_home))
 
 
 @bot.message_handler(regexp='Back')
 def back(message):
-    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=u.reply)
+    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_home))
 
 
-@bot.message_handler(regexp='Docs')
-def genres(message):
-    reply = types.ReplyKeyboardMarkup(True, False, True, 1)
-    book_btn = types.KeyboardButton(text="Books")
-    magaz_btn = types.KeyboardButton(text="Magazines",)
-    avf_btn = types.KeyboardButton(text="AVFiles")
-    back_btn = types.KeyboardButton(text="Back")
-    reply.add(book_btn, magaz_btn, avf_btn, back_btn)
-    bot.send_message(message.chat.id, "Choose category", reply_markup=reply)
+"""     #######                  Start of Telegraph API              #######         """
 
-
-"""     #######                  Telegraph API              #######         """
 
 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29'
 @bot.message_handler(regexp="Books")
 def telegraph_func(message):
-    bot.send_message(message.chat.id, u.list_of_books[0].get_title(),
-                     reply_markup=u.markup)
+    book = db.get_all_books()[bot_features.get_current_book_number()]
+    bot.send_message(message.chat.id, book.get_title(),
+                     reply_markup=bot_features.get_inline_markup(book.get_number_of_copies()))
+
+
+"""     #######                  End of Telegraph API              #######         """
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'next')
 def to_right(call):
-    u.number=(u.number+1)%u.max-1
-    # if u.number+1<u.max:
-    #     u.number+=1
-    # else:
-    #     u.number=0
-    bot.send_message(call.message.chat.id, db.list_of_all_books()[u.number], reply_markup=u.markup)
+    bot_features.increment_book_number()
+    book = db.get_all_books()[bot_features.get_current_book_number()]
+    bot.send_message(call.message.chat.id, book.get_title(), reply_markup=bot_features.get_inline_markup(book.get_number_of_copies()))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'prev')
 def to_right(call):
-    u.number=(u.number-1)%u.max-1
-    # if u.number==0:
-    #     u.number=u.max-1
-    # else:
-    #     u.number-=1
-    bot.send_message(call.message.chat.id, db.list_of_all_books()[u.number], reply_markup=u.markup)
+    bot_features.decrement_book_number()
+    book = db.get_all_books()[bot_features.get_current_book_number()]
+    bot.send_message(call.message.chat.id, book.get_title(), reply_markup=bot_features.get_inline_markup(book.get_number_of_copies))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'Book')
 def booking(call):
-    bot.send_message(call.message.chat.id, b.book_doc(b.user1, u.list_of_books[0]))
-
-# @bot.callback_query_handler(func=lambda call: call.data == 'next')
-# def next(call):
-#     bot.edit_message_text()
-
-
-# @bot.message_handler(regexp='jopaenota')
-# def printAllUsersInBot(message):
-#     db.print_all_users()
+    bot.send_message(call.message.chat.id, b.book_doc(u.user1, db.get_all_books()[bot_features.get_current_book_number()]))
 
 
 @bot.message_handler(regexp='author')
@@ -183,9 +167,8 @@ def author(message):
             bot.send_message(message.chat.id, "There is no book with this author")
 
 
-
-
-
+def send(userid, message):
+    bot.send_message(314603914, message)
 
 
 

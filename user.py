@@ -1,5 +1,6 @@
 import documents as dc
 import datetime
+import database as db
 
 
 class User:
@@ -16,25 +17,29 @@ user_document_list = "document_list"
 user_rank = "rank"
 user_debt = "debt"
 user_registration_date = "registration_date"
+user_type = "type"
+user_id = "id"
 
 
 class Librarian(User):
 
-    def __init__(self, name=None, mail=None, number=None, alias=None):
-        if name and mail and number and alias:
+    def __init__(self, id = None, name=None, mail=None, number=None, alias=None):
+        if id and name and mail and number and alias:
             self.__info = dict()
+            self.__info[user_id] = str(id)
             self.__info[user_name] = name
             self.__info[user_mail] = mail
             self.__info[user_number] = number
             self.__info[user_alias] = alias
-            self.__info[user_rank] = 2
         else:
             self.__info = dict()
+            self.__info[user_id] = ""
             self.__info[user_name] = ""
             self.__info[user_mail] = ""
             self.__info[user_number] = ""
             self.__info[user_alias] = ""
-            self.__info[user_rank] = 2
+        self.__info[user_rank] = 2
+        self.__info[user_type] = "librarian"
 
     def setData(self, dictionary: dict):
         self.__info = dict(dictionary)
@@ -46,6 +51,7 @@ class Librarian(User):
 
     def new_book(self, title, author, publisher, edition, genre):
         new = dc.Book(title, author, publisher, edition, genre)
+        db.insert_book(title, new.summary())
         return new
 
     def new_book_dict(self, dictionary):
@@ -107,8 +113,9 @@ class Librarian(User):
 
 class Patron(User):
 
-    def __init__(self, name=None, mail=None, number=None, alias=None):
+    def __init__(self, id=None, name=None, mail=None, number=None, alias=None):
         self.__info = dict()
+        self.__info[user_id] = id
         self.__info[user_name] = name
         self.__info[user_mail] = mail
         self.__info[user_number] = number
@@ -118,6 +125,9 @@ class Patron(User):
         self.__info[user_registration_date] = str(datetime.datetime.now())
         self.__info[user_rank] = 0
         self.__info[user_debt] = 0
+
+    def get_id(self):
+        return self.__info[user_id]
 
     def get_name(self):
         return self.__info[user_name]
@@ -202,17 +212,18 @@ class Patron(User):
 
 class Student(Patron):
 
-    def __init__(self, name=None, mail=None, number=None, alias=None):
-        if name and mail and number and alias:
-            super().__init__(name, mail, number, alias)
+    def __init__(self, id = None, name=None, mail=None, number=None, alias=None):
+        if id and name and mail and number and alias:
+            super().__init__(id, name, mail, number, alias)
             self.__info = super().summary()
             self.set_documents_duration(3)
             self.set_rank(0)
         else:
-            super().__init__("", "", "", "")
+            super().__init__("", "", "", "", "")
             self.__info = super().summary()
             self.set_documents_duration(3)
             self.set_rank(0)
+        self.__info[user_type] = "student"
 
     def setData(self, dictionary):
         temp = dict(dictionary)
@@ -226,15 +237,19 @@ class Student(Patron):
 
 class Faculty(Patron):
 
-    def __init__(self, name=None, mail=None, number=None, alias=None):
+    def __init__(self, id = None, name=None, mail=None, number=None, alias=None):
         if name and mail and number and alias:
-            super().__init__(name, mail, number, alias)
+            super().__init__(id, name, mail, number, alias)
+            self.__info = super().summary()
             self.set_documents_duration(4)
             self.set_rank(1)
         else:
-            super().__init__("", "", "", "")
+            super().__init__("", "", "", "", "")
+            self.__info = super().summary()
             self.set_documents_duration(4)
             self.set_rank(1)
+        self.__info[user_type] = "faculty"
+
 
     def setData(self, dictionary):
         temp = dict(dictionary)

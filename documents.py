@@ -26,9 +26,9 @@ class Document:
         self.__info[document_title] = title
         self.__info[document_author] = author
         self.__info[document_owner] = None
-        self.__info[document_keywords] = dict
+        self.__info[document_keywords] = dict()
         self.__info[document_keywords_count] = 0
-        self.__info[document_copies] = []
+        self.__info[document_copies] = list()
 
     def set_title(self, new_title):
         self.__info[document_title] = new_title
@@ -74,6 +74,9 @@ class Document:
     def get_number_of_copies(self):
         return len(self.__info[document_copies])
 
+    def set_list_of_copies(self, copies):
+        self.__info[document_copies] = copies
+
     def summary(self):
         return self.__info
 
@@ -96,6 +99,7 @@ class Book(Document):
             self.set_genre(genre)
             self.set_bestseller(False)
             self.set_is_reference(False)
+        self.set_owner("Prof")
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
@@ -106,6 +110,8 @@ class Book(Document):
         self.set_genre(tmp[book_genre])
         self.set_bestseller(tmp[book_bestseller])
         self.set_is_reference(tmp[book_is_reference])
+        if document_copies in tmp:
+            self.set_list_of_copies(tmp[document_copies])
 
     def set_publisher(self, new_publisher):
         self.__info[book_publisher] = new_publisher

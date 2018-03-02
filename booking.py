@@ -1,16 +1,7 @@
-from user import *
-from documents import *
 import datetime
 import utilities
-
-# title, author, publisher, edition, genre
-
-book2 = Book("Thinking in Java", "Bruce Eckel", "Innopolis", "4th", "Computer Science")
-book3 = Book("Think python", "Allen B. Downey", "O'REILEY", "2nd", "Computer Science")
-book1 = Book("One Hundred Years of Solitude", "Gabriel García Márquez", "Innopolis", "1", "Magical Realism")
-book1.set_bestseller(True)
-user1 = Student("Dalbaeb", "jsifj@iinno.ru", "+231312394", "@eblaneeshe")
-user2 = Faculty("BigBrother", "9afiwe@ifrefre", "+013123", "@hahhahaha")
+import database as db
+import bot
 
 
 def book_doc(user, book):
@@ -29,7 +20,9 @@ def book_doc(user, book):
                         exp_date = datetime.datetime.fromordinal(init_date + 14)
                     else:
                         exp_date = datetime.datetime.fromordinal(init_date + 21)
-                    user.add_document(book.get_title(), str(exp_date))
+
+                user.add_document(book.get_list_of_copies().pop(0), str(exp_date))
+                notify_all(user, book)
                 return utilities.booking_success + str(exp_date)
             else:
                 return utilities.booking_book_is_unavailable
@@ -37,3 +30,15 @@ def book_doc(user, book):
             return utilities.booking_no_copies
     else:
         return utilities.booking_already_have_it
+
+
+def notify_all(user, book):
+    d = dict()
+    d["document_list"] = user.get_docs_list()
+    db.update_user(user.get_alias(), d)
+    d.clear()
+    d["copies"] = list(book.get_list_of_copies())
+    db.update_book(book.get_title(), d)
+    list_of_all_librarians = db.get_all_librarians()
+    for librarian in list_of_all_librarians:
+        bot.send(librarian, "user with alias " + str(user.get_alias()) + " has borrowed a book")

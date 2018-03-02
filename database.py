@@ -1,5 +1,6 @@
 import pyrebase
 import json
+from documents import *
 
 __config = {
     "apiKey": "AIzaSyATPtq7AeRK5D4u6rP4BhEoPSA3ofiqDaE",
@@ -11,25 +12,25 @@ __config = {
 
 __firebase = pyrebase.initialize_app(__config)
 __db = __firebase.database()
-__patrons = "Patrons"
+__users = "Users"
 __books = "Books"
-__libs = "Libs"
+__amount_of_books = 0
+__list_of_books_available = list()
 
 
-def insert_patron(patron_id, dictionary):
-    __db.child(__patrons).child(str(patron_id)).set(dictionary)
+def insert_user(user_alias, dictionary):
+    __db.child(__users).child(str(user_alias)).set(dictionary)
 
 
 def insert_book(name, dictionary):
+    global __amount_of_books, __list_of_books_available
+    __amount_of_books += 1
+    __list_of_books_available = list()
     __db.child(__books).child(str(name)).set(dictionary)
 
 
-def insert_librarian(librarian_id, dictionary):
-    __db.child(__libs).child(str(librarian_id)).set(dictionary)
-
-
-def get_patron(patron_id):
-    return __db.child(__patrons).child(str(patron_id)).get().val()
+def get_user(user_alias):
+    return __db.child(__users).child(str(user_alias)).get().val()
 
 
 def get_book(name):
@@ -37,37 +38,38 @@ def get_book(name):
 
 
 def get_all_librarians():
-    all_libs = __db.child(__libs).get()
+    all_libs = __db.child(__users).get()
     a = list()
     for lib in all_libs.each():
-        a.append(lib.key())
+        if "librarian" in lib.val().values():
+            a.append(lib.val()["id"])
     return a
 
 
-def remove_patron(patron_id):
-    __db.child(__patrons).child(str(patron_id)).remove()
+def remove_user(user_alias):
+    __db.child(__users).child(str(user_alias)).remove()
 
 
 def remove_book(name):
+    global __amount_of_books, __list_of_books_available
+    __amount_of_books -= 1
+    __list_of_books_available = list()
     __db.child(__books).child(str(name)).remove()
-
-
-def remove_librarian(librarian_id):
-    __db.child(__libs).child(str(librarian_id)).remove()
 
 
 def separate_json(json_string):
     return json.loads(json_string)
 
 
-def update_patron(patron_id, new_info):
-    dictionary = get_patron(patron_id)
+def update_user(user_alias, new_info):
+    dictionary = get_user(user_alias)
+    print("This is dictionary " + str(dictionary))
     if isinstance(dict, str):
         d = separate_json(dictionary)
     else:
         d = dictionary
     d.update(new_info)
-    __db.child(__patrons).child(str(id)).update(d)
+    __db.child(__users).child(str(user_alias)).update(d)
 
 
 def update_book(name, new_info):
@@ -81,8 +83,19 @@ def update_book(name, new_info):
 
 
 def get_all_books():
-    dictionary = dict()
-    all_books = __db.child(__books).get()
-    for book in all_books.each():
-        dictionary[book.key()] = book.val()
-    return dict
+    global __list_of_books_available
+    if not __list_of_books_available:
+        all_books = __db.child(__books).get()
+        for book in all_books.each():
+            print("book is " + str(book.val()))
+            book1 = Book()
+            book1.setData(book.val())
+            __list_of_books_available.append(book1)
+    return __list_of_books_available
+
+
+def get_count_of_different_books():
+    global __amount_of_books
+    if __amount_of_books == 0:
+        __amount_of_books = len(__db.child(__books).get().key())
+    return __amount_of_books
