@@ -407,7 +407,3 @@ class Faculty(Patron):
 
         self.set_documents_duration(4)
         self.set_rank(1)
-
-
-kek = Librarian("123", "1", "2", "3", "4")
-kek.modify_book(book_title="kek", new_genre="horror", new_author="Amadey")
