@@ -10,6 +10,7 @@ document_copies = "copies"
 document_price = "price"
 document_duration = "duration"
 document_keywords_count = "keywords_count"
+document_url = "url"
 book_publisher = "publisher"
 book_edition = "edition"
 book_genre = "genre"
@@ -153,7 +154,7 @@ class Librarian(User):
 
     def modify_book(self, book_title, new_title=None, new_author=None, new_publisher=None, new_edition=None,
                     new_genre=None, new_price=None, bestseller=None, reference=None, new_keywords=None, new_copies=None,
-                    new_duration=None):
+                    new_duration=None, new_url=None):
         dictionary = dict()
         if new_title:
             dictionary[document_title] = new_title
@@ -178,12 +179,14 @@ class Librarian(User):
             dictionary[document_copies] = new_copies
         if new_duration:
             dictionary[document_duration] = new_duration
+        if new_url:
+            dictionary[document_url] = new_url
 
         db.update_book(book_title, dictionary)
 
     def modify_article(self, article_title, new_title=None, new_author=None, new_journal=None, new_pub_date=None,
                        new_editor=None, new_price=None, new_keywords=None, new_copies=None,
-                       new_duration=None):
+                       new_duration=None, new_url=None):
         dictionary = dict()
         if new_title:
             dictionary[document_title] = new_title
@@ -204,11 +207,12 @@ class Librarian(User):
             dictionary[document_copies] = new_copies
         if new_duration:
             dictionary[document_duration] = new_duration
-
+        if new_url:
+            dictionary[document_url] = new_url
         db.update_book(article_title, dictionary)
 
     def modify_AV(self, AV_title, new_title=None, new_author=None, new_price=None, new_keywords=None, new_copies=None,
-                  new_duration=None):
+                  new_duration=None, new_url=None):
         dictionary = dict()
         if new_title:
             dictionary[document_title] = new_title
@@ -223,6 +227,8 @@ class Librarian(User):
             dictionary[document_copies] = new_copies
         if new_duration:
             dictionary[document_duration] = new_duration
+        if new_url:
+            dictionary[document_url] = new_url
 
         db.update_book(AV_title, dictionary)
 
