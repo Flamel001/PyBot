@@ -9,6 +9,9 @@ import utilities as u
 import verification as veri
 import booking as b
 import bot_features
+from documents import *
+from user import *
+
 
 bot = TeleBot(config.token2)
 ph = telegraph.Telegraph()
@@ -26,18 +29,22 @@ response = ph.create_page('Bruce Eckels Thinking in Java',
                                        " it’s also the first book I turn to whenever I have a Java question. </p>")
 
 
+map_of_users = dict()
+
+
 @bot.message_handler(commands=["start"])
 def greeting(message):
-    bot.send_message(message.chat.id, u.greeting, reply_markup=bot_features.get_reply_markup(["Docs", "My Books", "Help"]))
+    print(str(message.from_user.username))
+    print(str(message.text.strip().split(" ")))
+    bot.send_message(message.chat.id, u.greeting, reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_home))
+    librarian = Librarian("librarian", "librarian", "librarian", "librarian", "librarian")
+    map_of_users[message.from_user.username] = librarian
 
-
-""" #######                Authentication functions                 ####### """
 
 userEmail = ""
 userName = ""
 userSurname = ""
 userNumber = ""
-
 
 @bot.message_handler(commands=["setup"])
 def authentication(email):
@@ -47,7 +54,7 @@ def authentication(email):
 
 def auth(msg):
     if msg.text[-13:] != u.domain:
-        bot.send_message(msg.chat.id, u.err_mail)
+        bot.send_message(msg.chat.id, u.verification_err_mail)
 
     else:
         pin = veri.pin_generator()
@@ -96,12 +103,77 @@ def verification(pin):
         return False
 
 
+@bot.message_handler(commands="get_user")
+def get_user(message):
+    if message.from_user.username in map_of_users:
+        user = map_of_users[message.from_user.username]
+        if user.summary()["type"] == "librarian":
+            bot.send_message(message.chat.id, "This user's summary " + str(user.get_user(message.text.strip().split(" ")[-1][1:]).summary()))
+        else:
+            bot.send_message(message.chat.id, "You do not have the access")
+
+
+@bot.message_handler(commands="get_book")
+def get_user(message):
+    if message.from_user.username in map_of_users:
+        user = map_of_users[message.from_user.username]
+        if user.summary()["type"] == "librarian":
+            bot.send_message(message.chat.id, "Summary of this book: " + str(user.get_book(message.text.strip().split(" ")[-1])))
+        else:
+            bot.send_message(message.chat.id, "You do not have the access")
+
+
+@bot.message_handler(commands="remove_user")
+def remove_user(message):
+    if message.from_user.username in map_of_users:
+        user = map_of_users[message.from_user.username]
+        if user.summary()["type"] == "librarian":
+            user.remove_user(message.text.strip().split(" ")[-1][1:])
+            bot.send_message(message.chat.id, "You have deleted user with alias " + str(message.text.strip.split(" ")[-1]))
+        else:
+            bot.send_message(message.chat.id, "You do not have the right to remove another user")
+
+
+@bot.message_handler(commands="remove_book")
+def remove_book(message):
+    if message.from_user.username in map_of_users:
+        user = map_of_users[message.from_user.username]
+        if user.summary()["type"] == "librarian":
+            user.remove_document(message.text.strip().split(" ")[-1])
+            bot.send_message(message.chat.id, "You have deleted book with name " + str(message.text.strip().split(" ")[-1]))
+        else:
+            bot.send_message(message.chat.id, "You do not have the right to remove a book")
+
+
+@bot.message_handler(commands="add_book")
+def add_book(message):
+    if message.from_user.username in map_of_users:
+        user = map_of_users[message.from_user.username]
+        if user.summary()["type"] == "librarian":
+            message = bot.send_message(message.chat.id,
+                                       "In the next message please provide:\ntitle\nauthor\npublisher\nedition\ngenre\nurl")
+            bot.register_next_step_handler(message, create_book)
+        else:
+            bot.send_message(message.chat.id, "You do not have the right to add a new book")
+
+
+def create_book(message):
+    message_split = message.text.split("\n")
+    if len(message_split) == 6:
+        if message.from_user.username in map_of_users:
+            user = map_of_users[message.from_user.username]
+            if user.summary()["type"] == "librarian":
+                user.new_book(message_split[0].strip(), message_split[1].strip(), message_split[2].strip(), message_split[3].strip(), message_split[4].strip(), message_split[5])
+                bot.send_message(message.chat.id, "You have successfully added a book")
+            else:
+                bot.send_message(message.chat.id, "You do not have the right to add a new book")
+    else:
+        bot.send_message(message.chat.id, "The format of the message does not suit. Please try again.")
+
+
 @bot.message_handler(regexp='help')
 def help_func(message):
     bot.reply_to(message, "Help func is currently unavailable")
-
-
-"""     #######                 GUI elements         #######                """
 
 
 @bot.message_handler(regexp='Docs')
@@ -119,18 +191,12 @@ def back(message):
     bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_home))
 
 
-"""     #######                  Start of Telegraph API              #######         """
-
-
 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29'
 @bot.message_handler(regexp="Books")
 def telegraph_func(message):
     book = db.get_all_books()[bot_features.get_current_book_number()]
     bot.send_message(message.chat.id, book.get_title(),
                      reply_markup=bot_features.get_inline_markup(book.get_number_of_copies()))
-
-
-"""     #######                  End of Telegraph API              #######         """
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'next')
@@ -141,7 +207,7 @@ def to_right(call):
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'prev')
-def to_right(call):
+def to_left(call):
     bot_features.decrement_book_number()
     book = db.get_all_books()[bot_features.get_current_book_number()]
     bot.send_message(call.message.chat.id, book.get_title(), reply_markup=bot_features.get_inline_markup(book.get_number_of_copies))

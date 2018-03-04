@@ -9,7 +9,7 @@ greeting = """Welcome to Innopolis Library Management System.
               to authorise.
               Please press /setup to setup your profile."""
 
-err_mail = "Invalid e-mail"
+verification_err_mail = "Invalid e-mail"
 
 booking_success = "DONE. You will have to return this book until:"
 booking_book_is_unavailable = "The book is unavailable"
@@ -18,10 +18,6 @@ booking_already_have_it = "You are owning this book already"
 
 keyboard_buttons_home = ["Docs", "My docs", "Help"]
 keyboard_buttons_docs = ["Books", "Magazines", "Audio/Video", "Back"]
-
-action_leave = 0
-action_increment = 1
-action_decrement = 2
 
 
 
@@ -39,8 +35,8 @@ book1 = Book("One Hundred Years of Solitude", "Gabriel García Márquez", "Innop
 book1.set_bestseller(True)
 user1 = Student("314603915", "Dalbaeb", "jsifj@iinno.ru", "+231312394", "@eblaneeshe")
 user2 = Faculty("314603916", "BigBrother", "9afiwe@ifrefre", "+013123", "@hahhahaha")
-book1 = Book()
-book1.setData(db.get_book("One Hundred Years of Solitude"))
+# book1 = Book()
+# book1.setData(db.get_book("One Hundred Years of Solitude"))
 
 list_of_books = [book1, book2, book3, book4]
 

@@ -1,6 +1,7 @@
 import pyrebase
 import json
 from documents import *
+from user import *
 
 __config = {
     "apiKey": "AIzaSyATPtq7AeRK5D4u6rP4BhEoPSA3ofiqDaE",
@@ -30,14 +31,26 @@ def insert_book(name, dictionary):
 
 
 def get_user(user_alias):
-    return __db.child(__users).child(str(user_alias)).get().val()
+    dictionary = __db.child(__users).child(str(user_alias)).get().val()
+    if "student" in dictionary.values():
+        student = Student()
+        student.setData(dictionary)
+        return student
+    elif "faculty" in dictionary.values():
+        faculty = Faculty()
+        faculty.setData(dictionary)
+        return faculty
+    elif "librarian" in dictionary.values():
+        librarian = Librarian()
+        librarian.setData(dictionary)
+        return librarian
 
 
 def get_book(name):
     return __db.child(__books).child(str(name)).get().val()
 
 
-def get_all_librarians():
+def get_all_librarians_ids():
     all_libs = __db.child(__users).get()
     a = list()
     for lib in all_libs.each():

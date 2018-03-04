@@ -68,8 +68,10 @@ class Librarian(User):
         self.set_alias(dictionary[user_alias])
         self.__info[user_rank] = 2
 
-    def new_book(self, title, author, publisher, edition, genre):
-        new = dc.Book(title, author, publisher, edition, genre)
+    def new_book(self, title, author, publisher, edition, genre, url):
+        print("these are the fields " + title + ", " + author + ", " + publisher + ", " + edition + ", " + genre + ", " + url)
+        new = dc.Book(title, author, publisher, edition, genre, url)
+        print("this is book summary " + str(new.summary()))
         db.insert_book(title, new.summary())
         # return new
 
@@ -231,6 +233,12 @@ class Librarian(User):
             dictionary[document_url] = new_url
 
         db.update_book(AV_title, dictionary)
+
+    def get_user(self, alias):
+        return db.get_user(alias)
+
+    def get_book(self, name):
+        return db.get_book(name)
 
     def get_name(self):
         return self.__info[user_name]
