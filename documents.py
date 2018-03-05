@@ -93,7 +93,7 @@ class Book(Document):
     def __init__(self, title=None, author=None, publisher=None, edition=None, genre=None, url=None):
         if title and author and publisher and edition and genre and url:
             super().__init__(title, author)
-            self.__info = super().summary()
+            self.__info = super().summary
             self.set_publisher(publisher)
             self.set_edition(edition)
             self.set_genre(genre)
