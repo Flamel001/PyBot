@@ -30,6 +30,7 @@ response = ph.create_page('Bruce Eckels Thinking in Java',
 
 
 map_of_users = dict()
+next_doc_message_id = 0
 
 
 @bot.message_handler(commands=["start"])
@@ -45,6 +46,7 @@ userEmail = ""
 userName = ""
 userSurname = ""
 userNumber = ""
+
 
 @bot.message_handler(commands=["setup"])
 def authentication(email):
@@ -103,7 +105,7 @@ def verification(pin):
         return False
 
 
-@bot.message_handler(commands="get_user")
+@bot.message_handler(commands=["get_user"])
 def get_user(message):
     if message.from_user.username in map_of_users:
         user = map_of_users[message.from_user.username]
@@ -113,7 +115,7 @@ def get_user(message):
             bot.send_message(message.chat.id, "You do not have the access")
 
 
-@bot.message_handler(commands="get_book")
+@bot.message_handler(commands=["get_book"])
 def get_user(message):
     if message.from_user.username in map_of_users:
         user = map_of_users[message.from_user.username]
@@ -123,7 +125,7 @@ def get_user(message):
             bot.send_message(message.chat.id, "You do not have the access")
 
 
-@bot.message_handler(commands="remove_user")
+@bot.message_handler(commands=["remove_user"])
 def remove_user(message):
     if message.from_user.username in map_of_users:
         user = map_of_users[message.from_user.username]
@@ -134,7 +136,7 @@ def remove_user(message):
             bot.send_message(message.chat.id, "You do not have the right to remove another user")
 
 
-@bot.message_handler(commands="remove_book")
+@bot.message_handler(commands=["remove_book"])
 def remove_book(message):
     if message.from_user.username in map_of_users:
         user = map_of_users[message.from_user.username]
@@ -145,7 +147,7 @@ def remove_book(message):
             bot.send_message(message.chat.id, "You do not have the right to remove a book")
 
 
-@bot.message_handler(commands="add_book")
+@bot.message_handler(commands=["add_book"])
 def add_book(message):
     if message.from_user.username in map_of_users:
         user = map_of_users[message.from_user.username]
@@ -178,6 +180,7 @@ def help_func(message):
 
 @bot.message_handler(regexp='Docs')
 def genres(message):
+    print("Something goes wrong")
     bot.send_message(message.chat.id, "Choose category", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_docs))
 
 
@@ -191,26 +194,29 @@ def back(message):
     bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_home))
 
 
-'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29'
+# 'http://telegra.ph/Bruce-Eckels-Thinking-in-Java-4th-editon-01-29'
 @bot.message_handler(regexp="Books")
 def telegraph_func(message):
+    global next_doc_message_id
     book = db.get_all_books()[bot_features.get_current_book_number()]
-    bot.send_message(message.chat.id, book.get_title(),
-                     reply_markup=bot_features.get_inline_markup(book.get_number_of_copies()))
+    message = bot.send_message(message.chat.id, book.get_title(), reply_markup=bot_features.get_inline_markup(book.get_number_of_copies()))
+    next_doc_message_id = message.message_id
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'next')
 def to_right(call):
     bot_features.increment_book_number()
     book = db.get_all_books()[bot_features.get_current_book_number()]
-    bot.send_message(call.message.chat.id, book.get_title(), reply_markup=bot_features.get_inline_markup(book.get_number_of_copies()))
+    bot.edit_message_text(chat_id=call.message.chat.id, text=book.get_title(), message_id=next_doc_message_id)
+    bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=next_doc_message_id, reply_markup=bot_features.get_inline_markup(book.get_number_of_copies()))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'prev')
 def to_left(call):
     bot_features.decrement_book_number()
     book = db.get_all_books()[bot_features.get_current_book_number()]
-    bot.send_message(call.message.chat.id, book.get_title(), reply_markup=bot_features.get_inline_markup(book.get_number_of_copies))
+    bot.edit_message_text(chat_id=call.message.chat.id, text=book.get_title(), message_id=next_doc_message_id)
+    bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=next_doc_message_id, reply_markup=bot_features.get_inline_markup(book.get_number_of_copies()))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'Book')

@@ -112,14 +112,22 @@ class Book(Document):
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
-        self.set_title(tmp[document_title])
-        self.set_author(tmp[document_author])
-        self.set_publisher(tmp[book_publisher])
-        self.set_edition(tmp[book_edition])
-        self.set_genre(tmp[book_genre])
-        self.set_bestseller(tmp[book_bestseller])
-        self.set_is_reference(tmp[book_is_reference])
-        self.set_url(tmp[document_url])
+        if document_title in tmp:
+            self.set_title(tmp[document_title])
+        if document_author in tmp:
+            self.set_author(tmp[document_author])
+        if book_publisher in tmp:
+            self.set_publisher(tmp[book_publisher])
+        if book_edition in tmp:
+            self.set_edition(tmp[book_edition])
+        if book_genre in tmp:
+            self.set_genre(tmp[book_genre])
+        if book_bestseller in tmp:
+            self.set_bestseller(tmp[book_bestseller])
+        if book_bestseller in tmp:
+            self.set_is_reference(tmp[book_is_reference])
+        if document_url in tmp:
+            self.set_url(tmp[document_url])
         if document_copies in tmp:
             self.set_list_of_copies(tmp[document_copies])
 
