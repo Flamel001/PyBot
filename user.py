@@ -38,11 +38,12 @@ user_debt = "debt"
 user_registration_date = "registration_date"
 user_type = "type"
 user_id = "id"
+user_address = "address"
 
 
 class Librarian(User):
 
-    def __init__(self, id=None, name=None, mail=None, number=None, alias=None):
+    def __init__(self, id=None, name=None, mail=None, number=None, alias=None, address=None):
         if id and name and mail and number and alias:
             self.__info = dict()
             self.__info[user_id] = str(id)
@@ -50,6 +51,7 @@ class Librarian(User):
             self.__info[user_mail] = mail
             self.__info[user_number] = number
             self.__info[user_alias] = alias
+            self.__info[user_address] = address
         else:
             self.__info = dict()
             self.__info[user_id] = ""
@@ -57,19 +59,23 @@ class Librarian(User):
             self.__info[user_mail] = ""
             self.__info[user_number] = ""
             self.__info[user_alias] = ""
+            self.__info[address] = ""
         self.__info[user_rank] = 2
         self.__info[user_type] = "librarian"
 
     def setData(self, dictionary: dict):
         self.__info = dict(dictionary)
+        self.set_id(dictionary[user_id])
         self.set_name(dictionary[user_name])
         self.set_mail(dictionary[user_mail])
         self.set_number(dictionary[user_number])
         self.set_alias(dictionary[user_alias])
+        self.set_address(dictionary[user_address])
         self.__info[user_rank] = 2
 
     def new_book(self, title, author, publisher, edition, genre, url):
-        print("these are the fields " + title + ", " + author + ", " + publisher + ", " + edition + ", " + genre + ", " + url)
+        print(
+            "these are the fields " + title + ", " + author + ", " + publisher + ", " + edition + ", " + genre + ", " + url)
         new = dc.Book(title, author, publisher, edition, genre, url)
         print("this is book summary " + str(new.summary()))
         db.insert_book(title, new.summary())
@@ -80,6 +86,9 @@ class Librarian(User):
         new.setData(dictionary)
         db.insert_book(new.get_title(), new.summary())
         # return new
+
+    def add_copy_for_doc(self, original: dc.Document, copy_id):
+        original.add_copy(copy_id)
 
     def set_book_bestseller(self, book, is_not):
         book.set_bestseller(is_not)
@@ -267,13 +276,25 @@ class Librarian(User):
     def get_rank(self):
         return self.__info[user_rank]
 
+    def get_id(self):
+        return self.__info[user_id]
+
+    def set_id(self, id):
+        self.__info[user_id] = id
+
+    def get_address(self):
+        return self.__info[user_address]
+
+    def set_address(self, address):
+        self.__info[user_address] = address
+
     def summary(self):
         return self.__info
 
 
 class Patron(User):
 
-    def __init__(self, id=None, name=None, mail=None, number=None, alias=None):
+    def __init__(self, id=None, name=None, mail=None, number=None, alias=None, address=None):
         self.__info = dict()
         self.__info[user_id] = id
         self.__info[user_name] = name
@@ -285,9 +306,13 @@ class Patron(User):
         self.__info[user_registration_date] = str(datetime.datetime.now())
         self.__info[user_rank] = 0
         self.__info[user_debt] = 0
+        self.__info[user_address] = address
 
     def get_id(self):
         return self.__info[user_id]
+
+    def set_id(self, id):
+        self.__info[user_id] = id
 
     def get_name(self):
         return self.__info[user_name]
@@ -369,36 +394,45 @@ class Patron(User):
     def set_rank(self, rank):
         self.__info[user_rank] = rank
 
+    def get_address(self):
+        return self.__info[user_address]
+
+    def set_address(self, address):
+        self.__info[user_address] = address
+
 
 class Student(Patron):
 
-    def __init__(self, id=None, name=None, mail=None, number=None, alias=None):
-        if id and name and mail and number and alias:
-            super().__init__(id, name, mail, number, alias)
+    def __init__(self, id=None, name=None, mail=None, number=None, alias=None, address=None):
+        if id and name and mail and number and alias and address:
+            super().__init__(id, name, mail, number, alias, address)
             self.__info = super().summary()
             self.set_documents_duration(3)
             self.set_rank(0)
         else:
-            super().__init__("", "", "", "", "")
+            super().__init__("", "", "", "", "", "")
             self.__info = super().summary()
             self.set_documents_duration(3)
             self.set_rank(0)
+
         self.__info[user_type] = "student"
 
     def setData(self, dictionary):
         temp = dict(dictionary)
+        self.set_id(temp[user_id])
         self.set_name(temp[user_name])
         self.set_mail(temp[user_mail])
         self.set_number(temp[user_number])
         self.set_alias(temp[user_alias])
+        self.set_address(temp[user_address])
         self.set_documents_duration(3)
         self.set_rank(0)
 
 
 class Faculty(Patron):
 
-    def __init__(self, id=None, name=None, mail=None, number=None, alias=None):
-        if id and name and mail and number and alias:
+    def __init__(self, id=None, name=None, mail=None, number=None, alias=None, address=None):
+        if id and name and mail and number and alias and address:
             super().__init__(id, name, mail, number, alias)
             self.__info = super().summary()
             self.set_documents_duration(4)
@@ -412,10 +446,12 @@ class Faculty(Patron):
 
     def setData(self, dictionary):
         temp = dict(dictionary)
+        self.set_id(temp[user_id])
         self.set_name(temp[user_name])
         self.set_mail(temp[user_mail])
         self.set_number(temp[user_number])
         self.set_alias(temp[user_alias])
+        self.set_address(temp[user_address])
         self.set_documents_duration(3)
         self.set_rank(0)
 
