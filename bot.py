@@ -244,6 +244,96 @@ def send(userid, message):
 
 
 
+@bot.message_handler(regexp='Librarian')
+def librarian(message):
+    bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib))
+
+    @bot.message_handler(regexp='To beginning')
+    def back(message):
+        bot.send_message(message.chat.id, "Please choose options bellow",
+                         reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib))
+
+    @bot.message_handler(regexp='Adding')
+    def adding(message):
+        bot.send_message(message.chat.id, "What do you want to add?", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib_add))
+
+
+    @bot.message_handler(regexp='Add dock')
+    def adding_dock(message):
+        bot.send_message(message.chat.id, "Choose dock to add", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib_dock))
+        bot.register_next_step_handler(message, add_dock)
+
+
+    def add_dock(message):
+        if message=="Book":
+            bot.send_message(message.chat.id, "Enter information of {}".format(message))
+            bot.register_next_step_handler(message, add_book)
+        elif message=="Video":
+            pass
+        elif message=="Article":
+            pass
+
+    def add_book(message):
+        pass
+        # db.insert_book(message,dict)#OYAEBY KAK S ETIM RABOTAT
+
+
+    @bot.message_handler(regexp='Add patron')
+    def adding_patron(message):
+        bot.send_message(message.chat.id, "Enter information of Patron".format(message))
+        bot.register_next_step_handler(message, add_patron)
+
+    def add_patron(message):
+        pass
+
+
+    @bot.message_handler(regexp='Removing')
+    def removing(message):
+        bot.send_message(message.chat.id, "What do you want to remove?", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib_remove))
+
+
+    @bot.message_handler(regexp='Remove dock')
+    def removing_dock(message):
+        bot.send_message(message.chat.id, "Choose dock to remove", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib_dock))
+        bot.register_next_step_handler(message, remove_dock)
+
+    def remove_dock(message):
+        pass
+
+
+    @bot.message_handler(regexp='Remove patron')
+    def removing_patron(message):
+        bot.send_message(message.chat.id, "Enter information of Patron".format(message))
+        bot.register_next_step_handler(message, remove_patron)
+
+
+    def remove_patron(message):
+        pass
+
+
+    @bot.message_handler(regexp='Checking')
+    def removing(message):
+        bot.send_message(message.chat.id, "What do you want to check?", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib_check))
+
+
+    @bot.message_handler(regexp='Check dock')
+    def checking_dock(message):
+        bot.send_message(message.chat.id, "Choose dock to check", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib_dock))
+        bot.register_next_step_handler(message, check_dock)
+
+    def check_dock(message):
+        pass
+
+
+    @bot.message_handler(regexp='Check patron')
+    def checking_patron(message):
+        bot.send_message(message.chat.id, "Enter information of Patron".format(message))
+        bot.register_next_step_handler(message, remove_patron)
+
+
+    def check_patron(message):
+        pass
+
 
 if __name__ == '__main__':
     bot.polling(none_stop=True)

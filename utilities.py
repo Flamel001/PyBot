@@ -17,7 +17,13 @@ booking_no_copies = "No copies."
 booking_already_have_it = "You are owning this book already"
 
 keyboard_buttons_home = ["Docs", "My docs", "Help"]
-keyboard_buttons_docs = ["Books", "Magazines", "Audio/Video", "Back"]
+keyboard_buttons_docs = ["Books", "Magazines", "Audio/Video", 'To beginning']
+keyboard_buttons_lib = ["Adding", "Removing", "Checking"]
+keyboard_buttons_lib_add = ["Add dock", "Add patron", 'To beginning']
+keyboard_buttons_lib_dock = ["Book", "Video", "Article", "To beginning"]
+keyboard_buttons_lib_remove = ["Remove dock", "Remove Patron", "To beginning"]
+keyboard_buttons_lib_check = ["Check dock", "Check Patron", "To beginning"]
+
 
 
 
