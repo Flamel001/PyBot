@@ -23,6 +23,7 @@ keyboard_buttons_lib_add = ["Add dock", "Add patron", 'To beginning']
 keyboard_buttons_lib_dock = ["Book", "Video", "Article", "To beginning"]
 keyboard_buttons_lib_remove = ["Remove dock", "Remove Patron", "To beginning"]
 keyboard_buttons_lib_check = ["Check dock", "Check Patron", "To beginning"]
+keyboard_buttons_option = ["Continue", "Return"]
 
 
 

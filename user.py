@@ -457,3 +457,5 @@ class Faculty(Patron):
 
         self.set_documents_duration(4)
         self.set_rank(1)
+
+

@@ -246,6 +246,7 @@ def send(userid, message):
 
 @bot.message_handler(regexp='Librarian')
 def librarian(message):
+    librarian = Librarian(444,"Vasyan","vasya@innopolis.ru", 123123, "@greatoption", "Pypkina street")
     bot.send_message(message.chat.id, "Please choose options bellow", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib))
 
     @bot.message_handler(regexp='To beginning')
@@ -265,18 +266,31 @@ def librarian(message):
 
 
     def add_dock(message):
-        if message=="Book":
-            bot.send_message(message.chat.id, "Enter information of {}".format(message))
+        bot.send_message(message.chat.id, "Enter information of the {} using space".format(message.text))
+        if message.text=="Book":
+            bot.send_message(message.chat.id, "Publisher, edition, genre, is it bestceller, is it reference, it's url, number of copies")
             bot.register_next_step_handler(message, add_book)
-        elif message=="Video":
-            pass
-        elif message=="Article":
+        elif message.text=="Video":
+            bot.send_message(message.chat.id, "Information, price, url, number of copies")
+            bot.register_next_step_handler(message, add_video)
+        elif message.text=="Article":
             pass
 
     def add_book(message):
-        pass
-        # db.insert_book(message,dict)#OYAEBY KAK S ETIM RABOTAT
+        info = message.text.split(" ")
+        print(info)
+        librarian.new_book(info[0], info[1], info[2], info[3], info[4], info[5], int(info[6]))
+        bot.send_message(message.chat.id, "Please choose options bellow",
+                         reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib))
 
+
+    def add_video(message):
+        info = message.text.split(" ")
+        print(info)
+        librarian.new_AV_material(info[0], info[1], info[2], int(info[3]))
+
+
+    "TODO: add article"
 
     @bot.message_handler(regexp='Add patron')
     def adding_patron(message):
@@ -294,25 +308,42 @@ def librarian(message):
 
     @bot.message_handler(regexp='Remove dock')
     def removing_dock(message):
-        bot.send_message(message.chat.id, "Choose dock to remove", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib_dock))
+        bot.send_message(message.chat.id, "Type title of dock to remove")#, reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib_dock)
         bot.register_next_step_handler(message, remove_dock)
 
     def remove_dock(message):
-        pass
+        librarian.remove_document(message.text)
+        bot.send_message(message.chat.id, "Please choose options bellow",
+                         reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib))
+        # if message.text == "Book":
+        #     bot.register_next_step_handler(message, remove_book)
+        # elif message.text == "Video":
+        #     bot.register_next_step_handler(message, remove_video)
+        # elif message.text == "Article":
+        #     pass
+        #
+    # def remove_book(message):
+    #     librarian.
+    #
+    #
+    # def remove_video(message):
+    #
 
 
     @bot.message_handler(regexp='Remove patron')
     def removing_patron(message):
-        bot.send_message(message.chat.id, "Enter information of Patron".format(message))
+        bot.send_message(message.chat.id, "Enter alias of Patron".format(message))
         bot.register_next_step_handler(message, remove_patron)
 
 
     def remove_patron(message):
-        pass
+        librarian.remove_user(message.text)
+        bot.send_message(message.chat.id, "Please choose options bellow",
+                         reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib))
 
 
     @bot.message_handler(regexp='Checking')
-    def removing(message):
+    def checking(message):
         bot.send_message(message.chat.id, "What do you want to check?", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib_check))
 
 
@@ -327,12 +358,16 @@ def librarian(message):
 
     @bot.message_handler(regexp='Check patron')
     def checking_patron(message):
-        bot.send_message(message.chat.id, "Enter information of Patron".format(message))
+        bot.send_message(message.chat.id, "Enter alias of Patron".format(message))
         bot.register_next_step_handler(message, remove_patron)
 
 
     def check_patron(message):
-        pass
+        a = librarian.get_user(message.text)
+        if a!=None:
+            bot.send_message(message.chat.id, a, reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib))
+        else:
+            bot.send_message(message.chat.id, "No user with this alias", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_lib))
 
 
 if __name__ == '__main__':

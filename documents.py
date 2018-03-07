@@ -100,7 +100,6 @@ class Book(Document):
             self.set_bestseller(False)
             self.set_is_reference(False)
             self.set_url(url)
-
         else:
             super().__init__("", "")
             self.__info = super().summary()
