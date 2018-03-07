@@ -7,6 +7,7 @@ document_author = "author"
 document_owner = "owner"
 document_keywords = "keywords"
 document_copies = "copies"
+document_copies_count = "cop_count"
 document_price = "price"
 document_duration = "duration"
 document_keywords_count = "keywords_count"
@@ -73,10 +74,11 @@ class Librarian(User):
         self.set_address(dictionary[user_address])
         self.__info[user_rank] = 2
 
-    def new_book(self, title, author, publisher, edition, genre, url):
+    def new_book(self, title, author, publisher, edition, genre, url, cop_count):
         print(
-            "these are the fields " + title + ", " + author + ", " + publisher + ", " + edition + ", " + genre + ", " + url)
-        new = dc.Book(title, author, publisher, edition, genre, url)
+            "these are the fields " + title + ", " + author + ", " + publisher + ", " + edition + ", " + genre + ", " + url + "," + str(
+                cop_count))
+        new = dc.Book(title, author, publisher, edition, genre, url, cop_count)
         print("this is book summary " + str(new.summary()))
         db.insert_book(title, new.summary())
         # return new
@@ -93,8 +95,8 @@ class Librarian(User):
     def set_book_bestseller(self, book, is_not):
         book.set_bestseller(is_not)
 
-    def new_article(self, title, author, journal, publication_date, editor):
-        new = dc.Article(title, author, journal, publication_date, editor)
+    def new_article(self, title, author, journal, publication_date, editor, url, cop_count):
+        new = dc.Article(title, author, journal, publication_date, editor, url,cop_count)
         db.insert_book(new.get_title(), new.summary())
         # return new
 
@@ -104,8 +106,8 @@ class Librarian(User):
         db.insert_book(new.get_title(), new.summary())
         # return new
 
-    def new_AV_material(self, title, author, value):
-        new = dc.AV_Materials(title, author, value)
+    def new_AV_material(self, title, author, value, url, cop_count):
+        new = dc.AV_Materials(title, author, value, url, cop_count)
         db.insert_book(new.get_title(), new.summary())
         # return new
 
