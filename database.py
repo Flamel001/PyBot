@@ -14,7 +14,7 @@ __config = {
 __firebase = pyrebase.initialize_app(__config)
 __db = __firebase.database()
 __users = "Users"
-__books = "Books"
+__books = "Docs"
 __amount_of_books = 0
 __list_of_books_available = list()
 
@@ -32,22 +32,40 @@ def insert_book(name, dictionary):
 
 def get_user(user_alias):
     dictionary = __db.child(__users).child(str(user_alias)).get().val()
-    if "student" in dictionary.values():
-        student = Student()
-        student.setData(dictionary)
-        return student
-    elif "faculty" in dictionary.values():
-        faculty = Faculty()
-        faculty.setData(dictionary)
-        return faculty
-    elif "librarian" in dictionary.values():
-        librarian = Librarian()
-        librarian.setData(dictionary)
-        return librarian
+    print("dict in get_user " + str(dictionary))
+    if dictionary:
+        if "student" in dictionary.values():
+            student = Student()
+            student.setData(dictionary)
+            return student
+        elif "faculty" in dictionary.values():
+            faculty = Faculty()
+            faculty.setData(dictionary)
+            return faculty
+        elif "librarian" in dictionary.values():
+            librarian = Librarian()
+            librarian.setData(dictionary)
+            return librarian
+    return None
 
 
-def get_book(name):
-    return __db.child(__books).child(str(name)).get().val()
+def get_doc(name):
+    dictionary = __db.child(__books).child(str(name)).get().val()
+    print("dict in get_doc " + str(dictionary))
+    if dictionary:
+        if "book" in dictionary.values():
+            book = Book()
+            book.setData(dictionary)
+            return book
+        elif "article" in dictionary.values():
+            article = Article()
+            article.setData(dictionary)
+            return article
+        elif "av" in dictionary.values():
+            av = AV_Materials()
+            av.setData(dictionary)
+            return av
+    return None
 
 
 def get_all_librarians_ids():
@@ -75,24 +93,31 @@ def separate_json(json_string):
 
 
 def update_user(user_alias, new_info):
-    dictionary = get_user(user_alias)
-    print("This is dictionary " + str(dictionary))
-    if isinstance(dict, str):
-        d = separate_json(dictionary)
-    else:
-        d = dictionary
-    d.update(new_info)
-    __db.child(__users).child(str(user_alias)).update(d)
+    user = get_user(user_alias)
+    if "document_list" in new_info:
+        user.set_docs_list(new_info["document_list"])
+        new_info.pop("document_list")
+    dictionary = user.summary()
+    dictionary.update(new_info)
+    # json_str = json.dumps(dictionary)
+    # print("This is summary of user " + str(json_str))
+    __db.child(__users).child(str(user_alias)).update(dictionary)
 
 
 def update_book(name, new_info):
-    dictionary = get_book(name)
-    if isinstance(dict, str):
-        d = separate_json(dictionary)
-    else:
-        d = dictionary
+    global __list_of_books_available
+    print("new_info " + str(new_info))
+    doc = get_doc(name)
+    if "copies" in new_info:
+        print("doc in update book before " + str(doc.get_list_of_copies()))
+        print(str(new_info))
+        doc.set_list_of_copies(new_info["copies"])
+        print("doc in update book " + str(doc.get_list_of_copies()))
+        new_info.pop("copies")
+    d = doc.summary()
     d.update(new_info)
     __db.child(__books).child(str(name)).update(d)
+    __list_of_books_available = list()
 
 
 def get_all_books():
@@ -110,5 +135,5 @@ def get_all_books():
 def get_count_of_different_books():
     global __amount_of_books
     if __amount_of_books == 0:
-        __amount_of_books = len(__db.child(__books).get().key())
+        __amount_of_books = len(__db.child(__books).get().each())
     return __amount_of_books

@@ -3,13 +3,13 @@ document_author = "author"
 document_owner = "owner"
 document_keywords = "keywords"
 document_copies = "copies"
-document_copies_count = "cop_count"
 document_price = "price"
 document_duration = "duration"
 document_keywords_count = "keywords_count"
 document_url = "url"
 
 book_publisher = "publisher"
+book_year = "year"
 book_edition = "edition"
 book_genre = "genre"
 book_bestseller = "bestseller"
@@ -23,7 +23,7 @@ article_editor = "editor"
 
 class Document:
 
-    def __init__(self, title, author,cop_count):
+    def __init__(self, title, author):
         self.__info = dict()
         self.__info[document_title] = title
         self.__info[document_author] = author
@@ -32,7 +32,6 @@ class Document:
         self.__info[document_keywords_count] = 0
         self.__info[document_copies] = list()
         self.__info[document_url] = ""
-        self.__info[document_copies_count] = cop_count
 
     def set_title(self, new_title):
         self.__info[document_title] = new_title
@@ -70,6 +69,7 @@ class Document:
         self.__info[document_keywords_count] = self.__info[document_keywords_count] - 1
 
     def add_copy(self, id):
+        print("this is id " + id)
         self.__info[document_copies].append(str(id))
 
     def get_list_of_copies(self):
@@ -87,35 +87,34 @@ class Document:
     def get_url(self):
         return self.__info[document_url]
 
-    def set_cop_count(self,count):
-        self.__info[document_copies_count] = count
-    def get_cop_count(self):
-        return self.__info[document_copies_count]
-
     def summary(self):
         return self.__info
 
 
 class Book(Document):
-    def __init__(self, title=None, author=None, publisher=None, edition=None, genre=None, url=None,cop_count=None):
-        if title and author and publisher and edition and genre and url and cop_count:
-            super().__init__(title, author,cop_count)
+    def __init__(self, title=None, author=None, publisher=None, year=None, edition=None, genre=None, url=None,
+                 bestseller=False, reference=False):
+        if title and author and publisher and year and edition and genre and url:
+            super().__init__(title, author)
             self.__info = super().summary()
             self.set_publisher(publisher)
+            self.set_year(year)
             self.set_edition(edition)
             self.set_genre(genre)
-            self.set_bestseller(False)
-            self.set_is_reference(False)
+            self.set_bestseller(bestseller)
+            self.set_is_reference(reference)
             self.set_url(url)
         else:
-            super().__init__("", "",0)
+            super().__init__("", "")
             self.__info = super().summary()
             self.set_publisher(publisher)
+            self.set_year(year)
             self.set_edition(edition)
             self.set_genre(genre)
             self.set_bestseller(False)
             self.set_is_reference(False)
             self.set_url(url)
+        self.__info["type"] = "book"
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
@@ -125,13 +124,15 @@ class Book(Document):
             self.set_author(tmp[document_author])
         if book_publisher in tmp:
             self.set_publisher(tmp[book_publisher])
+        if book_year in tmp:
+            self.set_year(tmp[book_year])
         if book_edition in tmp:
             self.set_edition(tmp[book_edition])
         if book_genre in tmp:
             self.set_genre(tmp[book_genre])
         if book_bestseller in tmp:
             self.set_bestseller(tmp[book_bestseller])
-        if book_bestseller in tmp:
+        if book_is_reference in tmp:
             self.set_is_reference(tmp[book_is_reference])
         if document_url in tmp:
             self.set_url(tmp[document_url])
@@ -139,10 +140,17 @@ class Book(Document):
             self.set_list_of_copies(tmp[document_copies])
 
     def set_publisher(self, new_publisher):
+        print("this is type of a publisher " + str(type(self.__info)))
         self.__info[book_publisher] = new_publisher
 
     def get_publisher(self):
         return self.__info[book_publisher]
+
+    def set_year(self, year):
+        self.__info[book_year] = year
+
+    def get_year(self):
+        return self.__info[book_year]
 
     def set_edition(self, new_edition):
         self.__info[book_edition] = new_edition
@@ -160,7 +168,10 @@ class Book(Document):
         self.__info[book_bestseller] = is_it
 
     def is_bestseller(self):
-        return self.__info[book_bestseller]
+        if self.__info[book_bestseller] == "true":
+            return True
+        else:
+            return False
 
     def get_duration(self):
         if self.is_bestseller():
@@ -172,38 +183,49 @@ class Book(Document):
         self.__info[book_is_reference] = is_not
 
     def is_reference(self):
-        return self.__info[book_is_reference]
+        if self.__info[book_is_reference] == "true":
+            return True
+        else:
+            return False
 
     def summary(self):
         return self.__info
 
 
 class Article(Document):
-    def __init__(self, title=None, author=None, journal=None, publication_date=None, editor=None, url=None,cop_count=None):
-        if title and author and journal and publication_date and editor and url and cop_count:
-            super().__init__(title, author,cop_count)
+    def __init__(self, title=None, author=None, journal=None, publication_date=None, editor=None, url=None):
+        if title and author and journal and publication_date and editor and url:
+            super().__init__(title, author)
             self.__info = super().summary()
             self.__info[article_journal] = journal
             self.__info[article_pub_date] = publication_date
             self.__info[article_editor] = editor
             self.__info[document_url] = url
         else:
-            super().__init__("", "",0)
+            super().__init__("", "")
             self.__info = super().summary()
             self.__info[article_journal] = journal
             self.__info[article_pub_date] = publication_date
             self.__info[article_editor] = editor
             self.__info[document_url] = url
+        self.__info["type"] = "article"
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
-        self.set_title(tmp[document_title])
-        self.set_author(tmp[document_author])
-        self.set_journal(tmp[article_journal])
-        self.set_pub_date(tmp[article_pub_date])
-        self.set_editor(tmp[article_editor])
-        self.set_url(tmp[document_url])
-        self.set_cop_count(tmp[document_copies_count])
+        if document_title in tmp:
+            self.set_title(tmp[document_title])
+        if document_author in tmp:
+            self.set_author(tmp[document_author])
+        if article_journal in tmp:
+            self.set_journal(tmp[article_journal])
+        if article_pub_date in tmp:
+            self.set_pub_date(tmp[article_pub_date])
+        if article_editor in tmp:
+            self.set_editor(tmp[article_editor])
+        if document_url in tmp:
+            self.set_url(tmp[document_url])
+        if document_copies in tmp:
+            self.set_list_of_copies(tmp[document_copies])
 
     def set_journal(self, new_journal):
         self.__info[article_journal] = new_journal
@@ -231,25 +253,31 @@ class Article(Document):
 
 
 class AV_Materials(Document):
-    def __init__(self, title=None, author=None, price=None, url=None,cop_count=None):
-        if title and author and price and url and cop_count:
-            super().__init__(title, author,cop_count)
+    def __init__(self, title=None, author=None, price=None, url=None):
+        if title and author and price and url:
+            super().__init__(title, author)
             self.__info = super().summary()
             self.set_price(price)
             self.set_url(url)
         else:
-            super().__init__("", "",0)
+            super().__init__("", "")
             self.__info = super().summary()
             self.set_price(price)
             self.set_url(url)
+        self.__info["type"] = "av"
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
-        self.set_title(tmp[document_title])
-        self.set_author(tmp[document_author])
-        self.set_price(tmp[document_price])
-        self.set_url(tmp[document_url])
-        self.set_cop_count(tmp[document_copies_count])
+        if document_title in tmp:
+            self.set_title(tmp[document_title])
+        if document_author in tmp:
+            self.set_author(tmp[document_author])
+        if document_price in tmp:
+            self.set_price(tmp[document_price])
+        if document_copies in tmp:
+            self.set_list_of_copies(tmp[document_copies])
+        if document_url in tmp:
+            self.set_url(tmp[document_url])
 
     def get_author(self):
         return self.__info[document_author]

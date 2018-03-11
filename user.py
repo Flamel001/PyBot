@@ -7,7 +7,6 @@ document_author = "author"
 document_owner = "owner"
 document_keywords = "keywords"
 document_copies = "copies"
-document_copies_count = "cop_count"
 document_price = "price"
 document_duration = "duration"
 document_keywords_count = "keywords_count"
@@ -66,19 +65,25 @@ class Librarian(User):
 
     def setData(self, dictionary: dict):
         self.__info = dict(dictionary)
-        self.set_id(dictionary[user_id])
-        self.set_name(dictionary[user_name])
-        self.set_mail(dictionary[user_mail])
-        self.set_number(dictionary[user_number])
-        self.set_alias(dictionary[user_alias])
-        self.set_address(dictionary[user_address])
+        if user_id in dictionary:
+            self.set_id(dictionary[user_id])
+        if user_name in dictionary:
+            self.set_name(dictionary[user_name])
+        if user_mail in dictionary:
+            self.set_mail(dictionary[user_mail])
+        if user_number in dictionary:
+            self.set_number(dictionary[user_number])
+        if user_alias in dictionary:
+            self.set_alias(dictionary[user_alias])
+        if user_address in dictionary:
+            self.set_address(dictionary[user_address])
+
         self.__info[user_rank] = 2
 
-    def new_book(self, title, author, publisher, edition, genre, url, cop_count):
+    def new_book(self, title, author, publisher, year, edition, genre, url, bestseller, reference):
         print(
-            "these are the fields " + title + ", " + author + ", " + publisher + ", " + edition + ", " + genre + ", " + url + "," + str(
-                cop_count))
-        new = dc.Book(title, author, publisher, edition, genre, url, cop_count)
+            "these are the fields " + title + ", " + author + ", " + publisher + ", " + year + "," + edition + ", " + genre + ", " + url)
+        new = dc.Book(title, author, publisher, year, edition, genre, url, bestseller, reference)
         print("this is book summary " + str(new.summary()))
         db.insert_book(title, new.summary())
         # return new
@@ -91,12 +96,13 @@ class Librarian(User):
 
     def add_copy_for_doc(self, original: dc.Document, copy_id):
         original.add_copy(copy_id)
+        self.modify_book(original, original.get_list_of_copies())
 
     def set_book_bestseller(self, book, is_not):
         book.set_bestseller(is_not)
 
-    def new_article(self, title, author, journal, publication_date, editor, url, cop_count):
-        new = dc.Article(title, author, journal, publication_date, editor, url,cop_count)
+    def new_article(self, title, author, journal, publication_date, editor, url):
+        new = dc.Article(title, author, journal, publication_date, editor, url)
         db.insert_book(new.get_title(), new.summary())
         # return new
 
@@ -106,8 +112,9 @@ class Librarian(User):
         db.insert_book(new.get_title(), new.summary())
         # return new
 
-    def new_AV_material(self, title, author, value, url, cop_count):
-        new = dc.AV_Materials(title, author, value, url, cop_count)
+    def new_AV_material(self, title, author, value, url):
+        new = dc.AV_Materials(title, author, value, url)
+        print("avmaterial " + str(new.summary()))
         db.insert_book(new.get_title(), new.summary())
         # return new
 
@@ -117,8 +124,8 @@ class Librarian(User):
         db.insert_book(new.get_title(), new.summary())
         # return new
 
-    def new_student(self, id, name, mail, number, alias):
-        new = Student(id, name, mail, number, alias)
+    def new_student(self, id, name, mail, number, alias, address):
+        new = Student(id, name, mail, number, alias, address)
         db.insert_user(new.get_alias(), new.summary())
         # return new
 
@@ -128,8 +135,8 @@ class Librarian(User):
         db.insert_user(new.get_alias(), new.summary())
         # return new
 
-    def new_faculty(self, id, name, mail, number, alias):
-        new = Faculty(id, name, mail, number, alias)
+    def new_faculty(self, id, name, mail, number, alias, address):
+        new = Faculty(id, name, mail, number, alias, address)
         db.insert_user(new.get_alias(), new.summary())
         # return new
 
@@ -248,8 +255,8 @@ class Librarian(User):
     def get_user(self, alias):
         return db.get_user(alias)
 
-    def get_book(self, name):
-        return db.get_book(name)
+    def get_doc(self, name):
+        return db.get_doc(name)
 
     def get_name(self):
         return self.__info[user_name]
@@ -292,6 +299,9 @@ class Librarian(User):
 
     def summary(self):
         return self.__info
+
+    def get_type(self):
+        return self.__info[user_type]
 
 
 class Patron(User):
@@ -350,13 +360,19 @@ class Patron(User):
         self.__info[user_document_list][title] = date
 
     def has_book(self, title):
-        return True if title in self.__info[user_document_list] else False
+        for key in self.__info[user_document_list].keys():
+            if title == key.split("_")[0]:
+                return True
+            else:
+                return False
 
     def get_docs_list(self):
         temp = dict(self.__info[user_document_list])
-        return str(temp)
+        print("docs list is " + str(self.__info[user_document_list]))
+        return temp
 
     def set_docs_list(self, new_list):
+        print("doc list in user " + str(type(new_list)))
         temp = dict(new_list)
         self.__info[user_document_list] = temp
 
@@ -402,6 +418,9 @@ class Patron(User):
     def set_address(self, address):
         self.__info[user_address] = address
 
+    def get_type(self):
+        return self.__info[user_type]
+
 
 class Student(Patron):
 
@@ -416,17 +435,24 @@ class Student(Patron):
             self.__info = super().summary()
             self.set_documents_duration(3)
             self.set_rank(0)
-
         self.__info[user_type] = "student"
 
     def setData(self, dictionary):
         temp = dict(dictionary)
-        self.set_id(temp[user_id])
-        self.set_name(temp[user_name])
-        self.set_mail(temp[user_mail])
-        self.set_number(temp[user_number])
-        self.set_alias(temp[user_alias])
-        self.set_address(temp[user_address])
+        if user_id in temp:
+            self.set_id(temp[user_id])
+        if user_name in temp:
+            self.set_name(temp[user_name])
+        if user_mail in temp:
+            self.set_mail(temp[user_mail])
+        if user_number in temp:
+            self.set_number(temp[user_number])
+        if user_document_list in temp:
+            self.set_docs_list(temp[user_document_list])
+        if user_alias in temp:
+            self.set_alias(temp[user_alias])
+        if "user_address" in dictionary.keys():
+            self.set_address(temp[user_address])
         self.set_documents_duration(3)
         self.set_rank(0)
 
@@ -453,11 +479,10 @@ class Faculty(Patron):
         self.set_mail(temp[user_mail])
         self.set_number(temp[user_number])
         self.set_alias(temp[user_alias])
+        self.set_docs_list(temp[user_document_list])
         self.set_address(temp[user_address])
         self.set_documents_duration(3)
         self.set_rank(0)
 
         self.set_documents_duration(4)
         self.set_rank(1)
-
-

@@ -14,7 +14,7 @@ def get_reply_markup(button_titles_array):
 
 def get_inline_markup(left_amount):
     global __number
-    exp = '{}/{}'.format(__number + 1, db.get_count_of_different_books() + 1)
+    exp = '{}/{}'.format(__number + 1, db.get_count_of_different_books())
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(text="Reserve", callback_data="Book"))
     markup.add(types.InlineKeyboardButton(text=(str(left_amount) + " left"), callback_data="Left"))
@@ -30,7 +30,7 @@ def get_current_book_number():
 
 def increment_book_number():
     global __number
-    if __number == db.get_count_of_different_books():
+    if __number == db.get_count_of_different_books() - 1:
         __number = 0
     else:
         __number+=1
@@ -39,6 +39,6 @@ def increment_book_number():
 def decrement_book_number():
     global __number
     if __number == 0:
-        __number = db.get_count_of_different_books()
+        __number = db.get_count_of_different_books() - 1
     else:
         __number -= 1

@@ -35,11 +35,12 @@ next_doc_message_id = 0
 
 @bot.message_handler(commands=["start"])
 def greeting(message):
-    print(str(message.from_user.username))
-    print(str(message.text.strip().split(" ")))
-    bot.send_message(message.chat.id, u.greeting, reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_home))
-    librarian = Librarian("librarian", "librarian", "librarian", "librarian", "librarian")
-    map_of_users[message.from_user.username] = librarian
+    user = db.get_user(str(message.from_user.username))
+    if not user:
+        bot.send_message(message.chat.id, "Please choose your type", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_choice))
+    else:
+        map_of_users[str(message.chat.id)] = user
+        bot.send_message(message.chat.id, "You type is " + str(user.get_type()) + ". Please choose what you want to do", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_home))
 
 
 userEmail = ""
@@ -105,55 +106,92 @@ def verification(pin):
         return False
 
 
+@bot.message_handler(regexp="Librarian")
+def add_librarian(message):
+    lib = Librarian("314603914", "lib_name", "lib_mail", "lib_num", str(message.from_user.username), "lib_address")
+    db.insert_user(lib.get_alias(), lib.summary())
+    map_of_users[str(message.chat.id)] = lib
+    bot.send_message(message.chat.id, "Now, choose what you want to do", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_home))
+
+
+@bot.message_handler(regexp="Student")
+def add_student(message):
+    print("Message is " + str(message.text))
+    student = Student(str(message.chat.id), "student_name", "student_mail", "student_num", str(message.from_user.username), "student_address")
+    db.insert_user(student.get_alias(), student.summary())
+    map_of_users[str(message.chat.id)] = student
+    bot.send_message(message.chat.id, "Now, choose what you want to do", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_home))
+
+
+@bot.message_handler(regexp="Faculty")
+def add_faculty(message):
+    faculty = Faculty(str(message.chat.id), "faculty_name", "faculty_mail", "faculty_num", str(message.from_user.username), "faculty_address")
+    db.insert_user(faculty.get_alias(), faculty.summary())
+    map_of_users[str(message.chat.id)] = faculty
+    bot.send_message(message.chat.id, "Now, choose what you want to do", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_home))
+
+
 @bot.message_handler(commands=["get_user"])
 def get_user(message):
-    if message.from_user.username in map_of_users:
-        user = map_of_users[message.from_user.username]
+    if in_db(message):
+        user = map_of_users[str(message.chat.id)]
         if user.summary()["type"] == "librarian":
-            bot.send_message(message.chat.id, "This user's summary " + str(user.get_user(message.text.strip().split(" ")[-1][1:]).summary()))
+            user = user.get_user(message.text.strip().split(" ")[-1][1:])
+            if user:
+                bot.send_message(message.chat.id, "This user's summary " + str(user.summary()))
+            else:
+                bot.send_message(message.chat.id, "User does not exist")
         else:
             bot.send_message(message.chat.id, "You do not have the access")
 
 
 @bot.message_handler(commands=["get_book"])
-def get_user(message):
-    if message.from_user.username in map_of_users:
-        user = map_of_users[message.from_user.username]
+def get_book(message):
+    if in_db(message):
+        user = map_of_users[str(message.chat.id)]
         if user.summary()["type"] == "librarian":
-            bot.send_message(message.chat.id, "Summary of this book: " + str(user.get_book(message.text.strip().split(" ")[-1])))
+            book = user.get_book(message.text.strip().split(" ")[-1])
+            if book:
+                bot.send_message(message.chat.id, "Summary of this book: " + str(book.summary()))
         else:
             bot.send_message(message.chat.id, "You do not have the access")
 
 
 @bot.message_handler(commands=["remove_user"])
 def remove_user(message):
-    if message.from_user.username in map_of_users:
-        user = map_of_users[message.from_user.username]
+    if in_db(message):
+        user = map_of_users[str(message.chat.id)]
         if user.summary()["type"] == "librarian":
-            user.remove_user(message.text.strip().split(" ")[-1][1:])
-            bot.send_message(message.chat.id, "You have deleted user with alias " + str(message.text.strip.split(" ")[-1]))
+            user = db.get_user(message.text.strip().split(" ")[-1][1:])
+            if str(user.get_id()) in map_of_users:
+                user.remove_user(user.get_alias())
+            bot.send_message(message.chat.id, text=("You have deleted user with alias " + str(message.text.strip().split(" ")[-1])))
         else:
             bot.send_message(message.chat.id, "You do not have the right to remove another user")
+    else:
+        bot.send_message(message.chat.id, "You're not in the database")
 
 
 @bot.message_handler(commands=["remove_book"])
 def remove_book(message):
-    if message.from_user.username in map_of_users:
-        user = map_of_users[message.from_user.username]
+    if in_db(message):
+        user = map_of_users[str(message.chat.id)]
         if user.summary()["type"] == "librarian":
             user.remove_document(message.text.strip().split(" ")[-1])
             bot.send_message(message.chat.id, "You have deleted book with name " + str(message.text.strip().split(" ")[-1]))
         else:
             bot.send_message(message.chat.id, "You do not have the right to remove a book")
+    else:
+        bot.send_message(message.chat.id, "You're not in the database")
 
 
 @bot.message_handler(commands=["add_book"])
 def add_book(message):
-    if message.from_user.username in map_of_users:
-        user = map_of_users[message.from_user.username]
+    if in_db(message):
+        user = map_of_users[str(message.chat.id)]
         if user.summary()["type"] == "librarian":
             message = bot.send_message(message.chat.id,
-                                       "In the next message please provide:\ntitle\nauthor\npublisher\nedition\ngenre\nurl")
+                                       "In the next message please provide:\ntitle\nauthor\npublisher\nyear\nedition\ngenre\nurl\nbestseller - if it is\nreference - if it is")
             bot.register_next_step_handler(message, create_book)
         else:
             bot.send_message(message.chat.id, "You do not have the right to add a new book")
@@ -161,16 +199,138 @@ def add_book(message):
 
 def create_book(message):
     message_split = message.text.split("\n")
-    if len(message_split) == 6:
-        if message.from_user.username in map_of_users:
-            user = map_of_users[message.from_user.username]
+    print("message splited " + str(message_split))
+    if len(message_split) == 9:
+        if in_db(message):
+            user = map_of_users[str(message.chat.id)]
             if user.summary()["type"] == "librarian":
-                user.new_book(message_split[0].strip(), message_split[1].strip(), message_split[2].strip(), message_split[3].strip(), message_split[4].strip(), message_split[5])
+                user.new_book(message_split[0].strip(), message_split[1].strip(), message_split[2].strip(), message_split[3].strip(), message_split[4].strip(), message_split[5].strip(), message_split[6].strip(), message_split[7].strip(), message_split[8].strip())
                 bot.send_message(message.chat.id, "You have successfully added a book")
             else:
-                bot.send_message(message.chat.id, "You do not have the right to add a new book")
+                bot.send_message(message.chat.id, "You do not have the right to add a new book. If you wan to add a copy of it - use /add_copy command")
     else:
         bot.send_message(message.chat.id, "The format of the message does not suit. Please try again.")
+
+
+@bot.message_handler(commands=["add_av"])
+def add_av(message):
+    if in_db(message):
+        user = map_of_users[str(message.chat.id)]
+        if user.summary()["type"] == "librarian":
+            message = bot.send_message(message.chat.id,
+                                       "In the next message please provide:\ntitle\nauthor\nprice\nurl")
+            bot.register_next_step_handler(message, create_av)
+        else:
+            bot.send_message(message.chat.id, "You do not have the right to add a new audio/video material")
+
+
+def create_av(message):
+    message_split = message.text.split("\n")
+    if len(message_split) == 4:
+        if in_db(message):
+            user = map_of_users[str(message.chat.id)]
+            if user.summary()["type"] == "librarian":
+                print("message_splitted " + str(message_split))
+                user.new_AV_material(message_split[0].strip(), message_split[1].strip(), message_split[2].strip(), message_split[3].strip())
+                bot.send_message(message.chat.id, "You have successfully added a book")
+            else:
+                bot.send_message(message.chat.id, "You do not have the right to add a new audio/video material. If you wan to add a copy of it - use /add_copy command")
+    else:
+        bot.send_message(message.chat.id, "The format of the message does not suit. Please try again.")
+
+
+@bot.message_handler(commands=["add_article"])
+def add_article(message):
+    if in_db(message):
+        user = map_of_users[str(message.chat.id)]
+        if user.summary()["type"] == "librarian":
+            message = bot.send_message(message.chat.id, "In the next message please provide:\ntitle\nauthor\njournal\npublication date\editor\nurl")
+            bot.register_next_step_handler(message, create_article)
+        else:
+            bot.send_message(message.chat.id, "You do not have the right to add a new article")
+
+
+def create_article(message):
+    message_split = message.text.split("\n")
+    if len(message_split) == 6:
+        if in_db(message):
+            user = map_of_users[str(message.chat.id)]
+            if user.summary()["type"] == "librarian":
+                user.new_article(message_split[0].strip(), message_split[1].strip(), message_split[2].strip(), message_split[3].strip(), message_split[4].strip(), message_split[5].strip())
+                bot.send_message(message.chat.id, "You have successfully added an article. If you wan to add a copy of it - use /add_copy command")
+            else:
+                bot.send_message(message.chat.id, "You do not have the right to add a new article")
+    else:
+        bot.send_message(message.chat.id, "The format of the message does not suit. Please try again.")
+
+
+@bot.message_handler(commands=["return_doc", "add_copy"])
+def add_book(message):
+    if in_db(message):
+        user = map_of_users[str(message.chat.id)]
+        if user.summary()["type"] == "librarian":
+            message_splitted = message.text.strip().split()
+            doc_id = message_splitted.pop(-1)
+            message_splitted.pop(0)
+            print("This is something " + " ".join(message_splitted))
+            doc = db.get_doc(" ".join(message_splitted))
+            doc.add_copy(str(doc.get_title()) + "_" + str(doc_id))
+            d = dict()
+            d["copies"] = doc.get_list_of_copies()
+            db.update_book(doc.get_title(), d)
+            bot.send_message(message.chat.id, "You have added copy of the book: " + " ".join(message_splitted))
+        else:
+            bot.send_message(message.chat.id, "You do not have the right to add a new article")
+
+
+@bot.message_handler(commands=["add_st"])
+def add_student(message):
+    if in_db(message):
+        user = map_of_users[str(message.chat.id)]
+        if user.summary()["type"] == "librarian":
+            print("Here, text should appear")
+            message = bot.send_message(message.chat.id,
+                                       "In the next message please provide:\nid\nname\nmail\nnumber\nalias\naddress")
+            bot.register_next_step_handler(message, create_student)
+        else:
+            bot.send_message(message.chat.id, "You do not have the right to add a new students")
+    else:
+        bot.send_message(message.chat.id, "You are not in db")
+
+
+def create_student(message):
+    message_split = message.text.split("\n")
+    if len(message_split) == 6:
+        if in_db(message):
+            user = map_of_users[str(message.chat.id)]
+            if user.summary()["type"] == "librarian":
+                user.new_student(message_split[0].strip(), message_split[1].strip(), message_split[2].strip(), message_split[3].strip(), message_split[4].strip(), message_split[5].strip())
+                bot.send_message(message.chat.id, "You have successfully added a book")
+            else:
+                bot.send_message(message.chat.id, "You do not have the right to add new student")
+    else:
+        bot.send_message(message.chat.id, "The format of the message does not suit. Please try again.")
+
+
+@bot.message_handler(commands=["remove_copy"])
+def remove_copy(message):
+    if in_db(message):
+        user = map_of_users[str(message.chat.id)]
+        if user.summary()["type"] == "librarian":
+            print("Here, text should appear")
+            message_splitted = message.text.strip().split()
+            message_splitted.pop(0)
+            id = message_splitted.pop(-1)
+            book = db.get_doc(" ".join(message_splitted))
+            if (" ".join(message_splitted) + "_" + id) in book.get_list_of_copies():
+                index = book.get_list_of_copies().index((" ".join(message_splitted) + "#" + id))
+                book.get_list_of_copies().pop(index)
+                db.update_book(book.get_title(), book.summary())
+            bot.send_message(message.chat.id, "You have removed a copy of a book")
+        else:
+            bot.send_message(message.chat.id, "You do not have the right to remove a copy")
+    else:
+        bot.send_message(message.chat.id, "You are not in the db")
 
 
 @bot.message_handler(regexp='help')
@@ -178,10 +338,18 @@ def help_func(message):
     bot.reply_to(message, "Help func is currently unavailable")
 
 
-@bot.message_handler(regexp='Docs')
+@bot.message_handler(regexp='Library')
 def genres(message):
     print("Something goes wrong")
     bot.send_message(message.chat.id, "Choose category", reply_markup=bot_features.get_reply_markup(u.keyboard_buttons_docs))
+
+
+@bot.message_handler(regexp="My docs")
+def my_docs(message):
+    list_of_my_docs = map_of_users[str(message.chat.id)].get_docs_list()
+    print("This is dict " + str( map_of_users[str(message.chat.id)].summary()))
+    for doc_name in list_of_my_docs.keys():
+        bot.send_message(message.chat.id, doc_name)
 
 
 @bot.message_handler(commands=["options"])
@@ -206,6 +374,7 @@ def telegraph_func(message):
 @bot.callback_query_handler(func=lambda call: call.data == 'next')
 def to_right(call):
     bot_features.increment_book_number()
+    print("current book number is " + str(bot_features.get_current_book_number()))
     book = db.get_all_books()[bot_features.get_current_book_number()]
     bot.edit_message_text(chat_id=call.message.chat.id, text=book.get_title(), message_id=next_doc_message_id)
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=next_doc_message_id, reply_markup=bot_features.get_inline_markup(book.get_number_of_copies()))
@@ -214,6 +383,7 @@ def to_right(call):
 @bot.callback_query_handler(func=lambda call: call.data == 'prev')
 def to_left(call):
     bot_features.decrement_book_number()
+    print("current book number is " + str(bot_features.get_current_book_number()))
     book = db.get_all_books()[bot_features.get_current_book_number()]
     bot.edit_message_text(chat_id=call.message.chat.id, text=book.get_title(), message_id=next_doc_message_id)
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=next_doc_message_id, reply_markup=bot_features.get_inline_markup(book.get_number_of_copies()))
@@ -221,7 +391,10 @@ def to_left(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == 'Book')
 def booking(call):
-    bot.send_message(call.message.chat.id, b.book_doc(u.user1, db.get_all_books()[bot_features.get_current_book_number()]))
+    print("username " + str(call.message.chat.id))
+    print("dictiionary in booking " + str(map_of_users))
+    print("student summary " + str(map_of_users[str(call.message.chat.id)].summary()))
+    bot.send_message(call.message.chat.id, b.book_doc(map_of_users[str(call.message.chat.id)], db.get_all_books()[bot_features.get_current_book_number()]))
 
 
 @bot.message_handler(regexp='author')
@@ -243,6 +416,22 @@ def send(userid, message):
     bot.send_message(314603914, message)
 
 
+def in_db(message):
+    print("map of users " + str(map_of_users))
+    print("id is " + str(message.chat.id))
+    if str(message.chat.id) in map_of_users:
+        return True
+    else:
+        return False
+
+
+@bot.message_handler(commands=["checkout"])
+def checkout(message):
+    message_splitted = message.text.strip().split()
+    message_splitted.pop(0)
+    user = db.get_user(message.text.strip().split(" ")[-1][1:])
+    doc = db.get_doc("Introduction to Algorithms")
+    print(b.book_doc(user, doc))
 
 @bot.message_handler(regexp='Librarian')
 def librarian(message):
