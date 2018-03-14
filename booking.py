@@ -1,56 +1,73 @@
 import datetime
-import utilities
-import database as db
-import bot
+import user
+import documents
 
 
-def book_doc(user, book):
-    print("Summary is " + str(user.summary()))
-    print("Summary is " + str(book.summary()))
-    has = user.has_book(book.get_title())
-    number_of_copies = book.get_number_of_copies()
-    if not has:
-        if book.summary()["type"] == "book":
-            if number_of_copies > 0:
-                if not book.is_reference():
+def booking(user, document):
+    print("Booking func has been initialised")
 
-                    init_date = datetime.datetime.toordinal(datetime.datetime.today())
+    if document.summary()["type"] == "book":
+
+        if not user.has_book(document.get_title()):
+
+            if document.get_number_of_copies() > 0:
+
+                if not document.is_reference():
+                    init_date = datetime.datetime.toordinal(
+                        datetime.datetime.today())
 
                     if user.get_rank() == 1:
-                        exp_date = datetime.datetime.fromordinal(init_date + 28)
+                        exp_date = datetime.datetime.fromordinal(
+                            init_date + 28)
+                        print("User: " + user +
+                              "took book till: " + str(exp_date))
                     else:
-                        if book.is_bestseller():
-                            exp_date = datetime.datetime.fromordinal(init_date + 14)
+
+                        if document.is_bestseller():
+                            exp_date = datetime.datetime.fromordinal(
+                                init_date + 14)
+                            print("User: " + user +
+                                  "took book till: " + str(exp_date))
+
                         else:
-                            exp_date = datetime.datetime.fromordinal(init_date + 21)
+                            exp_date = datetime.datetime.fromordinal(
+                                init_date + 21)
+                            print("User: " + user +
+                                  "took book till: " + str(exp_date))
+                    user.add_document(
+                        document.get_list_of_copies().pop(0), str(exp_date))
 
-                    user.add_document(book.get_list_of_copies().pop(0), str(exp_date))
-                    notify_all(user, book)
-                    return utilities.booking_success + str(exp_date)
-                else:
-                    return utilities.booking_book_is_unavailable
+                    return success + " " + str(exp_date)
+
+                return fail
             else:
-                return utilities.booking_no_copies
-        elif book.summary()["type"] == "av":
-            user.add_document(book.get_title(), str("forever"))
-            notify_all(user, book)
-            return "You have checked out an av material"
-        elif book.summary()["type"] == "article":
-            user.add_document(book.get_title(), str("forever"))
-            notify_all(user, book)
-            return "You have checked out an article"
-    else:
-        return utilities.booking_already_have_it
+                return no_copies
+
+    elif document.summary()["type"] == "av":
+
+        if not user.has_book(document.get_title()):
+
+            if document.get_number_of_copies() > 0:
+                init_date = datetime.datetime.toordinal(
+                    datetime.datetime.today())
+
+                if user.get_rank() == 1:
+                    exp_date = datetime.datetime.fromordinal(
+                        init_date + 28)
+                    print("User: " + user + "took av-file until: " + str(
+                        exp_date))
+                else:
+                    exp_date = datetime.datetime.fromordinal(
+                        init_date + 21)
+                    print("User: " + user +
+                          "took av-file until: " + str(exp_date))
+    # elif document.summary()["type"] == "article":
 
 
-def notify_all(user, book):
-    d = dict()
-    print("This is something " + str(user.get_docs_list()))
-    d["document_list"] = user.get_docs_list()
-    db.update_user(user.get_alias(), d)
-    d.clear()
-    d["copies"] = list(book.get_list_of_copies())
-    db.update_book(book.get_title(), d)
-    list_of_all_librarians = db.get_all_librarians_ids()
-    for librarian in list_of_all_librarians:
-        bot.send(librarian, "user with alias " + str(user.get_alias()) + " has borrowed a book")
+success = "Congratulations! You have been successfully ordered a book until: "
+fail = "Unfortunately book is not yet available..."
+no_copies = "No copies"
+
+
+# TODO connect all this shit together. Get that shit together, get things done.
+# Just finish class after DB released.
