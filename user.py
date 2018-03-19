@@ -1,6 +1,5 @@
 import documents as dc
 import datetime
-import database as db
 
 document_title = "title"
 document_author = "author"
@@ -486,3 +485,16 @@ class Faculty(Patron):
 
         self.set_documents_duration(4)
         self.set_rank(1)
+
+
+class Instructors(Faculty):
+    pass
+
+
+class TA(Faculty):
+    pass
+
+
+class Professors(Faculty):
+    pass
+
