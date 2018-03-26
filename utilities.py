@@ -18,9 +18,15 @@ booking_already_have_it = "You are owning this book already"
 keyboard_button_back = [["Back","Back"]]
 
 keyboard_buttons_choice = [["Librarian","Librarian"], ["Patron","Patron"]]
-keyboard_librarian_buttons_home = [["Actions with Patrons","Actions with Patrons"], ["Manage Docs", "Manage Docs"]]
-keyboard_librarian_buttons_actions = [["Add new Patron","Add new Patron"],["Manage existing Patrons","Manage existing Patrons"]]
-keyboard_librarian_buttons_manage = [["Edit","Edit"],["Get information","Get information"],["Delete","Delete"]]
+
+keyboard_buttons_library = [["Books","Books"],["Articles","Articles"],["Audio/Video","Audio/Video"],["Back","Back"]]
+
+"LIBRARIAN"
+keyboard_librarian_buttons_home = [["Actions with Patrons","Actions with Patrons"], ["Manage Docs", "Library"], ["Docs on hands", "Docs on hands"]]
+keyboard_librarian_buttons_library = [["Add","Add doc"],["Manage docs","Library"]]
+keyboard_librarian_buttons_manage = [["Edit","Edit"],["Get information","Get information"],["Delete","Delete"],["Return to home page","Back"]]
+keyboard_librarian_buttons_edit = [["Name","Name"],["Surname","Surname"],["mail","mail"],["number","number"],["alias","alias"],["address","address"],["Back","Back"]]
+keyboard_librarian_buttons_cobfirmation = [["Add","Add"],["Back","Actions with Patrons"]]
 
 
 "PATRON"
@@ -30,7 +36,12 @@ keyboard_patron_buttons_reserve = [["Reserve","Reserve"],["Back","Back"]]
 keyboard_patron_buttons_doc = [["Return","Return"],["Renew","Renew"],["Back","Back"]]
 
 
-
+current_email = ""
+field = ""
+is_librarian = False
+db_to_search = []
+current_object = ""
+current_type = ""
 
 
 # title, author, publisher, edition, genre

@@ -129,4 +129,6 @@ book3 = documents.Book("Reference", "Author Uknown", "Innopolis", "2018", "1st",
 article1 = documents.Article("Article", "Blogger", "InnoTimes", "2018", "Inno", "URL")
 av_file1 = documents.AV_Materials("Title", "JimmyHendrix", "200$", "URL")
 
-booking(prof, book1)
+booking(student, book1)
+
+print(str(student.summary()))
