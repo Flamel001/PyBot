@@ -68,6 +68,15 @@ def renew(call):
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
+@bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
+def patron_waiting_list(call):
+    #TODO:прикрутить сам вейтинг лист и какое то уведомление молодого о том, когда появится книга
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                          text="You are added to the waiting list for {}".format(u.current_object.text))
+    bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
+
+
 @bot.callback_query_handler(func=lambda call: call.data == "Return")
 def return_doc(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -121,6 +130,16 @@ def library(call):
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_buttons_library))
 
 
+@bot.callback_query_handler(func=lambda call: call.data == "Waiting list")
+def initialize_librarian(call):
+    #TODO: прикрутить сам лист
+    list = ["patron1","faculty2","Ramil-pezduk999"]
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                          text="{} now in the waiting list".format(list))
+    bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  reply_markup=bot_features.get_inline_markup([["Spasibo-dosvidaniya","Back"]]))
+
+
 
 
 "METHODS FOR SEARCH"
@@ -158,8 +177,13 @@ def search(call):
                 message = "What do you want to do with {}?".format(call.text)
                 markup = u.keyboard_patron_buttons_doc
             else:
-                message = "Do you want to reserve {}?".format(call.text)
-                markup = u.keyboard_patron_buttons_reserve
+                if False:#TODO: тут должно чекать, если количество книг>0
+                    message = "Do you want to reserve {}?".format(call.text)
+                    button = "Reserve"
+                else:
+                    message = "Do you want to be added to the waiting list to take {} when it will be availible?".format(call.text)
+                    button = "To waiting list"
+                markup = [[button,button]]
     else:
         if u.is_librarian:
             message = "Do you want to add {} to database?".format(call.text)
@@ -212,7 +236,7 @@ def edited(call):
     bot.send_message(call.chat.id, "Field {} of {} now equals to {}".format(u.field,u.current_object.text,call.text),
                      reply_markup=bot_features.get_inline_markup([["ebanumba, zaebis","Back"]]))
 
-
+"KbIK db"
 def get_type(obj):
     if obj == "Emails":
         return [["Imya","Imya"],[ "Familiya","Familiya"]]
@@ -251,7 +275,7 @@ def get_info(call):
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
-
+"BACK"
 @bot.callback_query_handler(func=lambda call: call.data == "Back")
 def back(call):
     #TODO: наверно нужно перепривязать костыльную проверку к дб, но тут сам решай
