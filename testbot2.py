@@ -179,8 +179,8 @@ def search(call):
             message = "Choose action to do with {}".format(call.text)
             markup = u.keyboard_librarian_buttons_manage
             if u.field == "Books":#костыльная проверка на док
-                markup.insert(-1,["Waiting list", "Waiting list"])
-                print(markup)
+                markup = u.keyboard_librarian_buttons_manage[:-1] + [["Waiting list","Waiting list"]] + u.keyboard_librarian_buttons_manage[-1:]
+
         else:
             if u.field == "Patron docs":
                 message = "What do you want to do with {}?".format(call.text)
