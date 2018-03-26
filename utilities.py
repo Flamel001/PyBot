@@ -22,7 +22,7 @@ keyboard_buttons_choice = [["Librarian","Librarian"], ["Patron","Patron"]]
 keyboard_buttons_library = [["Books","Books"],["Articles","Articles"],["Audio/Video","Audio/Video"],["Back","Back"]]
 
 "LIBRARIAN"
-keyboard_librarian_buttons_home = [["Actions with Patrons","Actions with Patrons"], ["Manage Docs", "Library"], ["Docs on hands", "Docs on hands"],["Waiting list", "Waiting list"]]
+keyboard_librarian_buttons_home = [["Actions with Patrons","Actions with Patrons"], ["Manage Docs", "Library"], ["Docs on hands", "Docs on hands"]]
 keyboard_librarian_buttons_library = [["Add","Add doc"],["Manage docs","Library"]]
 keyboard_librarian_buttons_manage = [["Edit","Edit"],["Get information","Get information"],["Delete","Delete"],["Return to home page","Back"]]
 keyboard_librarian_buttons_edit = [["Name","Name"],["Surname","Surname"],["mail","mail"],["number","number"],["alias","alias"],["address","address"],["Back","Back"]]

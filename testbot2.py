@@ -137,9 +137,15 @@ def initialize_librarian(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="{} now in the waiting list".format(list))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                  reply_markup=bot_features.get_inline_markup([["Spasibo-dosvidaniya","Back"]]))
+                                  reply_markup=bot_features.get_inline_markup([["Make  ebenii request","Outstanding Request"],["Spasibo-dosvidaniya","Back"]]))
 
 
+@bot.callback_query_handler(func=lambda call: call.data == "Outstanding Request")
+def initialize_librarian(call):
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                          text="Molodec, sdelal request, proizoshlo tseloe nixoya")
+    bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                                  reply_markup=bot_features.get_inline_markup([["Spasibo-dosvidaniya", "Back"]]))
 
 
 "METHODS FOR SEARCH"
@@ -172,6 +178,9 @@ def search(call):
         if u.is_librarian:
             message = "Choose action to do with {}".format(call.text)
             markup = u.keyboard_librarian_buttons_manage
+            if u.field == "Books":#костыльная проверка на док
+                markup.insert(-1,["Waiting list", "Waiting list"])
+                print(markup)
         else:
             if u.field == "Patron docs":
                 message = "What do you want to do with {}?".format(call.text)
