@@ -32,7 +32,6 @@ user_alias = "alias"
 user_rating = "rating"
 user_document_duration = "document_duration"
 user_document_list = "document_list"
-user_rank = "rank"
 user_debt = "debt"
 user_registration_date = "registration_date"
 user_type = "type"
@@ -60,7 +59,6 @@ class Librarian(User):
             self.__info[user_number] = ""
             self.__info[user_alias] = ""
             self.__info[address] = ""
-        self.__info[user_rank] = 2
         self.__info[user_type] = "Librarian"
 
     def setData(self, dictionary: dict):
@@ -77,7 +75,6 @@ class Librarian(User):
             self.set_alias(dictionary[user_alias])
         if user_address in dictionary:
             self.set_address(dictionary[user_address])
-        self.__info[user_rank] = 2
         self.__info[user_type] = "Librarian"
 
     def new_book(self, title, author, publisher, year, edition, genre, url, bestseller, reference):
@@ -282,9 +279,6 @@ class Librarian(User):
     def set_alias(self, new):
         self.__info[user_alias] = new
 
-    def get_rank(self):
-        return self.__info[user_rank]
-
     def get_id(self):
         return self.__info[user_id]
 
@@ -316,7 +310,6 @@ class Patron(User):
         self.__info[user_rating] = 5
         self.__info[user_document_list] = dict()
         self.__info[user_registration_date] = str(datetime.datetime.now())
-        self.__info[user_rank] = 0
         self.__info[user_debt] = 0
         self.__info[user_address] = address
         self.__info[user_priority] = 0
@@ -392,9 +385,6 @@ class Patron(User):
     def get_documents_duration(self):
         return self.__info[user_document_duration]
 
-    def get_rank(self):
-        return self.__info[user_rank]
-
     def increase_debt(self, value):
         self.__info[user_debt] = self.__info[user_debt] + value
 
@@ -409,9 +399,6 @@ class Patron(User):
 
     def summary(self):
         return self.__info
-
-    def set_rank(self, rank):
-        self.__info[user_rank] = rank
 
     def get_address(self):
         return self.__info[user_address]
@@ -428,9 +415,6 @@ class Patron(User):
     def set_prior(self, prior):
         self.__info[user_priority] = prior
 
-    def get_type(self):
-        return self.__info[user_type]
-
     def set_type(self, type):
         self.__info[user_type] = type
 
@@ -445,7 +429,6 @@ class Student(Patron):
             super().__init__("", "", "", "", "", "")
             self.__info = super().summary()
 
-        self.set_rank(0)
         self.set_type("Student")
         self.set_prior(5)
 
@@ -466,7 +449,6 @@ class Student(Patron):
         if user_address in dictionary.keys():
             self.set_address(temp[user_address])
         self.set_type("Student")
-        self.set_rank(0)
         self.set_prior(5)
 
 
@@ -477,12 +459,10 @@ class Faculty(Patron):
             super().__init__(id, name, mail, number, alias)
             self.__info = super().summary()
             self.set_documents_duration(4)
-            self.set_rank(1)
         else:
             super().__init__("", "", "", "", "")
             self.__info = super().summary()
             self.set_documents_duration(4)
-            self.set_rank(1)
 
     def setData(self, dictionary):
         temp = dict(dictionary)
@@ -493,7 +473,6 @@ class Faculty(Patron):
         self.set_alias(temp[user_alias])
         self.set_docs_list(temp[user_document_list])
         self.set_address(temp[user_address])
-        self.set_rank(1)
 
 
 class Instructors(Faculty):
@@ -543,13 +522,11 @@ class VP(Patron):
         if id and name and mail and number and alias and address:
             super().__init__(id, name, mail, number, alias)
             self.__info = super().summary()
-            self.set_rank(-1)
             self.set_type("VP")
             self.set_prior(2)
         else:
             super().__init__("", "", "", "", "")
             self.__info = super().summary()
-            self.set_rank(-1)
             self.set_type("VP")
             self.set_prior(2)
 
@@ -562,4 +539,3 @@ class VP(Patron):
         self.set_alias(temp[user_alias])
         self.set_docs_list(temp[user_document_list])
         self.set_address(temp[user_address])
-        self.set_rank(-1)
