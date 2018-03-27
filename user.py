@@ -36,6 +36,7 @@ user_rank = "rank"
 user_debt = "debt"
 user_registration_date = "registration_date"
 user_type = "type"
+user_priority = "priority"
 user_id = "id"
 user_address = "address"
 
@@ -60,7 +61,7 @@ class Librarian(User):
             self.__info[user_alias] = ""
             self.__info[address] = ""
         self.__info[user_rank] = 2
-        self.__info[user_type] = "librarian"
+        self.__info[user_type] = "Librarian"
 
     def setData(self, dictionary: dict):
         self.__info = dict(dictionary)
@@ -76,8 +77,8 @@ class Librarian(User):
             self.set_alias(dictionary[user_alias])
         if user_address in dictionary:
             self.set_address(dictionary[user_address])
-
         self.__info[user_rank] = 2
+        self.__info[user_type] = "Librarian"
 
     def new_book(self, title, author, publisher, year, edition, genre, url, bestseller, reference):
         print(
@@ -318,6 +319,7 @@ class Patron(User):
         self.__info[user_rank] = 0
         self.__info[user_debt] = 0
         self.__info[user_address] = address
+        self.__info[user_priority] = 0
 
     def get_id(self):
         return self.__info[user_id]
@@ -420,6 +422,18 @@ class Patron(User):
     def get_type(self):
         return self.__info[user_type]
 
+    def get_prior(self):
+        return self.__info[user_priority]
+
+    def set_prior(self, prior):
+        self.__info[user_priority] = prior
+
+    def get_type(self):
+        return self.__info[user_type]
+
+    def set_type(self, type):
+        self.__info[user_type] = type
+
 
 class Student(Patron):
 
@@ -427,14 +441,13 @@ class Student(Patron):
         if id and name and mail and number and alias and address:
             super().__init__(id, name, mail, number, alias, address)
             self.__info = super().summary()
-            self.set_documents_duration(3)
-            self.set_rank(0)
         else:
             super().__init__("", "", "", "", "", "")
             self.__info = super().summary()
-            self.set_documents_duration(3)
-            self.set_rank(0)
-        self.__info[user_type] = "student"
+
+        self.set_rank(0)
+        self.set_type("Student")
+        self.set_prior(5)
 
     def setData(self, dictionary):
         temp = dict(dictionary)
@@ -450,10 +463,11 @@ class Student(Patron):
             self.set_docs_list(temp[user_document_list])
         if user_alias in temp:
             self.set_alias(temp[user_alias])
-        if "user_address" in dictionary.keys():
+        if user_address in dictionary.keys():
             self.set_address(temp[user_address])
-        self.set_documents_duration(3)
+        self.set_type("Student")
         self.set_rank(0)
+        self.set_prior(5)
 
 
 class Faculty(Patron):
@@ -469,7 +483,6 @@ class Faculty(Patron):
             self.__info = super().summary()
             self.set_documents_duration(4)
             self.set_rank(1)
-        self.__info[user_type] = "faculty"
 
     def setData(self, dictionary):
         temp = dict(dictionary)
@@ -480,21 +493,73 @@ class Faculty(Patron):
         self.set_alias(temp[user_alias])
         self.set_docs_list(temp[user_document_list])
         self.set_address(temp[user_address])
-        self.set_documents_duration(3)
-        self.set_rank(0)
-
-        self.set_documents_duration(4)
         self.set_rank(1)
 
 
 class Instructors(Faculty):
-    pass
+    def __init__(self, id=None, name=None, mail=None, number=None, alias=None, address=None):
+        if id and name and mail and number and alias and address:
+            super().__init__(id, name, mail, number, alias)
+            self.__info = super().summary()
+            self.set_type("Instructor")
+            self.set_prior(4)
+        else:
+            super().__init__("", "", "", "", "")
+            self.__info = super().summary()
+            self.set_type("Instructor")
+            self.set_prior(4)
 
 
 class TA(Faculty):
-    pass
+    def __init__(self, id=None, name=None, mail=None, number=None, alias=None, address=None):
+        if id and name and mail and number and alias and address:
+            super().__init__(id, name, mail, number, alias)
+            self.__info = super().summary()
+            self.set_type("TA")
+            self.set_prior(3)
+        else:
+            super().__init__("", "", "", "", "")
+            self.__info = super().summary()
+            self.set_type("TA")
+            self.set_prior(3)
 
 
 class Professors(Faculty):
-    pass
+    def __init__(self, id=None, name=None, mail=None, number=None, alias=None, address=None):
+        if id and name and mail and number and alias and address:
+            super().__init__(id, name, mail, number, alias)
+            self.__info = super().summary()
+            self.set_type("Professor")
+            self.set_prior(1)
+        else:
+            super().__init__("", "", "", "", "")
+            self.__info = super().summary()
+            self.set_type("Professor")
+            self.set_prior(1)
 
+
+class VP(Patron):
+    def __init__(self, id=None, name=None, mail=None, number=None, alias=None, address=None):
+        if id and name and mail and number and alias and address:
+            super().__init__(id, name, mail, number, alias)
+            self.__info = super().summary()
+            self.set_rank(-1)
+            self.set_type("VP")
+            self.set_prior(2)
+        else:
+            super().__init__("", "", "", "", "")
+            self.__info = super().summary()
+            self.set_rank(-1)
+            self.set_type("VP")
+            self.set_prior(2)
+
+    def setData(self, dictionary):
+        temp = dict(dictionary)
+        self.set_id(temp[user_id])
+        self.set_name(temp[user_name])
+        self.set_mail(temp[user_mail])
+        self.set_number(temp[user_number])
+        self.set_alias(temp[user_alias])
+        self.set_docs_list(temp[user_document_list])
+        self.set_address(temp[user_address])
+        self.set_rank(-1)
