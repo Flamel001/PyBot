@@ -1,139 +1,172 @@
-import pyrebase
-import json
-from documents import *
-from user import *
+import pyodbc
 
-__config = {
-    "apiKey": "AIzaSyATPtq7AeRK5D4u6rP4BhEoPSA3ofiqDaE",
-    "authDomain": "telegrambotproject-8f30f.firebaseapp.com",
-    "databaseURL": "https://telegrambotproject-8f30f.firebaseio.com",
-    "projectId": "telegrambotproject-8f30f",
-    "storageBucket": "telegrambotproject-8f30f.appspot.com"
-}
+__server = 'inno-lib-server.database.windows.net'
+__database = 'InnoLib'
+__username = 'a.kuspakov'
+__password = 'H5j7p1f6_'
+__driver = '{ODBC Driver 13 for SQL Server}'
+__cnxn = pyodbc.connect(
+    'DRIVER=' + __driver + ';PORT=1433;SERVER=' + __server + ';PORT=1443;DATABASE=' + __database + ';UID=' + __username + ';PWD=' + __password)
 
-__firebase = pyrebase.initialize_app(__config)
-__db = __firebase.database()
-__users = "Users"
-__books = "Docs"
-__amount_of_books = 0
-__list_of_books_available = list()
+__users_name = "innolib_users"
+__docs_name = "innolib_docs"
+__key_user_id = "id"
+__key_user_alias = "alias"
+__key_user_name = "name"
+__key_user_mail = "mail"
+__key_user_number = "number"
+__key_user_address = "address"
+__key_user_type = "type"
+__key_user_patron_document_list = "docs"
+__key_user_patron_debt = "debt"
+
+__key_doc_title = "title"
+__key_doc_author = "author"
+__key_doc_owner = "owner"
+__key_doc_type = "type"
+__key_doc_copies = "copies"
+__key_doc_price = "price"
+__key_doc_url = "url"
+__key_doc_publication_date = "publication_date"
+__key_doc_publisher = "publisher"
+__key_doc_year = "year"
+__key_doc_journal = "journal"
+__key_doc_editor = "editor"
+__key_doc_edition = "edition"
+__key_doc_genre = "genre"
+__key_doc_bestseller = "bestseller"
+__key_doc_reference = "reference"
 
 
-def insert_user(user_alias, dictionary):
-    __db.child(__users).child(str(user_alias)).set(dictionary)
+def create_users_table():
+    cursor = __cnxn.cursor()
+    cursor.execute(
+        "if not exists (select * from sysobjects where name='" + __users_name + "' and xtype='U') create table " + __users_name + "(" + __key_user_id + " int NOT NULL UNIQUE, " + __key_user_alias + " text, " + __key_user_name + " text, " + __key_user_mail +
+        " text, " + __key_user_number + " text, " + __key_user_address + " text, " + __key_user_type + " text, " +
+        __key_user_patron_document_list + " text, " + __key_user_patron_debt + " int)")
+    cursor.commit()
+    cursor.close()
 
 
-def insert_book(name, dictionary):
-    global __amount_of_books, __list_of_books_available
-    __amount_of_books += 1
-    __list_of_books_available = list()
-    __db.child(__books).child(str(name)).set(dictionary)
+def create_docs_table():
+    cursor = __cnxn.cursor()
+    cursor.execute(
+        "if not exists (select * from sysobjects where name='" + __docs_name + "' and xtype='U') create table " + __docs_name + "(" + __key_doc_title + " text NOT NULL UNIQUE, " + __key_doc_author + " text, " + __key_doc_owner + " text, " + __key_doc_type + " text, " + __key_doc_copies +
+        " text, " + __key_doc_price + " text, " + __key_doc_url + " text, " + __key_doc_publication_date + " text, " +
+        __key_doc_publisher + " text, " + __key_doc_year + " text, " + __key_doc_journal + " text, " + __key_doc_editor + " text, " + __key_doc_edition + " text, " + __key_doc_genre + " text, " +
+        __key_doc_bestseller + " bit, " + __key_doc_reference + " bit)")
+    cursor.commit()
+    cursor.close()
 
 
-def get_user(user_alias):
-    dictionary = __db.child(__users).child(str(user_alias)).get().val()
-    print("dict in get_user " + str(dictionary))
+def __parse(dictionary):
+    list_of_dict_values = list()
+    list_of_dict_values.append(dictionary[user.user_id])
+    list_of_dict_values.append(dictionary[user.user_alias])
+    list_of_dict_values.append(dictionary[user.user_name])
+    list_of_dict_values.append(dictionary[user.user_mail])
+    list_of_dict_values.append(dictionary[user.user_number])
+    list_of_dict_values.append(dictionary[user.user_address])
+    list_of_dict_values.append(dictionary[user.user_type])
+    list_of_dict_values.append(str(dictionary[user.user_document_list]))
+    list_of_dict_values.append(dictionary[user.user_debt])
+    return tuple(list_of_dict_values)
+
+
+def insert(dictionary):
+    cursor = __cnxn.cursor()
+    type = ""
+    params = list()
+    commit_or_not = bool
     if dictionary:
-        if "student" in dictionary.values():
-            student = Student()
-            student.setData(dictionary)
-            return student
-        elif "faculty" in dictionary.values():
-            faculty = Faculty()
-            faculty.setData(dictionary)
-            return faculty
-        elif "librarian" in dictionary.values():
-            librarian = Librarian()
-            librarian.setData(dictionary)
-            return librarian
-    return None
+        if "type" in dictionary.keys():
+            type = dictionary["type"]
+            params.append(__parse(dictionary))
+    if type and params:
+        if type == "student" or type == "faculty":
+            cursor.executemany(
+                "insert into " + __users_name + "(" + __key_user_id + ", " + __key_user_alias + ", " + __key_user_name + ", " + __key_user_mail + ", " + __key_user_number + ", " + __key_user_address + ", " + __key_user_type + ", " + __key_user_patron_document_list + ", " + __key_user_patron_debt + ")" +
+                " values (?, ?, ?, ?, ?, ?, ?, ?, ?)", params)
+        elif type == "librarian":
+            cursor.executemany(
+                "insert into " + __users_name + "(" + __key_user_id + ", " + __key_user_alias + ", " + __key_user_name + ", " + __key_user_mail + ", " + __key_user_number + ", " + __key_user_address + ", " + __key_user_type + ") values(?, ?, ?, ?, ?, ?, ?)",
+                params)
+        elif type == "book":
+            cursor.executemany(
+                "insert into " + __docs_name + "(" + __key_doc_title + ", " + __key_doc_author + ", " + __key_doc_owner + ", " + __key_doc_url + ", " + __key_doc_type + ", " + __key_doc_publisher + ", " + __key_doc_year + ", " + __key_doc_edition + ", " + __key_doc_genre + ", " + __key_doc_bestseller + ", " + __key_doc_reference + ") values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                params)
+        elif type == "article":
+            cursor.executemany(
+                "insert into " + __docs_name + "(" + __key_doc_title + ", " + __key_doc_author + ", " + __key_doc_owner + ", " + __key_doc_url + ", " + __key_doc_type + ", " + __key_doc_journal + ", " + __key_doc_publication_date + ", " + __key_doc_editor + ") values(?, ?, ?, ?, ?, ?, ?)",
+                params)
+        elif type == "av":
+            cursor.executemany(
+                "insert into " + __docs_name + "(" + __key_doc_title + ", " + __key_doc_author + ", " + __key_doc_owner + ", " + __key_doc_url + ", " + __key_doc_type + ", " + __key_doc_price + ") values(?, ?, ?, ?, ?, ?)",
+                params)
+        else:
+            commit_or_not = False
+        if commit_or_not:
+            cursor.commit()
+        cursor.close()
 
 
-def get_doc(name):
-    dictionary = __db.child(__books).child(str(name)).get().val()
-    print("dict in get_doc " + str(dictionary))
-    if dictionary:
-        if "book" in dictionary.values():
-            book = Book()
-            book.setData(dictionary)
-            return book
-        elif "article" in dictionary.values():
-            article = Article()
-            article.setData(dictionary)
-            return article
-        elif "av" in dictionary.values():
-            av = AV_Materials()
-            av.setData(dictionary)
-            return av
-    return None
+def get(id=None, title=None, author=None, owner=None, publisher=None, year=None, journal=None, editor=None, genre=None,
+        bestseller=None, reference=None):
+    counter = 0
+    if id:
+        counter += 1
+    if title:
+        counter += 1
+    if author:
+        counter += 1
+    if owner:
+        counter += 1
+    if publisher:
+        counter += 1
+    if year:
+        counter += 1
+    if journal:
+        counter += 1
+    if editor:
+        counter += 1
+    if genre:
+        counter += 1
+    if bestseller:
+        counter += 1
+    if reference:
+        counter += 1
+    if counter == 1:
+        cursor = __cnxn.cursor()
+        if id:
+            __search_query(cursor, __users_name, __key_user_id, id)
+        elif title:
+            __search_query(cursor, __docs_name, __docs_name, title)
+        elif author:
+            __search_query(cursor, __docs_name, __key_doc_author, author)
+        elif owner:
+            __search_query(cursor, __docs_name, __key_doc_author, owner)
+        elif publisher:
+            __search_query(cursor, __key_doc_publisher, __docs_name, publisher)
+        elif year:
+            __search_query(cursor, __key_doc_year, __docs_name, year)
+        elif journal:
+            __search_query(cursor, __key_doc_journal, __docs_name, journal)
+        elif editor:
+            __search_query(cursor, __key_doc_editor, __docs_name, editor)
+        elif genre:
+            __search_query(cursor, __key_doc_genre, __docs_name, genre)
+        elif bestseller:
+            __search_query(cursor, __key_doc_bestseller, __docs_name, int(bestseller))
+        elif reference:
+            __search_query(cursor, __key_doc_reference, __docs_name, int(reference))
+        result_list = list()
+        for row in cursor.fetchall():
+            result_list.append(row)
+        return result_list
+    else:
+        print("One argument should be provided")
+        return list()
 
 
-def get_all_librarians_ids():
-    all_libs = __db.child(__users).get()
-    a = list()
-    for lib in all_libs.each():
-        if "librarian" in lib.val().values():
-            a.append(lib.val()["id"])
-    return a
-
-
-def remove_user(user_alias):
-    __db.child(__users).child(str(user_alias)).remove()
-
-
-def remove_book(name):
-    global __amount_of_books, __list_of_books_available
-    __amount_of_books -= 1
-    __list_of_books_available = list()
-    __db.child(__books).child(str(name)).remove()
-
-
-def separate_json(json_string):
-    return json.loads(json_string)
-
-
-def update_user(user_alias, new_info):
-    user = get_user(user_alias)
-    if "document_list" in new_info:
-        user.set_docs_list(new_info["document_list"])
-        new_info.pop("document_list")
-    dictionary = user.summary()
-    dictionary.update(new_info)
-    # json_str = json.dumps(dictionary)
-    # print("This is summary of user " + str(json_str))
-    __db.child(__users).child(str(user_alias)).update(dictionary)
-
-
-def update_book(name, new_info):
-    global __list_of_books_available
-    print("new_info " + str(new_info))
-    doc = get_doc(name)
-    if "copies" in new_info:
-        print("doc in update book before " + str(doc.get_list_of_copies()))
-        print(str(new_info))
-        doc.set_list_of_copies(new_info["copies"])
-        print("doc in update book " + str(doc.get_list_of_copies()))
-        new_info.pop("copies")
-    d = doc.summary()
-    d.update(new_info)
-    __db.child(__books).child(str(name)).update(d)
-    __list_of_books_available = list()
-
-
-def get_all_books():
-    global __list_of_books_available
-    if not __list_of_books_available:
-        all_books = __db.child(__books).get()
-        for book in all_books.each():
-            print("book is " + str(book.val()))
-            book1 = Book()
-            book1.setData(book.val())
-            __list_of_books_available.append(book1)
-    return __list_of_books_available
-
-
-def get_count_of_different_books():
-    global __amount_of_books
-    if __amount_of_books == 0:
-        __amount_of_books = len(__db.child(__books).get().each())
-    return __amount_of_books
+def __search_query(cursor, table, column, arg):
+    return cursor.execute("select * from " + table + " where " + column + " like '" + str(arg) + "'")
