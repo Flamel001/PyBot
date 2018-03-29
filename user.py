@@ -303,15 +303,16 @@ class Patron(User):
     def __init__(self, id=None, name=None, mail=None, number=None, alias=None, address=None):
         self.__info = dict()
         self.__info[user_id] = id
+        self.__info[user_alias] = alias
         self.__info[user_name] = name
         self.__info[user_mail] = mail
         self.__info[user_number] = number
-        self.__info[user_alias] = alias
-        self.__info[user_rating] = 5
-        self.__info[user_document_list] = dict()
-        self.__info[user_registration_date] = str(datetime.datetime.now())
-        self.__info[user_debt] = 0
         self.__info[user_address] = address
+        self.__info[user_type] = ""
+        self.__info[user_document_list] = dict()
+        self.__info[user_debt] = 0
+        # self.__info[user_rating] = 5
+        self.__info[user_registration_date] = str(datetime.datetime.now())
         self.__info[user_priority] = 0
 
     def get_id(self):
@@ -344,8 +345,8 @@ class Patron(User):
     def set_alias(self, new_alias):
         self.__info[user_alias] = new_alias
 
-    def decrease_rating(self):
-        self.__info[user_rating] = self.__info[user_rating] - 1
+    # def decrease_rating(self):
+    #     self.__info[user_rating] = self.__info[user_rating] - 1
 
     def remove_document(self, id):
         self.__info[user_document_list].pop(id)
@@ -370,20 +371,20 @@ class Patron(User):
         temp = dict(new_list)
         self.__info[user_document_list] = temp
 
-    def get_rating(self):
-        return self.__info[user_rating]
-
-    def set_rating(self, rating):
-        self.__info[user_rating] = rating
+    # def get_rating(self):
+    #     return self.__info[user_rating]
+    #
+    # def set_rating(self, rating):
+    #     self.__info[user_rating] = rating
 
     def get_registration_date(self):
         return self.__info[user_registration_date]
 
-    def set_documents_duration(self, dur):
-        self.__info[user_document_duration] = dur
-
-    def get_documents_duration(self):
-        return self.__info[user_document_duration]
+    # def set_documents_duration(self, dur):
+    #     self.__info[user_document_duration] = dur
+    #
+    # def get_documents_duration(self):
+    #     return self.__info[user_document_duration]
 
     def increase_debt(self, value):
         self.__info[user_debt] = self.__info[user_debt] + value
@@ -458,11 +459,11 @@ class Faculty(Patron):
         if id and name and mail and number and alias and address:
             super().__init__(id, name, mail, number, alias)
             self.__info = super().summary()
-            self.set_documents_duration(4)
+            # self.set_documents_duration(4)
         else:
             super().__init__("", "", "", "", "")
             self.__info = super().summary()
-            self.set_documents_duration(4)
+            # self.set_documents_duration(4)
 
     def setData(self, dictionary):
         temp = dict(dictionary)

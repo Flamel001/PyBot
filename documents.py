@@ -28,10 +28,12 @@ class Document:
         self.__info[document_title] = title
         self.__info[document_author] = author
         self.__info[document_owner] = None
-        self.__info[document_keywords] = dict()
-        self.__info[document_keywords_count] = 0
-        self.__info[document_copies] = list()
         self.__info[document_url] = ""
+        self.__info[document_type] = ""
+        self.__info[document_copies] = list()
+
+        # self.__info[document_keywords] = dict()
+        # self.__info[document_keywords_count] = 0
 
     def set_title(self, new_title):
         self.__info[document_title] = new_title
@@ -60,13 +62,13 @@ class Document:
     def remove_owner(self):
         self.__info[document_owner] = None
 
-    def add_keyword(self, word):
-        self.__info[document_keywords_count] = self.__info[document_keywords_count] + 1
-        self.__info[document_keywords][word] = self.__info[document_keywords_count]
-
-    def remove_keyword(self, word):
-        self.__info[document_keywords].pop(word)
-        self.__info[document_keywords_count] = self.__info[document_keywords_count] - 1
+    # def add_keyword(self, word):
+    #     self.__info[document_keywords_count] = self.__info[document_keywords_count] + 1
+    #     self.__info[document_keywords][word] = self.__info[document_keywords_count]
+    #
+    # def remove_keyword(self, word):
+    #     self.__info[document_keywords].pop(word)
+    #     self.__info[document_keywords_count] = self.__info[document_keywords_count] - 1
 
     def add_copy(self, id):
         print("this is id " + id)
@@ -114,7 +116,8 @@ class Book(Document):
             self.set_bestseller(False)
             self.set_is_reference(False)
             self.set_url(url)
-        self.__info[document_type] = "Book"
+
+        self.set_type("Book")
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
@@ -138,6 +141,12 @@ class Book(Document):
             self.set_url(tmp[document_url])
         if document_copies in tmp:
             self.set_list_of_copies(tmp[document_copies])
+
+    def set_type(self, type):
+        self.__info[document_type] = type
+
+    def get_type(self):
+        return self.__info[document_type]
 
     def set_publisher(self, new_publisher):
         print("this is type of a publisher " + str(type(self.__info)))
@@ -208,7 +217,7 @@ class Article(Document):
             self.__info[article_pub_date] = publication_date
             self.__info[article_editor] = editor
             self.__info[document_url] = url
-        self.__info[document_type] = "Article"
+        self.set_type("Article")
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
@@ -226,6 +235,12 @@ class Article(Document):
             self.set_url(tmp[document_url])
         if document_copies in tmp:
             self.set_list_of_copies(tmp[document_copies])
+
+    def set_type(self, type):
+        self.__info[document_type] = type
+
+    def get_type(self):
+        return self.__info[document_type]
 
     def set_journal(self, new_journal):
         self.__info[article_journal] = new_journal
@@ -264,7 +279,7 @@ class AV_Materials(Document):
             self.__info = super().summary()
             self.set_price(price)
             self.set_url(url)
-        self.__info[document_type] = "AV"
+        self.set_type("AV")
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
@@ -278,6 +293,12 @@ class AV_Materials(Document):
             self.set_list_of_copies(tmp[document_copies])
         if document_url in tmp:
             self.set_url(tmp[document_url])
+
+    def set_type(self, type):
+        self.__info[document_type] = type
+
+    def get_type(self):
+        return self.__info[document_type]
 
     def get_author(self):
         return self.__info[document_author]
