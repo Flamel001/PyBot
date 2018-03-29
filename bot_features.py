@@ -1,5 +1,4 @@
 from telebot import types
-import database as db
 import utilities
 
 __number = 0
@@ -12,7 +11,15 @@ def get_reply_markup(button_titles_array):
     return reply
 
 
-def get_inline_markup(left_amount):
+def get_inline_markup(button_array):#left_amount
+    # if len(button_array)==3:
+    #     inline = types.InlineKeyboardMarkup(3)
+    # else:
+    #     inline = types.InlineKeyboardMarkup()
+    inline = types.InlineKeyboardMarkup()
+    for button in button_array:
+        inline.add(types.InlineKeyboardButton(text=button[0],callback_data=button[1]))
+    return inline
     global __number
     exp = '{}/{}'.format(__number + 1, db.get_count_of_different_books())
     markup = types.InlineKeyboardMarkup()

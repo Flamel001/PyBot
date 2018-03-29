@@ -7,7 +7,7 @@ document_price = "price"
 document_duration = "duration"
 document_keywords_count = "keywords_count"
 document_url = "url"
-
+document_type = "type"
 book_publisher = "publisher"
 book_year = "year"
 book_edition = "edition"
@@ -114,7 +114,7 @@ class Book(Document):
             self.set_bestseller(False)
             self.set_is_reference(False)
             self.set_url(url)
-        self.__info["type"] = "book"
+        self.__info[document_type] = "Book"
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
@@ -208,7 +208,7 @@ class Article(Document):
             self.__info[article_pub_date] = publication_date
             self.__info[article_editor] = editor
             self.__info[document_url] = url
-        self.__info["type"] = "article"
+        self.__info[document_type] = "Article"
 
     def setData(self, dictionary):
         tmp = dict(dictionary)
@@ -264,7 +264,7 @@ class AV_Materials(Document):
             self.__info = super().summary()
             self.set_price(price)
             self.set_url(url)
-        self.__info["type"] = "av"
+        self.__info[document_type] = "AV"
 
     def setData(self, dictionary):
         tmp = dict(dictionary)

@@ -5,8 +5,6 @@ import random
 import bot
 
 
-
-
 def pin_generator():
     s = "abcdefghijklmnopqrstuvwxyz01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     passlen = 8
@@ -14,7 +12,7 @@ def pin_generator():
     return p
 
 
-def pin_sender(email,pin):
+def pin_sender(email, pin):
     fromaddr = "innolibbot@gmail.com"
     toaddr = str(email)
     msg = MIMEMultipart()
@@ -31,4 +29,3 @@ def pin_sender(email,pin):
     server.sendmail(fromaddr, toaddr, text)
     print("Message has been sent with PIN:" + str(body))
     server.quit()
-
