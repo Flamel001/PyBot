@@ -27,6 +27,7 @@ __key_doc_title = "title"
 __key_doc_author = "author"
 __key_doc_owner = "owner"
 __key_doc_type = "type"
+__key_doc_queue = "queue"
 __key_doc_copies = "copies"
 __key_doc_price = "price"
 __key_doc_url = "url"
@@ -54,7 +55,7 @@ def create_users_table():
 def create_docs_table():
     cursor = __cnxn.cursor()
     cursor.execute(
-        "if not exists (select * from sysobjects where name='" + __docs_name + "' and xtype='U') create table " + __docs_name + "(" + __key_doc_title + " varchar(255) NOT NULL UNIQUE, " + __key_doc_author + " text, " + __key_doc_owner + " text, " + __key_doc_type + " text, " + __key_doc_copies +
+        "if not exists (select * from sysobjects where name='" + __docs_name + "' and xtype='U') create table " + __docs_name + "(" + __key_doc_title + " varchar(255) NOT NULL UNIQUE, " + __key_doc_author + " text, " + __key_doc_owner + " text, " + __key_doc_type + " text, " + __key_doc_queue + " text, " + __key_doc_copies +
         " text, " + __key_doc_price + " text, " + __key_doc_url + " text, " + __key_doc_publication_date + " text, " +
         __key_doc_publisher + " text, " + __key_doc_year + " text, " + __key_doc_journal + " text, " + __key_doc_editor + " text, " + __key_doc_edition + " text, " + __key_doc_genre + " text, " +
         __key_doc_bestseller + " bit, " + __key_doc_reference + " bit)")
@@ -79,7 +80,8 @@ def __parse(dictionary):
             else:
                 result = result + tuple([str(element)])
     print(str(result))
-    if len(result) == 10 or len(result) == 7 or len(result) == 12 or len(result) == 8:
+    print(str(len(result)))
+    if len(result) == 10 or len(result) == 7 or len(result) == 13 or len(result) == 8:
         return result
     else:
         raise Exception("DATABASE, Insertion. Information was not parsed correctly; please, check it.")
@@ -104,15 +106,15 @@ def insert(dictionary):
                 params)
         elif type == "Book":
             cursor.executemany(
-                "insert into " + __docs_name + "(" + __key_doc_title + ", " + __key_doc_author + ", " + __key_doc_owner + ", " + __key_doc_url + ", " + __key_doc_type + ", " + __key_doc_copies + ", " + __key_doc_publisher + ", " + __key_doc_year + ", " + __key_doc_edition + ", " + __key_doc_genre + ", " + __key_doc_bestseller + ", " + __key_doc_reference + ") values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "insert into " + __docs_name + "(" + __key_doc_title + ", " + __key_doc_author + ", " + __key_doc_owner + ", " + __key_doc_url + ", " + __key_doc_type + ", " + __key_doc_queue + ", " + __key_doc_copies + ", " + __key_doc_publisher + ", " + __key_doc_year + ", " + __key_doc_edition + ", " + __key_doc_genre + ", " + __key_doc_bestseller + ", " + __key_doc_reference + ") values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 params)
         elif type == "Article":
             cursor.executemany(
-                "insert into " + __docs_name + "(" + __key_doc_title + ", " + __key_doc_author + ", " + __key_doc_owner + ", " + __key_doc_url + ", " + __key_doc_type + ", " + __key_doc_copies + ", " + __key_doc_journal + ", " + __key_doc_publication_date + ", " + __key_doc_editor + ") values(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "insert into " + __docs_name + "(" + __key_doc_title + ", " + __key_doc_author + ", " + __key_doc_owner + ", " + __key_doc_url + ", " + __key_doc_type + ", " + __key_doc_queue + ", " + __key_doc_copies + ", " + __key_doc_journal + ", " + __key_doc_publication_date + ", " + __key_doc_editor + ") values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 params)
         elif type == "AV":
             cursor.executemany(
-                "insert into " + __docs_name + "(" + __key_doc_title + ", " + __key_doc_author + ", " + __key_doc_owner + ", " + __key_doc_url + ", " + __key_doc_type + ", " + __key_doc_copies + ", " + __key_doc_price + ") values(?, ?, ?, ?, ?, ?, ?)",
+                "insert into " + __docs_name + "(" + __key_doc_title + ", " + __key_doc_author + ", " + __key_doc_owner + ", " + __key_doc_url + ", " + __key_doc_type + ", " + __key_doc_queue + ", " + __key_doc_copies + ", " + __key_doc_price + ") values(?, ?, ?, ?, ?, ?, ?, ?)",
                 params)
         else:
             raise Exception(
@@ -121,33 +123,48 @@ def insert(dictionary):
         cursor.close()
 
 
+def parse_str_to_dict(dict_str):
+    d = dict()
+    d["hello"] = "world"
+    dict_str = str(d)
+    dict_str_list = dict_str.replace("{", "").replace("}","").replace("\"", "").split(", ")
+    print(str(dict_str_list))
+    str_dict = dict(zip(dict_str_list[i].split(":")) for i in range(0, len(dict_str_list)))
+    print(str(str_dict))
+
+
+# def parse_str_to_list():
+
+
+
 def __parse_to_object(row):
+    print(str(row))
     if len(row) > 6:
         if row[7] == "Librarian":
             return user.Librarian(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5])
         elif row[7] == "Student":
             return user.Student(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                reg_date=row[6])
+                                reg_date=row[6], doc_list=row[8], debt=row[9])
         elif row[7] == "Instructor":
             return user.Instructor(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                   reg_date=row[6])
+                                   reg_date=row[6], doc_list=row[8], debt=row[9])
         elif row[7] == "TA":
             return user.TA(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                           reg_date=row[6])
+                           reg_date=row[6], doc_list=row[8], debt=row[9])
         elif row[7] == "Professor":
             return user.Professor(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                  reg_date=row[6])
+                                  reg_date=row[6], doc_list=row[8], debt=row[9])
         elif row[7] == "VP":
             return user.VP(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                           reg_date=row[6])
+                           reg_date=row[6], doc_list=row[8], debt=row[9])
         elif row[3] == "Book":
-            return documents.Book(title=row[0], author=row[1], url=row[6], publisher=row[8], year=row[9],
-                                  edition=row[12], genre=row[13], bestseller=bool(row[14]), reference=bool(row[15]))
+            return documents.Book(title=row[0], author=row[1], queue=row[4], copies=row[5], url=row[7], publisher=row[9], year=row[10],
+                                  edition=row[13], genre=row[14], bestseller=bool(row[15]), reference=bool(row[16]))
         elif row[3] == "Article":
-            return documents.Article(title=row[0], author=row[1], url=row[6], publication_date=row[7], journal=row[10],
-                                     editor=row[11])
+            return documents.Article(title=row[0], author=row[1], queue=row[4], copies=row[5], url=row[6], publication_date=row[8], journal=row[11],
+                                     editor=row[12])
         elif row[3] == "AV":
-            return documents.AV_Materials(title=row[0], author=row[1], price=row[5], url=row[6])
+            return documents.AV_Materials(title=row[0], author=row[1], copies=row[5], price=row[6], url=row[7])
 
 
 def get(id=None, alias=None, name=None, mail=None, number=None, address=None, type_user=None, title=None, author=None,
