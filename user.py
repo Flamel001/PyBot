@@ -1,7 +1,6 @@
 import documents as dc
 import datetime
 
-
 document_title = "title"
 document_author = "author"
 document_owner = "owner"
@@ -359,12 +358,12 @@ class Student(Patron):
 
     def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None):
         if reg_date:
-            super().__init__(id, name, mail, number, alias, address, reg_date)
+            super().__init__(id, alias, name, mail, number, address, reg_date)
             self.__info = super().summary()
             self.set_type("Student")
             self.set_prior(5)
         else:
-            super().__init__(id, name, mail, number, alias, address)
+            super().__init__(id, alias, name, mail, number, address)
             self.__info = super().summary()
             self.set_type("Student")
             self.set_prior(5)
@@ -382,9 +381,9 @@ class Faculty(Patron):
 
 
 class Instructor(Faculty):
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None,reg_date=None):
+    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None):
         if reg_date:
-            super().__init__(id, alias, name, mail, number, address,reg_date)
+            super().__init__(id, alias, name, mail, number, address, reg_date)
             self.__info = super().summary()
             self.set_type("Instructor")
             self.set_prior(4)
