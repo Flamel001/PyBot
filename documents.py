@@ -228,10 +228,11 @@ class AV_Materials(Document):
             self.set_url(url)
             self.set_list_of_copies(copies)
         else:
-            super().__init__("", "")
+            super().__init__(title, author)
             self.__info = super().summary()
             self.set_price(price)
             self.set_url(url)
+
         self.set_type("AV")
 
     def set_type(self, type):

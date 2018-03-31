@@ -46,10 +46,10 @@ class Librarian(User):
     def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None):
         self.__info = dict()
         self.__info[user_id] = str(id)
+        self.__info[user_alias] = alias
         self.__info[user_name] = name
         self.__info[user_mail] = mail
         self.__info[user_number] = number
-        self.__info[user_alias] = alias
         self.__info[user_address] = address
         if reg_date:
             self.__info[user_registration_date] = reg_date
