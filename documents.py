@@ -8,6 +8,7 @@ document_duration = "duration"
 document_keywords_count = "keywords_count"
 document_url = "url"
 document_type = "type"
+document_queue = "queue"
 book_publisher = "publisher"
 book_year = "year"
 book_edition = "edition"
@@ -16,6 +17,7 @@ book_bestseller = "bestseller"
 count_of_books = "count"
 book_is_reference = "reference"
 
+
 article_journal = "journal"
 article_pub_date = "publication"
 article_editor = "editor"
@@ -23,13 +25,14 @@ article_editor = "editor"
 
 class Document:
 
-    def __init__(self, title=None, author=None):
+    def __init__(self, title=None, author=None,queue=None):
         self.__info = dict()
         self.__info[document_title] = title
         self.__info[document_author] = author
         self.__info[document_owner] = None
         self.__info[document_url] = ""
         self.__info[document_type] = ""
+        self.__info[document_queue] = queue
         self.__info[document_copies] = list()
 
     def set_title(self, new_title):
@@ -78,15 +81,19 @@ class Document:
     def get_url(self):
         return self.__info[document_url]
 
+    def set_queue(self,queue):
+        self.__info[document_queue] = queue
+    def get_queue(self):
+        return self.__info[document_queue]
     def summary(self):
         return self.__info
 
 
 class Book(Document):
     def __init__(self, title=None, author=None, publisher=None, year=None, edition=None, genre=None, url=None,
-                 bestseller=False, reference=False, copies=None):
+                 bestseller=False, reference=False, copies=None,queue=None):
         if copies:
-            super().__init__(title, author)
+            super().__init__(title, author,queue)
             self.__info = super().summary()
             self.set_publisher(publisher)
             self.set_year(year)
@@ -97,7 +104,7 @@ class Book(Document):
             self.set_url(url)
             self.set_list_of_copies(copies)
         else:
-            super().__init__(title, author)
+            super().__init__(title, author,queue)
             self.__info = super().summary()
             self.set_publisher(publisher)
             self.set_year(year)
@@ -169,9 +176,9 @@ class Book(Document):
 
 class Article(Document):
     def __init__(self, title=None, author=None, journal=None, publication_date=None, editor=None, url=None,
-                 copies=None):
+                 copies=None,queue=None):
         if copies:
-            super().__init__(title, author)
+            super().__init__(title, author,queue)
             self.__info = super().summary()
             self.set_journal(journal)
             self.set_pub_date(publication_date)
@@ -179,7 +186,7 @@ class Article(Document):
             self.set_url(url)
             self.set_list_of_copies(copies)
         else:
-            super().__init__(title, author)
+            super().__init__(title, author,queue)
             self.__info = super().summary()
             self.set_journal(journal)
             self.set_pub_date(publication_date)
