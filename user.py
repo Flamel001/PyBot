@@ -245,7 +245,8 @@ class Librarian(User):
 
 class Patron(User):
 
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None):
+    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=None,
+                 doc_list=None):
         self.__info = dict()
         self.__info[user_id] = id
         self.__info[user_alias] = alias
@@ -258,8 +259,8 @@ class Patron(User):
             self.__info[user_registration_date] = reg_date
         else:
             self.__info[user_registration_date] = str(datetime.datetime.now())
-        self.__info[user_document_list] = dict()
-        self.__info[user_debt] = 0
+        self.__info[user_document_list] = doc_list
+        self.__info[user_debt] = debt
         self.__info[user_priority] = 0
 
     def get_id(self):
@@ -354,14 +355,15 @@ class Patron(User):
 
 class Student(Patron):
 
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None):
+    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=None,
+                 doc_list=None):
         if reg_date:
-            super().__init__(id, alias, name, mail, number, address, reg_date)
+            super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
             self.__info = super().summary()
             self.set_type("Student")
             self.set_prior(5)
         else:
-            super().__init__(id, alias, name, mail, number, address)
+            super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
             self.__info = super().summary()
             self.set_type("Student")
             self.set_prior(5)
@@ -369,66 +371,71 @@ class Student(Patron):
 
 class Faculty(Patron):
 
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None):
+    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=None,
+                 doc_list=None):
         if reg_date:
-            super().__init__(id, alias, name, mail, number, address, reg_date)
+            super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
             self.__info = super().summary()
         else:
-            super().__init__(id, alias, name, mail, number, address)
+            super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
             self.__info = super().summary()
 
 
 class Instructor(Faculty):
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None):
+    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=None,
+                 doc_list=None):
         if reg_date:
-            super().__init__(id, alias, name, mail, number, address, reg_date)
+            super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
             self.__info = super().summary()
             self.set_type("Instructor")
             self.set_prior(4)
         else:
-            super().__init__(id, alias, name, mail, number, address)
+            super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
             self.__info = super().summary()
             self.set_type("Instructor")
             self.set_prior(4)
 
 
 class TA(Faculty):
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None):
+    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=None,
+                 doc_list=None):
         if reg_date:
-            super().__init__(id, alias, name, mail, number, address, reg_date)
+            super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
             self.__info = super().summary()
             self.set_type("TA")
             self.set_prior(3)
         else:
-            super().__init__(id, alias, name, mail, number, address)
+            super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
             self.__info = super().summary()
             self.set_type("TA")
             self.set_prior(3)
 
 
 class Professor(Faculty):
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None):
+    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=None,
+                 doc_list=None):
         if reg_date:
-            super().__init__(id, alias, name, mail, number, address, reg_date)
+            super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
             self.__info = super().summary()
             self.set_type("Professor")
             self.set_prior(1)
         else:
-            super().__init__(id, alias, name, mail, number, address)
+            super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
             self.__info = super().summary()
             self.set_type("Professor")
             self.set_prior(1)
 
 
 class VP(Faculty):
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None):
+    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=None,
+                 doc_list=None):
         if reg_date:
-            super().__init__(id, alias, name, mail, number, address, reg_date)
+            super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
             self.__info = super().summary()
             self.set_type("VP")
             self.set_prior(2)
         else:
-            super().__init__(id, alias, name, mail, number, address)
+            super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
             self.__info = super().summary()
             self.set_type("VP")
             self.set_prior(2)
