@@ -1,54 +1,74 @@
 # ==============================Authentification fitures======================================================
-__librarians = dict()
+librarians = dict()
+librarians.setdefault(0)
 
 
-def add_librarian(id: str):
-    __librarians[id] = 1
+def add_librarian(id):
+    librarians[id] = 1
 
 
-def is_librarian(id: str):
-    return __librarians[id] == 1
+def is_librarian(id):
+    if (librarians.get(id) == 1):
+        return True
+    else:
+        return False
 
 
-__professors = dict()
+professors = dict()
+professors.setdefault(0)
 
 
-def add_professor(id: str):
-    __professors[id] = 1
+def add_professor(id):
+    professors[id] = 1
 
 
-def is_professor(id: str):
-    return __professors[id] == 1
+def is_professor(id):
+    if (professors.get(id) == 1):
+        return True
+    else:
+        return False
 
 
-__TAs = dict()
+TAs = dict()
+TAs.setdefault(0)
 
 
-def add_ta(id: str):
-    __TAs[id] = 1
+def add_ta(id):
+    TAs[id] = 1
 
 
-def is_ta(id: str):
-    return __TAs[id] == 1
+def is_ta(id):
+    if (TAs.get(id) == 1):
+        return True
+    else:
+        return False
 
 
-__instructors = dict()
+instructors = dict()
+instructors.setdefault(0)
 
 
-def add_instructor(id: str):
-    __instructors[id] = 1
+def add_instructor(id):
+    instructors[id] = 1
 
 
-def is_instructor(id: str):
-    return __instructors[id] == 1
+def is_instructor(id):
+    if instructors.get(id) == 1:
+        return True
+    else:
+        return False
 
 
-__VPs = dict()
+VPs = dict()
+VPs.setdefault(0)
 
 
-def add_vp(id: str):
-    __VPs[id] = 1
+def add_vp(id):
+    VPs[id] = 1
 
 
-def is_vp(id: str):
-    return __VPs[id] == 1
+def is_vp(id):
+    if (TAs.get(id) == 1):
+        return True
+    else:
+        return False

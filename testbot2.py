@@ -87,7 +87,7 @@ def address(call):
     temp = dict()
     for i in range(3):
         temp[u.auth_arr[i]] = u.auth_val_arr[i]
-    temp["id"] = call.chat.id
+    temp["id"] = str(call.chat.id)
     temp["alias"] = call.from_user.username
     temp["mail"] = u.current_email
 
@@ -98,13 +98,13 @@ def address(call):
     alias = temp["alias"]
     address = temp["address"]
 
-    if facbase.is_instructor(id):
+    if facbase.is_instructor(mail):
         usr = Instructor(id,alias,name,mail,number,address)
-    elif facbase.is_ta(id):
+    elif facbase.is_ta(mail):
         usr = TA(id, alias, name, mail, number, address)
-    elif facbase.is_professor(id):
+    elif facbase.is_professor(mail):
         usr = Professor(id, alias, name, mail, number, address)
-    elif facbase.is_vp(id):
+    elif facbase.is_vp(mail):
         usr = VP(id, alias, name, mail, number, address)
     else:
         usr = Student(id, alias, name, mail, number, address)

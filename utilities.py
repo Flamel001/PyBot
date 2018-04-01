@@ -80,5 +80,5 @@ tempData = {'userId': '0'}
 
 pin = ""
 temp_user_date = dict()
-auth_arr = ["Name","number","address"]
+auth_arr = ["name","number","address"]
 auth_val_arr = []
