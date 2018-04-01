@@ -123,18 +123,15 @@ def insert(dictionary):
         cursor.close()
 
 
-def parse_str_to_dict(dict_str):
-    d = dict()
-    d["hello"] = "world"
-    dict_str = str(d)
-    dict_str_list = dict_str.replace("{", "").replace("}","").replace("\"", "").split(", ")
-    print(str(dict_str_list))
-    str_dict = dict(zip(dict_str_list[i].split(":")) for i in range(0, len(dict_str_list)))
-    print(str(str_dict))
+def __parse_str_to_dict(dict_str):
+    dict_str_list = dict_str.replace("{", "").replace("}", "").replace("'", "").split(", ")
+    parsed_dict = dict(tuple(dict_str_list[i].split(": ")) for i in range(0, len(dict_str_list)))
+    return parsed_dict
 
 
-# def parse_str_to_list():
-
+def __parse_str_to_list(list_str):
+    str_list = list_str.replace("[", "").replace("]", "").split(", ")
+    return str_list
 
 
 def __parse_to_object(row):
@@ -144,27 +141,31 @@ def __parse_to_object(row):
             return user.Librarian(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5])
         elif row[7] == "Student":
             return user.Student(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                reg_date=row[6], doc_list=row[8], debt=row[9])
+                                reg_date=row[6], doc_list=__parse_str_to_list(row[8]), debt=row[9])
         elif row[7] == "Instructor":
             return user.Instructor(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                   reg_date=row[6], doc_list=row[8], debt=row[9])
+                                   reg_date=row[6], doc_list=__parse_str_to_list(row[8]), debt=row[9])
         elif row[7] == "TA":
             return user.TA(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                           reg_date=row[6], doc_list=row[8], debt=row[9])
+                           reg_date=row[6], doc_list=__parse_str_to_list(row[8]), debt=row[9])
         elif row[7] == "Professor":
             return user.Professor(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                  reg_date=row[6], doc_list=row[8], debt=row[9])
+                                  reg_date=row[6], doc_list=__parse_str_to_list(row[8]), debt=row[9])
         elif row[7] == "VP":
             return user.VP(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                           reg_date=row[6], doc_list=row[8], debt=row[9])
+                           reg_date=row[6], doc_list=__parse_str_to_list(row[8]), debt=row[9])
         elif row[3] == "Book":
-            return documents.Book(title=row[0], author=row[1], queue=row[4], copies=row[5], url=row[7], publisher=row[9], year=row[10],
+            return documents.Book(title=row[0], author=row[1], queue=__parse_str_to_dict(row[4]),
+                                  copies=__parse_str_to_list(row[5]), url=row[7], publisher=row[9], year=row[10],
                                   edition=row[13], genre=row[14], bestseller=bool(row[15]), reference=bool(row[16]))
         elif row[3] == "Article":
-            return documents.Article(title=row[0], author=row[1], queue=row[4], copies=row[5], url=row[6], publication_date=row[8], journal=row[11],
+            return documents.Article(title=row[0], author=row[1], queue=__parse_str_to_dict(row[4]),
+                                     copies=__parse_str_to_list(row[5]), url=row[6], publication_date=row[8],
+                                     journal=row[11],
                                      editor=row[12])
         elif row[3] == "AV":
-            return documents.AV_Materials(title=row[0], author=row[1], copies=row[5], price=row[6], url=row[7])
+            return documents.AV_Materials(title=row[0], author=row[1], copies=__parse_str_to_list(row[5]), price=row[6],
+                                          url=row[7])
 
 
 def get(id=None, alias=None, name=None, mail=None, number=None, address=None, type_user=None, title=None, author=None,
@@ -260,8 +261,10 @@ def __search_query(cursor, table, column, arg):
     return cursor.execute(search_query)
 
 
-def update(id=None, alias=None, name=None, mail=None, number=None, address=None, new_id=None, title=None, author=None,
-           owner=None, publisher=None, year=None, journal=None, editor=None,
+def update(id=None, alias=None, name=None, mail=None, number=None, address=None, docs=None, debt=None, new_id=None,
+           title=None, author=None,
+           owner=None, queue=None, copies=None, price=None, url=None, publication_date=None, publisher=None, year=None,
+           journal=None, editor=None, edition=None,
            genre=None,
            bestseller=None, reference=None, new_title=None):
     if title and id:
@@ -280,6 +283,10 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
                     __update_query(cursor, __users_name, __key_user_number, number, id)
                 elif address:
                     __update_query(cursor, __users_name, __key_user_address, address, id)
+                elif docs:
+                    __update_query(cursor, __users_name, __key_user_patron_document_list, docs, id)
+                elif debt:
+                    __update_query(cursor, __users_name, __key_user_patron_debt, debt, id)
                 elif new_id:
                     __update_query(cursor, __users_name, __key_user_id, new_id, id)
                 cursor.commit()
@@ -293,6 +300,16 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
                     __update_query(cursor, __docs_name, __key_doc_author, author, title)
                 elif owner:
                     __update_query(cursor, __docs_name, __key_doc_owner, owner, title)
+                elif queue:
+                    __update_query(cursor, __docs_name, __key_doc_queue, queue, title)
+                elif copies:
+                    __update_query(cursor, __docs_name, __key_doc_copies, copies, title)
+                elif price:
+                    __update_query(cursor, __docs_name, __key_doc_price, price, title)
+                elif url:
+                    __update_query(cursor, __docs_name, __key_doc_url, url, title)
+                elif publication_date:
+                    __update_query(cursor, __docs_name, __key_doc_publication_date, publication_date, title)
                 elif publisher:
                     __update_query(cursor, __docs_name, __key_doc_publisher, publisher, title)
                 elif year:
@@ -301,6 +318,8 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
                     __update_query(cursor, __docs_name, __key_doc_journal, journal, title)
                 elif editor:
                     __update_query(cursor, __docs_name, __key_doc_editor, editor, title)
+                elif edition:
+                    __update_query(cursor, __docs_name, __key_doc_edition, edition, title)
                 elif genre:
                     __update_query(cursor, __docs_name, __key_doc_genre, genre, title)
                 elif bestseller:
