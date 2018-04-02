@@ -1,5 +1,6 @@
 import documents as dc
 import datetime
+import database as db
 
 document_title = "title"
 document_author = "author"
@@ -57,7 +58,7 @@ class Librarian(User):
             "these are the fields " + title + ", " + author + ", " + publisher + ", " + year + "," + edition + ", " + genre + ", " + url)
         new = dc.Book(title, author, publisher, year, edition, genre, url, bestseller, reference)
         print("this is book summary " + str(new.summary()))
-        db.insert_book(title, new.summary())
+        db.insert(new.summary())
         # return new
 
     def add_copy_for_doc(self, original: dc.Document, copy_id):
@@ -69,30 +70,31 @@ class Librarian(User):
 
     def new_article(self, title, author, journal, publication_date, editor, url):
         new = dc.Article(title, author, journal, publication_date, editor, url)
-        db.insert_book(new.get_title(), new.summary())
+        db.insert(new.summary())
         # return new
 
     def new_AV_material(self, title, author, value, url):
         new = dc.AV_Materials(title, author, value, url)
         print("avmaterial " + str(new.summary()))
-        db.insert_book(new.get_title(), new.summary())
+        db.insert(new.summary())
         # return new
 
     def new_student(self, id, name, mail, number, alias, address):
         new = Student(id, name, mail, number, alias, address)
-        db.insert_user(new.get_alias(), new.summary())
+        db.insert(new.summary())
         # return new
 
     def new_faculty(self, id, name, mail, number, alias, address):
         new = Faculty(id, name, mail, number, alias, address)
-        db.insert_user(new.get_alias(), new.summary())
+        db.insert(new.summary())
         # return new
 
     def remove_user(self, alias):
-        db.remove_user(alias)
+        id = db.get(alias=alias)[0].get_id
+        db.delete(id)
 
     def remove_document(self, title):
-        db.remove_book(title)
+        db.delete(title)
 
     def modify_user(self, user_alias, new_name=None, new_mail=None, new_number=None, new_alias=None, new_rating=None,
                     new_doc_list=None, new_debt=None):
@@ -195,10 +197,10 @@ class Librarian(User):
         db.update_book(AV_title, dictionary)
 
     def get_user(self, alias):
-        return db.get_user(alias)
+        return db.get(alias=alias)
 
-    def get_doc(self, name):
-        return db.get_doc(name)
+    def get_doc(self, title):
+        return db.get(title=title)
 
     def get_name(self):
         return self.__info[user_name]
@@ -246,7 +248,9 @@ class Librarian(User):
 class Patron(User):
 
     def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=0,
-                 doc_list=dict()):
+                 doc_list=None):
+        if doc_list is None:
+            doc_list = dict()
         self.__info = dict()
         self.__info[user_id] = id
         self.__info[user_alias] = alias
