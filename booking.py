@@ -28,7 +28,10 @@ def order_book(usr, document):
                         print("User: " + usr.get_name() + " took book till: " + str(exp_date))
 
                         print("**SUCCESS**")
-                        db.insert(document.summary())
+                        db.update(id=usr.get_id(), queue=str(qu))               #adding to the queue
+                        add_to_queue(usr)
+                        if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
+                            db.update(id=usr.get_id(), docs= usr.get_docs_list())   #adding to db
                         return success + " " + str(exp_date)
                     else:
                         if document.is_bestseller():
@@ -38,7 +41,10 @@ def order_book(usr, document):
                                   " took book till: " + str(exp_date))
 
                             print("**SUCCESS**")
-                            db.insert(document.summary())
+                            db.update(id=usr.get_id(), queue=str(qu))  # adding to the queue
+                            add_to_queue(usr)
+                            if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
+                                db.update(id=usr.get_id(), docs=usr.get_docs_list())  # adding to db
                             return success + " " + str(exp_date)
                         else:
                             exp_date = datetime.datetime.fromordinal(
@@ -48,7 +54,10 @@ def order_book(usr, document):
                                   " took book till: " + str(exp_date))
 
                             print("**SUCCESS**")
-                            db.insert(document.summary())
+                            db.update(id=usr.get_id(), queue=str(qu))  # adding to the queue
+                            add_to_queue(usr)
+                            if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
+                                db.update(id=usr.get_id(), docs=usr.get_docs_list())  # adding to db
                             return success + " " + str(exp_date)
                 else:
                     print("ERR. Unfortunately this doc is a reference material")
@@ -132,6 +141,7 @@ def pop_from_queue(qu):
 
 
 qu = []
+
 now = datetime.datetime.now()
 today_format1 = now.strftime("%H:%d:%m:%Y")
 second_id = now.second
@@ -142,7 +152,7 @@ fail = "Unfortunately this doc is not yet available..."
 reference = "Unfortunately, You are trying to book a reference material which is unavailable. "
 no_copies = "No copies left."
 max_renew_alert = "You have reached maximum amount of renews. :( "
-
+"""
 student = user.Student("stud", "Student", "name.surname@innopolis.ru", "1234567", "@student", "Innopolis City")
 prof = user.Faculty("prof", "Professor", "name.surname1@innopolis.ru", "1234568", "@professor", "Innopolis City")
 vp = user.VP("pidor", "VP", "dqdewfe.surname@innopolis.ru", "1231241", "@vp", "Inno")
@@ -175,3 +185,4 @@ pop_from_queue(qu)
 # booking(student, book1)
 
 # print(second_id)
+"""
