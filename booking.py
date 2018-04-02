@@ -6,68 +6,75 @@ import collections
 import heapq
 import database as db
 
+qu = []
+
+
 def order_book(usr, document):
     ordered_times = 0
 
     print(usr.summary())
     usr = db.get(id=usr.user_id)
-    if usr.has_book(document.get_title()):
-    # if db.get(title=document.get_title()):
-        ordered_times += 1
-        if ordered_times > 1:
+    if document.get_list_of_copies().size() > 0:
+        if usr.has_book(document.get_title()):
+            # if db.get(title=document.get_title()):
+            ordered_times += 1
+            if ordered_times > 1:
 
-            if document.get_title():
+                if document.get_title():
 
-                if not document.is_reference():
-                    init_date = datetime.datetime.toordinal(
-                        datetime.datetime.today())
+                    if not document.is_reference():
+                        init_date = datetime.datetime.toordinal(
+                            datetime.datetime.today())
 
-                    if usr.get_type() == "Faculty":
-                        exp_date = datetime.datetime.fromordinal(
-                            init_date + 28)
-                        print("User: " + usr.get_name() + " took book till: " + str(exp_date))
-
-                        print("**SUCCESS**")
-                        db.update(id=usr.get_id(), queue=str(qu))               #adding to the queue
-                        add_to_queue(usr)
-                        if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
-                            db.update(id=usr.get_id(), docs= usr.get_docs_list())   #adding to db
-                        return success + " " + str(exp_date)
-                    else:
-                        if document.is_bestseller():
+                        if usr.get_type() == "Faculty":
                             exp_date = datetime.datetime.fromordinal(
-                                init_date + 14)
-                            print("User: " + usr.get_name() +
-                                  " took book till: " + str(exp_date))
+                                init_date + 28)
+                            print("User: " + usr.get_name() + " took book till: " + str(exp_date))
 
                             print("**SUCCESS**")
-                            db.update(id=usr.get_id(), queue=str(qu))  # adding to the queue
+                            db.update(id=usr.get_id())
+                            db.update(title=document.get_title(), queue=add_to_queue(usr))  # adding to the queue
                             add_to_queue(usr)
                             if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
                                 db.update(id=usr.get_id(), docs=usr.get_docs_list())  # adding to db
                             return success + " " + str(exp_date)
                         else:
-                            exp_date = datetime.datetime.fromordinal(
-                                init_date + 21)
+                            if document.is_bestseller():
+                                exp_date = datetime.datetime.fromordinal(
+                                    init_date + 14)
+                                print("User: " + usr.get_name() +
+                                      " took book till: " + str(exp_date))
 
-                            print("User: " + str(usr.get_name()) +
-                                  " took book till: " + str(exp_date))
+                                print("**SUCCESS**")
+                                db.update(id=usr.get_id(), queue=str(qu))  # adding to the queue
+                                add_to_queue(usr)
+                                if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
+                                    db.update(id=usr.get_id(), docs=usr.get_docs_list())  # adding to db
+                                return success + " " + str(exp_date)
+                            else:
+                                exp_date = datetime.datetime.fromordinal(
+                                    init_date + 21)
 
-                            print("**SUCCESS**")
-                            db.update(id=usr.get_id(), queue=str(qu))  # adding to the queue
-                            add_to_queue(usr)
-                            if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
-                                db.update(id=usr.get_id(), docs=usr.get_docs_list())  # adding to db
-                            return success + " " + str(exp_date)
+                                print("User: " + str(usr.get_name()) +
+                                      " took book till: " + str(exp_date))
+
+                                print("**SUCCESS**")
+                                db.update(id=usr.get_id(), queue=str(qu))  # adding to the queue
+                                add_to_queue(usr)
+                                if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
+                                    db.update(id=usr.get_id(), docs=usr.get_docs_list())  # adding to db
+                                return success + " " + str(exp_date)
+                    else:
+                        print("ERR. Unfortunately this doc is a reference material")
+                        return reference
                 else:
-                    print("ERR. Unfortunately this doc is a reference material")
-                    return reference
-            else:
-                return no_copies
+                    return no_copies
 
-        else:
-            print("ERR. User: " + usr.get_name() + " already renewed " + document.get_title())
-            return max_renew_alert
+            else:
+                print("ERR. User: " + usr.get_name() + " already renewed " + document.get_title())
+                return max_renew_alert
+    else:
+        return no_copies
 
 
 def order_av(usr, document):
@@ -133,14 +140,14 @@ def booking(usr, document):
 
 
 def add_to_queue(usr):
-    heapq.heappush(qu, (usr.get_prior(), usr.get_id()))
+    heapq.heappush(db.update(queue=qu), (usr.get_prior(), usr.get_id()))
+    return qu
 
 
 def pop_from_queue(qu):
     heapq.heappop(qu)
+    return qu
 
-
-qu = []
 
 now = datetime.datetime.now()
 today_format1 = now.strftime("%H:%d:%m:%Y")
@@ -152,6 +159,7 @@ fail = "Unfortunately this doc is not yet available..."
 reference = "Unfortunately, You are trying to book a reference material which is unavailable. "
 no_copies = "No copies left."
 max_renew_alert = "You have reached maximum amount of renews. :( "
+no_copies = "No copies of current book were found."
 """
 student = user.Student("stud", "Student", "name.surname@innopolis.ru", "1234567", "@student", "Innopolis City")
 prof = user.Faculty("prof", "Professor", "name.surname1@innopolis.ru", "1234568", "@professor", "Innopolis City")
