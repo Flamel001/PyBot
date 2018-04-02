@@ -21,7 +21,6 @@ userName = ""
 userSurname = ""
 userNumber = ""
 
-
 @bot.message_handler(commands=["start"])
 def greeting(message):
     # TODO: Проверить, есть ли чел в дб, если да, то на его стартовый экран, если нет - то инициализация
@@ -265,9 +264,11 @@ def search_doc(call):
 
 def search(call):
     u.db_to_search = get_db(u.field)
+    ID = call.chat.id
+    mail = db.get(id=ID)[0].get_mail()
     u.current_object = call  # TODO: ага
     if call.text in u.db_to_search:
-        if u.is_librarian:
+        if facbase.is_librarian(mail):
             message = "Choose action to do with {}".format(call.text)
             markup = u.keyboard_librarian_buttons_manage
             if u.field == "Books":  # костыльная проверка на док
@@ -288,7 +289,7 @@ def search(call):
                     button = "To waiting list"
                 markup = [[button, button]]
     else:
-        if u.is_librarian:
+        if facbase.is_librarian(mail):
             message = "Do you want to add {} to database?".format(call.text)
             markup = u.keyboard_librarian_buttons_cobfirmation
         else:
@@ -392,10 +393,12 @@ def get_info(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Back")
 def back(call):
+    ID = call.message.chat.id
+    mail = db.get(id=ID)[0].get_mail()
     # TODO: наверно нужно перепривязать костыльную проверку к дб, но тут сам решай
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Now choose what you want to do")
-    if not u.is_librarian:
+    if not facbase.is_librarian(mail):
         bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                       reply_markup=bot_features.get_inline_markup(u.keyboard_patron_buttons_home))
     else:
