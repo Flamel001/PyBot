@@ -5,7 +5,7 @@ import user
 def check(id):
     if id:
         info = db.get(id=id)
-        if info:
+        if len(info)>0:
             return True
         else:
             return False
@@ -13,7 +13,7 @@ def check(id):
 
 def if_librarian(id):
     if id:
-        librarian = db.get(id=id)
+        librarian = db.get(id=id)[0]
         if isinstance(librarian, user.Librarian):
             return True
         else:

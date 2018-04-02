@@ -125,13 +125,23 @@ def insert(dictionary):
 
 def __parse_str_to_dict(dict_str):
     dict_str_list = dict_str.replace("{", "").replace("}", "").replace("'", "").split(", ")
-    parsed_dict = dict(tuple(dict_str_list[i].split(": ")) for i in range(0, len(dict_str_list)))
-    return parsed_dict
+    print(dict_str_list)
+    if dict_str_list:
+        parsed_dict = dict()
+        for i in range(0, len(dict_str_list)):
+            if dict_str_list[i]:
+                parsed_dict = dict(tuple(dict_str_list[i].split(": ")))
+        return parsed_dict
+    else:
+        return dict()
 
 
 def __parse_str_to_list(list_str):
     str_list = list_str.replace("[", "").replace("]", "").split(", ")
-    return str_list
+    if str_list:
+        return str_list
+    else:
+        return list()
 
 
 def __parse_to_object(row):
@@ -141,19 +151,19 @@ def __parse_to_object(row):
             return user.Librarian(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5])
         elif row[7] == "Student":
             return user.Student(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                reg_date=row[6], doc_list=__parse_str_to_list(row[8]), debt=row[9])
+                                reg_date=row[6], doc_list=__parse_str_to_dict(row[8]), debt=row[9])
         elif row[7] == "Instructor":
             return user.Instructor(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                   reg_date=row[6], doc_list=__parse_str_to_list(row[8]), debt=row[9])
+                                   reg_date=row[6], doc_list=__parse_str_to_dict(row[8]), debt=row[9])
         elif row[7] == "TA":
             return user.TA(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                           reg_date=row[6], doc_list=__parse_str_to_list(row[8]), debt=row[9])
+                           reg_date=row[6], doc_list=__parse_str_to_dict(row[8]), debt=row[9])
         elif row[7] == "Professor":
             return user.Professor(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                  reg_date=row[6], doc_list=__parse_str_to_list(row[8]), debt=row[9])
+                                  reg_date=row[6], doc_list=__parse_str_to_dict(row[8]), debt=row[9])
         elif row[7] == "VP":
             return user.VP(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                           reg_date=row[6], doc_list=__parse_str_to_list(row[8]), debt=row[9])
+                           reg_date=row[6], doc_list=__parse_str_to_dict(row[8]), debt=row[9])
         elif row[3] == "Book":
             return documents.Book(title=row[0], author=row[1], queue=__parse_str_to_dict(row[4]),
                                   copies=__parse_str_to_list(row[5]), url=row[7], publisher=row[9], year=row[10],
@@ -271,63 +281,63 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
         raise Exception("DATABASE, Update. Only id or title should be provided")
     elif title or id:
         if id:
-            if alias or name or mail or number or address:
+            if alias or name or mail or number or address or docs or debt or new_id:
                 cursor = __cnxn.cursor()
                 if alias:
-                    __update_query(cursor, __users_name, __key_user_alias, alias, id)
+                    __update_query(cursor, __users_name, __key_user_alias, alias, __key_user_id, id)
                 elif name:
-                    __update_query(cursor, __users_name, __key_user_name, name, id)
+                    __update_query(cursor, __users_name, __key_user_name, name, __key_user_id, id)
                 elif mail:
-                    __update_query(cursor, __users_name, __key_user_mail, mail, id)
+                    __update_query(cursor, __users_name, __key_user_mail, mail, __key_user_id, id)
                 elif number:
-                    __update_query(cursor, __users_name, __key_user_number, number, id)
+                    __update_query(cursor, __users_name, __key_user_number, number, __key_user_id, id)
                 elif address:
-                    __update_query(cursor, __users_name, __key_user_address, address, id)
+                    __update_query(cursor, __users_name, __key_user_address, address, __key_user_id, id)
                 elif docs:
-                    __update_query(cursor, __users_name, __key_user_patron_document_list, docs, id)
+                    __update_query(cursor, __users_name, __key_user_patron_document_list, docs, __key_user_id, id)
                 elif debt:
-                    __update_query(cursor, __users_name, __key_user_patron_debt, debt, id)
+                    __update_query(cursor, __users_name, __key_user_patron_debt, debt, __key_user_id, id)
                 elif new_id:
-                    __update_query(cursor, __users_name, __key_user_id, new_id, id)
+                    __update_query(cursor, __users_name, __key_user_id, new_id, __key_user_id, id)
                 cursor.commit()
                 cursor.close()
             else:
                 raise Exception("DATABASE, Update. Only id was provided, need something else for an update")
         if title:
-            if author or owner or publisher or year or journal or editor or genre or bestseller or reference:
+            if author or owner or queue or copies or price or url or publisher or year or journal or editor or genre or bestseller or reference or new_title:
                 cursor = __cnxn.cursor()
                 if author:
-                    __update_query(cursor, __docs_name, __key_doc_author, author, title)
+                    __update_query(cursor, __docs_name, __key_doc_author, author, __key_doc_title, title)
                 elif owner:
-                    __update_query(cursor, __docs_name, __key_doc_owner, owner, title)
+                    __update_query(cursor, __docs_name, __key_doc_owner, owner, __key_doc_title, title)
                 elif queue:
-                    __update_query(cursor, __docs_name, __key_doc_queue, queue, title)
+                    __update_query(cursor, __docs_name, __key_doc_queue, queue, __key_doc_title, title)
                 elif copies:
-                    __update_query(cursor, __docs_name, __key_doc_copies, copies, title)
+                    __update_query(cursor, __docs_name, __key_doc_copies, copies, __key_doc_title, title)
                 elif price:
-                    __update_query(cursor, __docs_name, __key_doc_price, price, title)
+                    __update_query(cursor, __docs_name, __key_doc_price, price, __key_doc_title, title)
                 elif url:
-                    __update_query(cursor, __docs_name, __key_doc_url, url, title)
+                    __update_query(cursor, __docs_name, __key_doc_url, url, __key_doc_title, title)
                 elif publication_date:
-                    __update_query(cursor, __docs_name, __key_doc_publication_date, publication_date, title)
+                    __update_query(cursor, __docs_name, __key_doc_publication_date, publication_date, __key_doc_title, title)
                 elif publisher:
-                    __update_query(cursor, __docs_name, __key_doc_publisher, publisher, title)
+                    __update_query(cursor, __docs_name, __key_doc_publisher, publisher, __key_doc_title, title)
                 elif year:
-                    __update_query(cursor, __docs_name, __key_doc_year, year, title)
+                    __update_query(cursor, __docs_name, __key_doc_year, year, __key_doc_title, title)
                 elif journal:
-                    __update_query(cursor, __docs_name, __key_doc_journal, journal, title)
+                    __update_query(cursor, __docs_name, __key_doc_journal, journal, __key_doc_title, title)
                 elif editor:
-                    __update_query(cursor, __docs_name, __key_doc_editor, editor, title)
+                    __update_query(cursor, __docs_name, __key_doc_editor, editor, __key_doc_title, title)
                 elif edition:
-                    __update_query(cursor, __docs_name, __key_doc_edition, edition, title)
+                    __update_query(cursor, __docs_name, __key_doc_edition, edition, __key_doc_title, title)
                 elif genre:
-                    __update_query(cursor, __docs_name, __key_doc_genre, genre, title)
+                    __update_query(cursor, __docs_name, __key_doc_genre, genre, __key_doc_title, title)
                 elif bestseller:
-                    __update_query(cursor, __docs_name, __key_doc_bestseller, int(bestseller), title)
+                    __update_query(cursor, __docs_name, __key_doc_bestseller, int(bestseller), __key_doc_title, title)
                 elif reference:
-                    __update_query(cursor, __docs_name, __key_doc_reference, int(reference), title)
+                    __update_query(cursor, __docs_name, __key_doc_reference, int(reference), __key_doc_title, title)
                 elif new_title:
-                    __update_query(cursor, __docs_name, __key_doc_type, new_title, title)
+                    __update_query(cursor, __docs_name, __key_doc_title, new_title, __key_doc_title, title)
                 cursor.commit()
                 cursor.close()
             else:
@@ -336,8 +346,9 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
         raise Exception("DATABASE, Update. Please, provide one argument")
 
 
-def __update_query(cursor, table, column, arg, search_arg):
-    update_query = "update " + table + " set " + column + " = '" + arg + "' where " + __key_doc_title + " like '" + str(
+def __update_query(cursor, table, column, arg, search_column, search_arg):
+    print(str(arg) + " jnd " + str(search_arg))
+    update_query = "update " + table + " set " + column + " = '" + str(arg) + "' where " + search_column + " like '" + str(
         search_arg) + "'"
     return cursor.execute(update_query)
 
@@ -356,5 +367,98 @@ def delete(id=None, title=None):
 
 
 def __delete_query(cursor, table, column, arg):
-    delete_query = "delete from " + table + " where " + column + " like '" + arg + "'"
+    delete_query = "delete from " + table + " where " + column + " like '" + str(arg) + "'"
     return cursor.execute(delete_query)
+
+
+def get_all_similar_info(id=None, alias=None, name=None, mail=None, number=None, address=None, type_user=None, title=None, author=None,
+        owner=None, type_book=None, publisher=None, year=None, journal=None, editor=None, genre=None,
+        bestseller=None, reference=None):
+    counter = 0
+    if id:
+        counter += 1
+    if alias:
+        counter += 1
+    if name:
+        counter += 1
+    if mail:
+        counter += 1
+    if number:
+        counter += 1
+    if address:
+        counter += 1
+    if type_user:
+        counter += 1
+    if title:
+        counter += 1
+    if author:
+        counter += 1
+    if owner:
+        counter += 1
+    if type_book:
+        counter += 1
+    if publisher:
+        counter += 1
+    if year:
+        counter += 1
+    if journal:
+        counter += 1
+    if editor:
+        counter += 1
+    if genre:
+        counter += 1
+    if bestseller:
+        counter += 1
+    if reference:
+        counter += 1
+    if counter == 1:
+        cursor = __cnxn.cursor()
+        if id:
+            cursor = __search_similar_query(cursor, __users_name, __key_user_id)
+        elif alias:
+            cursor = __search_similar_query(cursor, __users_name, __key_user_alias)
+        elif name:
+            cursor = __search_similar_query(cursor, __users_name, __key_user_name)
+        elif mail:
+            cursor = __search_similar_query(cursor, __users_name, __key_user_mail)
+        elif number:
+            cursor = __search_similar_query(cursor, __users_name, __key_user_number)
+        elif address:
+            cursor = __search_similar_query(cursor, __users_name, __key_user_address)
+        elif type_user:
+            cursor = __search_similar_query(cursor, __users_name, __key_user_type)
+        elif title:
+            cursor = __search_similar_query(cursor, __docs_name, __key_doc_title)
+        elif author:
+            cursor = __search_similar_query(cursor, __docs_name, __key_doc_author)
+        elif owner:
+            cursor = __search_similar_query(cursor, __docs_name, __key_doc_author)
+        elif type_book:
+            cursor = __search_similar_query(cursor, __docs_name, __key_doc_type)
+        elif publisher:
+            cursor = __search_similar_query(cursor, __docs_name, __key_doc_publisher)
+        elif year:
+            cursor = __search_similar_query(cursor, __docs_name, __key_doc_year)
+        elif journal:
+            cursor = __search_similar_query(cursor, __docs_name, __key_doc_journal)
+        elif editor:
+            cursor = __search_similar_query(cursor, __docs_name, __key_doc_editor)
+        elif genre:
+            cursor = __search_similar_query(cursor, __docs_name, __key_doc_genre)
+        elif bestseller:
+            cursor = __search_similar_query(cursor, __docs_name, __key_doc_bestseller)
+        elif reference:
+            cursor = __search_similar_query(cursor, __docs_name, __key_doc_reference)
+        result_list = list()
+        rows = cursor.fetchall()
+        for row in rows:
+            result_list.append(row[0])
+        cursor.close()
+        return result_list
+    else:
+        raise Exception("DATABASE, Fetching. One argument should be provided")
+
+
+def __search_similar_query(cursor, table, arg):
+    search_similar_query = "select " + str(arg) + " from " + table
+    return cursor.execute(search_similar_query)

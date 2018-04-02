@@ -30,7 +30,7 @@ keyboard_librarian_buttons_manage = [["Edit", "Edit"], ["Get information", "Get 
                                      ["Return to home page", "Back"]]
 keyboard_librarian_buttons_edit = [["Name", "Name"], ["Surname", "Surname"], ["mail", "mail"], ["number", "number"],
                                    ["alias", "alias"], ["address", "address"], ["Back", "Back"]]
-keyboard_librarian_buttons_cobfirmation = [["Add", "Add"], ["Back", "Actions with Patrons"]]
+keyboard_librarian_buttons_confirmation = [["Add", "Add"], ["Back", "Actions with Patrons"]]
 
 "PATRON"
 keyboard_patron_buttons_home = [["Library", "Library"], ["My docs", "My docs"], ["Tech support", "Tech support"]]
