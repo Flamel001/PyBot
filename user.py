@@ -302,6 +302,7 @@ class Patron(User):
 
     def add_document(self, title, date):
         self.__info[user_document_list][title] = date
+        return self.__info[user_document_list]
 
     def has_book(self, title):
         for key in self.__info[user_document_list].keys():

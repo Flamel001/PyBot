@@ -39,12 +39,22 @@ keyboard_patron_buttons_library = [["Books", "Books"], ["Articles", "Articles"],
 keyboard_patron_buttons_reserve = [["Reserve", "Reserve"], ["Back", "Back"]]
 keyboard_patron_buttons_doc = [["Return", "Return"], ["Renew", "Renew"], ["Back", "Back"]]
 
-current_email = ""
-field = ""
-# is_librarian = False
-db_to_search = []
-current_object = ""
-current_type = ""
+
+class current:
+    current_email = ""
+    field = ""
+    # is_librarian = False
+    db_to_search = []
+    current_object = ""
+    current_type = ""
+    pin = ""
+    temp_user_date = dict()
+    auth_arr = ["name","number","address"]
+    auth_val_arr = []
+    time = ""
+
+
+multithreading = dict()
 
 # title, author, publisher, edition, genre
 
@@ -78,7 +88,3 @@ pin_enter = "Please enter PIN I've sent to you. "
 
 tempData = {'userId': '0'}
 
-pin = ""
-temp_user_date = dict()
-auth_arr = ["name","number","address"]
-auth_val_arr = []
