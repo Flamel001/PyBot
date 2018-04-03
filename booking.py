@@ -32,7 +32,8 @@ def order_book(usr, document):
                             print("User: " + usr.get_name() + " took book till: " + str(exp_date))
 
                             print("**SUCCESS**")
-                            db.update(id=usr.get_id())
+                            document.get_list_of_copies().size() - 1
+                            db.update(id=usr.get_id(), copies=usr.append(document.get_title()))
                             db.update(title=document.get_title(), queue=add_to_queue(usr))  # adding to the queue
                             add_to_queue(usr)
                             if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
@@ -46,6 +47,8 @@ def order_book(usr, document):
                                       " took book till: " + str(exp_date))
 
                                 print("**SUCCESS**")
+                                document.get_list_of_copies().size() - 1
+                                db.update(id=usr.get_id(), copies=usr.append(document.get_title()))
                                 db.update(id=usr.get_id(), queue=str(qu))  # adding to the queue
                                 add_to_queue(usr)
                                 if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
@@ -59,6 +62,8 @@ def order_book(usr, document):
                                       " took book till: " + str(exp_date))
 
                                 print("**SUCCESS**")
+                                document.get_list_of_copies().size() - 1
+                                db.update(id=usr.get_id(), copies=usr.append(document.get_title()))
                                 db.update(id=usr.get_id(), queue=str(qu))  # adding to the queue
                                 add_to_queue(usr)
                                 if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
