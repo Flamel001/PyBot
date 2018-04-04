@@ -87,3 +87,23 @@ __bot.edit_message_reply_markup__ used to update butons from need chat of needed
 
 ```bot.register_next_step_handler(call, auth)```
 used to catch some information from user and use it in one of the other program methods
+
+
+## DataBase.py:
+Method|Description
+------|-----------
+create_user_table()| creates a table of users in AzureDB
+create_doc_table()| creates a table of docs
+\__parse(dictionary)\__ | parsing formatted data
+insert(dictionary)| inserts any type of info (id, title, etc)
+\__parse_str_to_dict(dict_str)\__ | parses string dict to dict
+\__parse_str_to_list(list_str)\__ | parses string list to list
+get(id,alias,name,mail,...,reference)| gets all needed info
+update(id,alias,name,mail,...,reference) | updates needed required data
+\__search_query(cursor, table, column, arg)\__ | creates query for search
+\_update_query(cursor, table, column, arg, search_column, search_arg)\__ | updates query
+\__delete_query(cursor, table, column, arg)\__ | deletes query
+delete(id=None, title=None) | deletes whether id(user), or title
+get_all_similar_info(id,alias,name,mail,...,reference) | gets information from the same column in DB
+\__search_similar_query(cursor, table, arg)\__ | searches similar query
+
