@@ -107,3 +107,9 @@ delete(id=None, title=None) | deletes whether id(user), or title
 get_all_similar_info(id,alias,name,mail,...,reference) | gets information from the same column in DB
 \__search_similar_query(cursor, table, arg)\__ | searches similar query
 
+
+## Verification.py:
+Method|Description
+------|-----------
+pin_generator()| generates a random pin (used for authentification)
+pin_sender(email,pin) | calls pin_generator() and sends pin to email
