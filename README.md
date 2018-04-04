@@ -20,6 +20,7 @@ Bot is developed for Library use.
 * pyTelegramBotAPI
 * pyodbc
 * Microsoft Azure
+####### Note: all needed dependencies are in requirement.txt. They should be imported into your enviroment.
 
 ## Installation:
 #### Requirements:
