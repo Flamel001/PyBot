@@ -14,10 +14,10 @@ Ramil Askarov - @Rome314
 Bot is developed for Library use.
 
 ## Dependencies:
-*python
-*pyTelegramBotAPI
-*pyodbc
-*Microsoft Azure
+* python
+* pyTelegramBotAPI
+* pyodbc
+* Microsoft Azure
 
 ## Installation:
 #### Requirements:
