@@ -41,7 +41,6 @@ To run the application with default parameters just typing the command below in 
 
       ``` python3 telebot2.py ```
 
-
 # DOCUMENTATION:
 ## Authentication
 Authentication need if user open bot first time, after it checking for system including will happen automatically. For first run bot asking user to write his e-mail in @innopolis domain, other cases will not be valid. In this step, system checks that e-mail, to know, who is this user: Faculty member or Student. Bot send pin code to users e-mail, and user need to verify it. After this step user need to give for bot personal information: name, number and address, after it registration in completed.
