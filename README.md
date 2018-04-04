@@ -21,7 +21,7 @@ Bot is developed for Library use.
 * pyodbc
 * Microsoft Azure
 
-###### Note: all needed dependencies are in requirement.txt. They should be imported into your enviroment.
+###### Note: all needed dependencies are in requirements.txt. They should be imported into your enviroment.
 
 ## Installation:
 #### Requirements:
