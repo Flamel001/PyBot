@@ -1,6 +1,12 @@
 # PyBot
 Innopolis Library Management System implemented via Telegram Bot Api
 
+### Team members:
+Abdulkhamid Muminov - @homycdev
+Amadey Kuspakov - @AmadeyKuspakov
+Nikita Kostenko - @Flamel001
+Ramil Askarov - @Rome314
+
 ## Purpose of Bot:
 Bot is developed for Library use.
 
