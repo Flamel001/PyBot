@@ -47,10 +47,10 @@ OOP representation for classes, need to link all fields in and from database
 ## Booking:
 Method|Description
 ------|-----------
-def booking(usr,document,time)| booking method which call order_book, order_av, order_article methods depending on what kind of type document comes in
-def order_book(usr,document,time)| makes a reservation of the book
-def order_article(usr, document, time)| makes a reservation of the article
-def order_av(usr,av,time)| makes a reservation of the av file
-def add_to_queue(usr)| adds user to waiting list
-def pop_from_queue(waiting_list)| pops a user from waiting list
+ booking(usr,document,time)| booking method which call order_book, order_av, order_article methods depending on what kind of type document comes in
+ order_book(usr,document,time)| makes a reservation of the book
+ order_article(usr, document, time)| makes a reservation of the article
+ order_av(usr,av,time)| makes a reservation of the av file
+ add_to_queue(usr)| adds user to waiting list
+ pop_from_queue(waiting_list)| pops a user from waiting list
 
