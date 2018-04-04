@@ -33,7 +33,7 @@ Bot is developed for Library use.
 
       ``` pip3 install -r requirements.txt ```
 
-2.  Install Microsoft Azure drivers [link](https://www.microsoft.com/en-us/download/details.aspx?id=53339)
+2.  Install Microsoft Azure [drivers](https://www.microsoft.com/en-us/download/details.aspx?id=53339)
 3.  Download repository from [GitHub](https://github.com/homycdev/PyBot)
 
 ## Running:
