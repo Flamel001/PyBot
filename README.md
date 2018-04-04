@@ -63,3 +63,26 @@ Method|Description
  add_to_queue(usr)| adds user to waiting list
  pop_from_queue(waiting_list)| pops a user from waiting list
 
+
+## Telebot2.py:
+There are methods for all the buttons from GUI
+```@bot.message_handler```  
+Used for catch commands and callback data from buttons perform actions according to them
+
+```bot.send_message(message.chat.id, "text", reply_markup=bot_features.get_inline_markup(markup))```
+Used to send new messages to user. 
+__Message.chat.id__ holds id of chat to answer,
+“text” is a text of message, 
+__reply_markup=__ used to show what buttons are needed under textmessage “text”
+
+```
+bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                      text="text”))
+bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,                             reply_markup=bot_features.get_inline_markup(markup))
+```
+__bot.edit_message_text__ – used to change text of needed message(using message_id) from needed chat(using chat_id)  to “text”
+__bot.edit_message_reply_markup__ used to update butons from need chat of needed message to “markup”
+
+
+```bot.register_next_step_handler(call, auth)```
+used to catch some information from user and use it in one of the other program methods
