@@ -9,11 +9,11 @@ import database as db
 qu = []
 
 
-def order_book(usr, document):
+def order_book(usr, document, time):
     ordered_times = 0
 
     print(usr.summary())
-    usr = db.get(id=usr.user_id)
+    usr = db.get(id=usr.get_id())
     if document.get_list_of_copies().size() > 0:
         if usr.has_book(document.get_title()):
             # if db.get(title=document.get_title()):
@@ -26,19 +26,20 @@ def order_book(usr, document):
                         init_date = datetime.datetime.toordinal(
                             datetime.datetime.today())
 
-                        if usr.get_type() == "Faculty":
+                        if usr.get_type() == "Professor":
                             exp_date = datetime.datetime.fromordinal(
                                 init_date + 28)
                             print("User: " + usr.get_name() + " took book till: " + str(exp_date))
 
                             print("**SUCCESS**")
                             len(document.get_list_of_copies()) - 1
-                            db.update(id=usr.get_id(), copies=usr.append(document.get_title()))
                             db.update(title=document.get_title(), queue=add_to_queue(usr))  # adding to the queue
                             add_to_queue(usr)
                             if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
-                                db.update(id=usr.get_id(), docs=usr.get_docs_list())  # adding to db
-                            return success + " " + str(exp_date)
+                                db.update(id=usr.get_id(), docs=usr.add_document(document.get_title(), time))  # adding to db
+                                return success + " " + str(exp_date)
+                            else:
+                                return "Y"
                         else:
                             if document.is_bestseller():
                                 exp_date = datetime.datetime.fromordinal(
@@ -47,9 +48,9 @@ def order_book(usr, document):
                                       " took book till: " + str(exp_date))
 
                                 print("**SUCCESS**")
-                                document.get_list_of_copies().size() - 1
-                                db.update(id=usr.get_id(), copies=usr.append(document.get_title()))
-                                db.update(id=usr.get_id(), queue=str(qu))  # adding to the queue
+                                copy = document.get_list_of_copies().pop()
+                                db.update(id=usr.get_id(), copies=usr.add_document(copy, time))
+                                db.update(title=document.get_title(), queue=str(qu))  # adding to the queue
                                 add_to_queue(usr)
                                 if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
                                     db.update(id=usr.get_id(), docs=usr.get_docs_list())  # adding to db
@@ -63,8 +64,8 @@ def order_book(usr, document):
 
                                 print("**SUCCESS**")
                                 document.get_list_of_copies().size() - 1
-                                db.update(id=usr.get_id(), copies=usr.append(document.get_title()))
-                                db.update(id=usr.get_id(), queue=str(qu))  # adding to the queue
+                                db.update(id=usr.get_title(), copies=usr.add_document(document.get_title(), time))
+                                db.update(title=document.get_title(), queue=str(qu))  # adding to the queue
                                 add_to_queue(usr)
                                 if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
                                     db.update(id=usr.get_id(), docs=usr.get_docs_list())  # adding to db
@@ -82,7 +83,7 @@ def order_book(usr, document):
         return no_copies
 
 
-def order_av(usr, document):
+def order_av(usr, document, time):
     print("**av-file DETECTED")
     if not usr.has_book(document.get_title()):
         # IMPORTANT: MAKE A CHECK FROM A DATABASE FOR A COPY VIA checked() METHOD
@@ -113,7 +114,7 @@ def order_av(usr, document):
         return max_renew_alert
 
 
-def order_article(usr, document):
+def order_article(usr, document, time):
     print("**article DETECTED")
     if not usr.has_book(document.get_title()):
         if document.get_title():
@@ -131,17 +132,17 @@ def order_article(usr, document):
                       " took article until: " + str(exp_date))
 
 
-def booking(usr, document):
+def booking(usr, document, time):
     print("**Booking func has been initialised")
 
-    if document.summary()["type"] == "book":
-        order_book(usr, document)
+    if document.summary()["type"] == "Book":
+        order_book(usr, document, time)
 
-    elif document.summary()["type"] == "av":
-        order_av(usr, document)
+    elif document.summary()["type"] == "AV":
+        order_av(usr, document, time)
 
-    elif document.summary()["type"] == "article":
-        order_article(usr, document)
+    elif document.summary()["type"] == "Article":
+        order_article(usr, document, time)
 
 
 def add_to_queue(usr):

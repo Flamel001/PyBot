@@ -280,6 +280,7 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
     if title and id:
         raise Exception("DATABASE, Update. Only id or title should be provided")
     elif title or id:
+        print("Update is in process")
         if id:
             if alias or name or mail or number or address or docs or debt or new_id:
                 cursor = __cnxn.cursor()

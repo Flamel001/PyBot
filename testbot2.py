@@ -26,6 +26,7 @@ userNumber = ""
 def greeting(message):
     # TODO: Проверить, есть ли чел в дб, если да, то на его стартовый экран, если нет - то инициализация
     exist = aut.check(message.chat.id)
+    u.multithreading[str(message.chat.id)] = u.current()
     if not exist:
         print(message)
         message = bot.send_message(message.chat.id, "Please send your e-mail with @innopolis.ru")
@@ -38,13 +39,14 @@ def greeting(message):
         else:
             bot.send_message(message.chat.id, "Now choose what you want to do",
                              reply_markup=bot_features.get_inline_markup(u.keyboard_patron_buttons_home))
+        print(str(u.multithreading))
 
 
 def auth(call):
     if call.text[-13:] == u.domain and len(call.text) > 13:
-        u.current_email = call.text
-        u.pin = veri.pin_generator()
-        veri.pin_sender(call.text, u.pin)
+        u.multithreading[str(call.chat.id)].current_email = call.text
+        u.multithreading[str(call.chat.id)].pin = veri.pin_generator()
+        veri.pin_sender(call.text, u.multithreading[str(call.chat.id)].pin)
         bot.send_message(call.chat.id, "Enter code that we send to your email")
         bot.register_next_step_handler(call, pin_checker)
     else:
@@ -53,11 +55,11 @@ def auth(call):
 
 
 def pin_checker(call):
-    if call.text == u.pin:
+    if call.text == u.multithreading[str(call.chat.id)].pin:
         # reply = types.ReplyKeyboardMarkup(True, False, True, 1)
         # reply.add(types.KeyboardButton(text="Send phone number",request_contact=True))
         # bot.send_message(call.chat.id, "Enter your name",reply_markup=reply)
-        u.auth_val_arr.clear()
+        u.multithreading[str(call.chat.id)].auth_val_arr.clear()
         bot.send_message(call.chat.id, "Enter your name")
         bot.register_next_step_handler(call, name)
     else:
@@ -67,7 +69,7 @@ def pin_checker(call):
 
 def name(call):
     print(call.text)
-    u.auth_val_arr.append(call.text)
+    u.multithreading[str(call.chat.id)].auth_val_arr.append(call.text)
     # TODO: сохранить имя(call.text) в дб
     bot.send_message(call.chat.id, "Enter your number")
     bot.register_next_step_handler(call, number)
@@ -75,7 +77,7 @@ def name(call):
 
 def number(call):
     print(call.text)
-    u.auth_val_arr.append(call.text)
+    u.multithreading[str(call.chat.id)].auth_val_arr.append(call.text)
     # TODO: сохранить номер(call.text) в дб
     bot.send_message(call.chat.id, "Enter your address")
     bot.register_next_step_handler(call, address)
@@ -83,14 +85,14 @@ def number(call):
 
 def address(call):
     print(call.text)
-    u.auth_val_arr.append(call.text)
+    u.multithreading[str(call.chat.id)].auth_val_arr.append(call.text)
     # TODO: сохранить адрес(call.text) в дб
     temp = dict()
     for i in range(3):
-        temp[u.auth_arr[i]] = u.auth_val_arr[i]
+        temp[u.multithreading[str(call.chat.id)].auth_arr[i]] = u.multithreading[str(call.chat.id)].auth_val_arr[i]
     temp["id"] = call.chat.id
     temp["alias"] = call.from_user.username
-    temp["mail"] = u.current_email
+    temp["mail"] = u.multithreading[str(call.chat.id)].current_email
 
     id = temp["id"]
     name = temp["name"]
@@ -113,6 +115,7 @@ def address(call):
     db.insert(usr.summary())
     print(temp)
 
+    u.multithreading[str(call.chat.id)] = u.current()
     bot.send_message(call.chat.id, "Congratulations, registration is finished. Now choose, what do you want to do",
                      reply_markup=bot_features.get_inline_markup(u.keyboard_patron_buttons_home))
 
@@ -127,10 +130,10 @@ def initialize_patron(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "My docs")
 def my_docs(call):
-    u.field = "Patron docs"
-    u.db_to_search = list(db.get(id=call.message.chat.id)[0].get_docs_list().keys())
+    u.multithreading[str(call.message.chat.id)].field = "Patron docs"
+    u.multithreading[str(call.message.chat.id)].db_to_search = list(db.get(id=call.message.chat.id)[0].get_docs_list().keys())
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter doc from list {}".format(u.db_to_search))
+                          text="Enter doc from list {}".format(u.multithreading[str(call.message.chat.id)].db_to_search))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
@@ -138,12 +141,12 @@ def my_docs(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Reserve")
 def renew(call):
-    u.field = "Patron docs"  # TODO: обратиться в дб по полю
+    u.multithreading[str(call.message.chat.id)].field = "Patron docs"  # TODO: обратиться в дб по полю
     # u.db_to_search = get_db(u.field)
     # u.db_to_search.append(u.current_object.text)
-    b.booking(usr=db.get(id=call.chat.id)[0], document=u.current_object)
+    b.booking(usr=db.get(id=call.message.chat.id)[0], document=u.multithreading[str(call.message.chat.id)].current_object, time=u.multithreading[str(call.message.chat.id)].time)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="{} is added to {}".format(u.current_object.get_title(), u.field))
+                          text="{} is added to {}".format(u.multithreading[str(call.message.chat.id)].current_object.get_title(), u.multithreading[str(call.message.chat.id)].field))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
@@ -151,9 +154,9 @@ def renew(call):
 @bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
 def patron_waiting_list(call):
     # TODO:прикрутить сам вейтинг лист и какое то уведомление молодого о том, когда появится книга
-    b.booking(usr=db.get(id=call.chat.id)[0], document=u.current_object)
+    b.booking(usr=db.get(id=call.chat.id)[0], document=u.multithreading[str(call.message.chat.id)].current_object)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="You are added to the waiting list for {}".format(u.current_object.get_id()))
+                          text="You are added to the waiting list for {}".format(u.multithreading[str(call.message.chat.id)].current_object.get_id()))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
@@ -170,7 +173,7 @@ def return_doc(call):
 def renew(call):
     # TODO: update time
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=b.booking(usr=db.get(id=call.chat.id)[0], document=u.current_object))
+                          text=b.booking(usr=db.get(id=call.chat.id)[0], document=u.multithreading[str(call.message.chat.id)].current_object))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
@@ -187,7 +190,7 @@ def tech_sup(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Librarian")
 def initialize_librarian(call):
-    u.is_librarian = aut.if_librarian(call.chat.id)
+    u.multithreading[str(call.message.chat.id)].is_librarian = aut.if_librarian(call.chat.id)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Now choose what you want to do")
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -196,11 +199,11 @@ def initialize_librarian(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Docs on hands")
 def docs_on_hands(call):
-    u.field = "Patron docs"  # TODO: обратиться по типу
+    u.multithreading[str(call.message.chat.id)].field = "Patron docs"  # TODO: обратиться по типу
     all_docs_objects = db.get(type_book="Book") + db.get(type_book="Article") + db.get(type_book="AV")
-    u.db_to_search = [all_docs_objects[i].get_title() for i in range(len(all_docs_objects))]
+    u.multithreading[str(call.message.chat.id)].db_to_search = [all_docs_objects[i].get_title() for i in range(len(all_docs_objects))]
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="docs on hands are {}".format(u.db_to_search))
+                          text="docs on hands are {}".format(u.multithreading[str(call.message.chat.id)].db_to_search))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
@@ -216,7 +219,7 @@ def library(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Waiting list")
 def initialize_librarian(call):
     # TODO: прикрутить сам лист
-    l = list(db.get(title=u.current_object.get_title())[0].get_queue().values())
+    l = list(db.get(title=u.multithreading[str(call.message.chat.id)].current_object.get_title())[0].get_queue().values())
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="{} now in the waiting list".format(l))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -227,7 +230,7 @@ def initialize_librarian(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Outstanding Request")
 def initialize_librarian(call):
-    db.update(title=u.current_object.get_title(), queue=str(dict()))
+    db.update(title=u.multithreading[str(call.message.chat.id)].current_object.get_title(), queue=str(dict()))
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Now, no person waits for the document")
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -239,11 +242,11 @@ def initialize_librarian(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Actions with Patrons")
 def search_patron(call):
-    u.field = "Emails"  # TODO: list of emails
-    u.db_to_search = db.get_all_similar_info(mail="yes")
-    print("Hello, these are emails " + str(u.db_to_search))
+    u.multithreading[str(call.message.chat.id)].field = "Emails"  # TODO: list of emails
+    u.multithreading[str(call.message.chat.id)].db_to_search = db.get_all_similar_info(mail="yes")
+    print("Hello, these are emails " + str(u.multithreading[str(call.message.chat.id)].db_to_search))
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter e-mail from list {}".format(u.db_to_search))
+                          text="Enter e-mail from list {}".format(u.multithreading[str(call.message.chat.id)].db_to_search))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
@@ -253,15 +256,15 @@ def search_patron(call):
     func=lambda call: call.data == "Books" or call.data == "Articles" or call.data == "Audio/Video")
 def search_doc(call):
     if call.data == "Books":
-        u.field = "Book"
+        u.multithreading[str(call.message.chat.id)].field = "Book"
     elif call.data == "Articles":
-        u.field = "Article"
+        u.multithreading[str(call.message.chat.id)].field = "Article"
     elif call.data == "Audio/Video":
-        u.field = "AV"
-    list_of_docs = db.get(type_book=u.field)
-    u.db_to_search = [i.get_title() for i in list_of_docs]
+        u.multithreading[str(call.message.chat.id)].field = "AV"
+    list_of_docs = db.get(type_book=u.multithreading[str(call.message.chat.id)].field)
+    u.multithreading[str(call.message.chat.id)].db_to_search = [i.get_title() for i in list_of_docs]
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter name of doc from list {}".format(u.db_to_search))
+                          text="Enter name of doc from list {}".format(u.multithreading[str(call.message.chat.id)].db_to_search))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
@@ -271,26 +274,29 @@ def search(call):
     if "innopolis.ru" in call.text.split("@"):
         list_of_all_books = db.get(type_user="TA") + db.get(type_user="VP") + db.get(type_user="Instructor") + db.get(
             type_user="Professor") + db.get(type_user="Student")
-        u.db_to_search = [i.get_mail() for i in list_of_all_books]
-        u.current_object = db.get(mail=call.text)[0]  # Searchit' chto?
+        u.multithreading[str(call.chat.id)].db_to_search = [i.get_mail() for i in list_of_all_books]
+        u.multithreading[str(call.chat.id)].current_object = db.get(mail=call.text)[0]  # Searchit' chto?
     else:
-        list_of_all_books = db.get(type_book=u.field)
-        u.db_to_search = [i.get_title() for i in list_of_all_books]
-        u.current_object = db.get(title=call.text)[0]
-    if call.text in u.db_to_search:
+        time = call.text.split(", ")
+        call.text = time[0]
+        u.multithreading[str(call.chat.id)].time = time[1]
+        list_of_all_books = db.get(type_book=u.multithreading[str(call.chat.id)].field)
+        u.multithreading[str(call.chat.id)].db_to_search = [i.get_title() for i in list_of_all_books]
+        u.multithreading[str(call.chat.id)].current_object = db.get(title=call.text)[0]
+    if call.text in u.multithreading[str(call.chat.id)].db_to_search:
         if aut.if_librarian(call.chat.id):
             message = "Choose action to do with {}".format(call.text)
             markup = u.keyboard_librarian_buttons_manage
-            if u.field == "Book" or u.field == "Article" or u.field == "AV":  # костыльная проверка на док
+            if u.multithreading[str(call.chat.id)].field == "Book" or u.multithreading[str(call.chat.id)].field == "Article" or u.multithreading[str(call.chat.id)].field == "AV":  # костыльная проверка на док
                 markup = u.keyboard_librarian_buttons_manage[:-1] + [
                     ["Waiting list", "Waiting list"]] + u.keyboard_librarian_buttons_manage[-1:]
 
         else:
-            if u.field == "Patron docs":
+            if u.multithreading[str(call.chat.id)].field == "Patron docs":
                 message = "What do you want to do with {}?".format(call.text)
                 markup = u.keyboard_patron_buttons_doc
             else:
-                if False:  # TODO: тут должно чекать, если количество книг>0
+                if len(u.multithreading[str(call.chat.id)].current_object.get_list_of_copies())>0:  # TODO: тут должно чекать, если количество книг>0
                     message = "Do you want to reserve {}?".format(call.text)
                     button = "Reserve"
                 else:
@@ -303,7 +309,7 @@ def search(call):
             message = "Do you want to add {} to database?".format(call.text)
             markup = u.keyboard_librarian_buttons_confirmation
         else:
-            if u.field == "Patron docs":
+            if u.multithreading[str(call.chat.id)].field == "Patron docs":
                 message = "Sorry, {} is not in your list, but you can try to find it in the Library".format(call.text)
                 markup = u.keyboard_patron_buttons_home
             else:
@@ -329,7 +335,7 @@ def search(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Edit")
 def edit(call):
-    types = get_type(u.field)
+    types = get_type(u.multithreading[str(call.message.chat.id)].field)
     text_types = ""  # TODO: update of one field
     print(str(types))
     for i in range(0, len(types)):
@@ -342,17 +348,17 @@ def edit(call):
 
 @bot.callback_query_handler(func=lambda
         call: call.data == "id" or call.data == "alias" or call.data == "name" or call.data == "mail" or call.data == "number" or call.data == "address" or call.data == "title" or call.data == "author"
-              or call.data == "owner" or call.data == "price" or call.data == "year" or call.data == "publication_date" or call.data == "publisher"
+              or call.data == "owner" or call.data == "copies" or call.data == "price" or call.data == "year" or call.data == "publication_date" or call.data == "publisher"
               or call.data == "journal" or call.data == "editor" or call.data == "edition" or call.data == "genre" or call.data == "bestseller" or call.data == "reference")  # TODO: следствие метода выше
 def editing(call):
-    u.field = call.data
+    u.multithreading[str(call.message.chat.id)].field = call.data
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Enter new parameter for {} of {}".format(call.data,
-                                                                         u.current_object.get_title() if isinstance(
-                                                                             u.current_object, Book) or isinstance(
-                                                                             u.current_object, Article) or isinstance(
-                                                                             u.current_object,
-                                                                             AV_Materials) else u.current_object.get_id()))
+                                                                         u.multithreading[str(call.message.chat.id)].current_object.get_title() if isinstance(
+                                                                             u.multithreading[str(call.message.chat.id)].current_object, Book) or isinstance(
+                                                                             u.multithreading[str(call.message.chat.id)].current_object, Article) or isinstance(
+                                                                             u.multithreading[str(call.message.chat.id)].current_object,
+                                                                             AV_Materials) else u.multithreading[str(call.message.chat.id)].current_object.get_id()))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, edited)
@@ -360,76 +366,79 @@ def editing(call):
 
 def edited(call):
     # TODO: update u.field field
-    print("This is field " + str(u.field) + " this is call.text " + str(call.text) + " " + str(u.current_object))
-    if u.field == "id":
-        db.update(id=aut.check_user(u.current_object.summary()), new_id=int(call.text))
-        u.field = "Emails"
-    elif u.field == "alias":
-        db.update(id=aut.check_user(u.current_object.summary()), alias=call.text)
-        u.field = "Emails"
-    elif u.field == "name":
-        db.update(id=aut.check_user(u.current_object.summary()), name=call.text)
-        u.field = "Emails"
-    elif u.field == "mail":
-        db.update(id=aut.check_user(u.current_object.summary()), mail=call.text)
-        u.field = "Emails"
-    elif u.field == "number":
-        db.update(id=aut.check_user(u.current_object.summary()), number=call.text)
-        u.field = "Emails"
-    elif u.field == "address":
-        print(str(u.current_object.summary()) + " njd " + str(call.text))
-        db.update(id=aut.check_user(u.current_object.summary()), address=call.text)
+    field_id = str(call.chat.id)
+    print("This is field " + str(u.multithreading[field_id].field) + " this is call.text " + str(call.text) + " " + str(u.multithreading[field_id].current_object))
+    if u.multithreading[field_id].field == "id":
+        db.update(id=aut.check_user(u.multithreading[str(field_id)].current_object.summary()), new_id=int(call.text))
+        u.multithreading[field_id].field = "Emails"
+    elif u.multithreading[field_id].field == "alias":
+        db.update(id=aut.check_user(u.multithreading[field_id].current_object.summary()), alias=call.text)
+        u.multithreading[field_id].field = "Emails"
+    elif u.multithreading[field_id].field == "name":
+        db.update(id=aut.check_user(u.multithreading[field_id].current_object.summary()), name=call.text)
+        u.multithreading[field_id].field = "Emails"
+    elif u.multithreading[field_id].field == "mail":
+        db.update(id=aut.check_user(u.multithreading[field_id].current_object.summary()), mail=call.text)
+        u.multithreading[field_id].field = "Emails"
+    elif u.multithreading[field_id].field == "number":
+        db.update(id=aut.check_user(u.multithreading[field_id].current_object.summary()), number=call.text)
+        u.multithreading[field_id].field = "Emails"
+    elif u.multithreading[field_id].field == "address":
+        print(str(u.multithreading[field_id].current_object.summary()) + " njd " + str(call.text))
+        db.update(id=aut.check_user(u.multithreading[field_id].current_object.summary()), address=call.text)
         print("Hello")
-        u.field = "Emails"
-    elif u.field == "title":
-        t = aut.check_doc(u.current_object.summary())
+        u.multithreading[field_id].field = "Emails"
+    elif u.multithreading[field_id].field == "title":
+        t = aut.check_doc(u.multithreading[field_id].current_object.summary())
         db.update(title=t, new_title=call.text)
-        u.field = "Book"
-    elif u.field == "author":
-        db.update(title=aut.check_doc(u.current_object.summary()), author=call.text)
-        u.field = "Book"
-    elif u.field == "owner":
-        db.update(title=aut.check_doc(u.current_object.summary()), owner=call.text)
-        u.field = "Book"
-    elif u.field == "price":
-        db.update(title=aut.check_doc(u.current_object.summary()), price=call.text)
-        u.field = "Book"
-    elif u.field == "url":
-        db.update(title=aut.check_doc(u.current_object.summary()), url=call.text)
-        u.field = "Book"
-    elif u.field == "publication_date":
-        db.update(title=aut.check_doc(u.current_object.summary()), publication_date=call.text)
-        u.field = "Book"
-    elif u.field == "publisher":
-        db.update(title=aut.check_doc(u.current_object.summary()), publisher=call.text)
-        u.field = "Book"
-    elif u.field == "year":
-        db.update(title=aut.check_doc(u.current_object.summary()), year=call.text)
-        u.field = "Book"
-    elif u.field == "journal":
-        db.update(title=aut.check_doc(u.current_object.summary()), journal=call.text)
-        u.field = "Book"
-    elif u.field == "editor":
-        db.update(title=aut.check_doc(u.current_object.summary()), editor=call.text)
-        u.field = "Book"
-    elif u.field == "edition":
-        db.update(title=aut.check_doc(u.current_object.summary()), edition=call.text)
-        u.field = "Book"
-    elif u.field == "genre":
-        db.update(title=aut.check_doc(u.current_object.summary()), genre=call.text)
-        u.field = "Book"
-    elif u.field == "bestseller":
-        db.update(title=aut.check_doc(u.current_object.summary()), bestseller=call.text)
-        u.field = "Book"
-    elif u.field == "reference":
-        db.update(title=aut.check_doc(u.current_object.summary()), reference=call.text)
-        u.field = "Book"
-    bot.send_message(call.chat.id, "Field {} of {} now equals to {}".format(u.field,
-                                                                            u.current_object.get_title() if isinstance(
-                                                                                u.current_object, Book) or isinstance(
-                                                                                u.current_object,
-                                                                                Article) or isinstance(u.current_object,
-                                                                                                       AV_Materials) else u.current_object.get_id(),
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "author":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), author=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "owner":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), owner=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "copies":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), copies=call.text)
+    elif u.multithreading[field_id].field == "price":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), price=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "url":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), url=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "publication_date":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), publication_date=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "publisher":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), publisher=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "year":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), year=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "journal":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), journal=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "editor":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), editor=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "edition":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), edition=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "genre":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), genre=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "bestseller":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), bestseller=call.text)
+        u.multithreading[field_id].field = "Book"
+    elif u.multithreading[field_id].field == "reference":
+        db.update(title=aut.check_doc(u.multithreading[field_id].current_object.summary()), reference=call.text)
+        u.multithreading[field_id].field = "Book"
+    bot.send_message(call.chat.id, "Field {} of {} now equals to {}".format(u.multithreading[field_id].field,
+                                                                            u.multithreading[field_id].current_object.get_title() if isinstance(
+                                                                                u.multithreading[field_id].current_object, Book) or isinstance(
+                                                                                u.multithreading[field_id].current_object,
+                                                                                Article) or isinstance(u.multithreading[field_id].current_object,
+                                                                                                       AV_Materials) else u.multithreading[field_id].current_object.get_id(),
                                                                             call.text),
                      reply_markup=bot_features.get_inline_markup([["ebanumba, zaebis", "Back"]]))
 
@@ -442,14 +451,14 @@ def get_type(obj):
         return [["Id", "id"], ["Alias", "alias"], ["Name", "name"], ["Mail", "mail"], ["Number", "number"],
                 ["Address", "address"], ["Back", "Back"]]
     if obj == "Book":
-        return [["Title", "title"], ["Author", "author"], ["Owner", "owner"], ["Url", "url"],
+        return [["Title", "title"], ["Author", "author"], ["Owner", "owner"], ["Copies", "copies"], ["Url", "url"],
                 ["Year", "year"], ["Publisher", "publisher"], ["Edition", "edition"], ["Genre", "genre"],
                 ["Bestseller", "bestseller"], ["Reference", "reference"], ["Back", "Back"]]
     elif obj == "Article":
-        return [["Title", "title"], ["Author", "author"], ["Owner", "owner"], ["Url", "url"],
+        return [["Title", "title"], ["Author", "author"], ["Owner", "owner"], ["Copies", "copies"], ["Url", "url"],
                 ["Year", "year"], ["Journal", "journal"], ["Publication date", "publication_date"], ["Editor", "editor"], ["Back", "Back"]]
     elif obj == "AV":
-        return [["Title", "title"], ["Author", "author"], ["Owner", "owner"], ["Url", "url"], ["Price", "price"], ["Back", "Back"]]
+        return [["Title", "title"], ["Author", "author"], ["Owner", "owner"], ["Copies", "copies"], ["Url", "url"], ["Price", "price"], ["Back", "Back"]]
 
 
 "DELETE, GETINFO AND ADD"
@@ -457,13 +466,13 @@ def get_type(obj):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Delete")
 def delete(call):
-    db.delete(id=aut.check_user(u.current_object.summary()), title=aut.check_doc(u.current_object.summary()))
+    db.delete(id=aut.check_user(u.multithreading[str(call.message.chat.id)].current_object.summary()), title=aut.check_doc(u.multithreading[str(call.message.chat.id)].current_object.summary()))
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="{} is deleted from {}".format(
-                              u.current_object.get_title() if isinstance(u.current_object, Book) or isinstance(
-                                  u.current_object, Article) or isinstance(u.current_object,
-                                                                           AV_Materials) else u.current_object.get_id(),
-                              u.field))
+                              u.multithreading[str(call.message.chat.id)].current_object.get_title() if isinstance(u.multithreading[str(call.message.chat.id)].current_object, Book) or isinstance(
+                                  u.multithreading[str(call.message.chat.id)].current_object, Article) or isinstance(u.multithreading[str(call.message.chat.id)].current_object,
+                                                                           AV_Materials) else u.multithreading[str(call.message.chat.id)].current_object.get_id(),
+                              u.multithreading[str(call.message.chat.id)].field))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
@@ -471,10 +480,10 @@ def delete(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Add")
 def add(call):
     # TODO: и change
-    u.db_to_search.append(u.current_object.text)
-    print(u.db_to_search)
+    u.multithreading[str(call.message.chat.id)].db_to_search.append(u.multithreading[str(call.message.chat.id)].current_object.text)
+    print(u.multithreading[str(call.message.chat.id)].db_to_search)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="{} is added to {}".format(u.current_object.text, u.field))
+                          text="{} is added to {}".format(u.multithreading[str(call.message.chat.id)].current_object.text, u.multithreading[str(call.message.chat.id)].field))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
@@ -483,7 +492,7 @@ def add(call):
 def get_info(call):
     # TODO: получить инфо объекта u.current_object
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="{} is zaebis".format(u.current_object.summary()))
+                          text="{} is zaebis".format(u.multithreading[str(call.message.chat.id)].current_object.summary()))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
