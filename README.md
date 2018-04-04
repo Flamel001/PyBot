@@ -1,6 +1,8 @@
 # PyBot
 Innopolis Library Management System implemented via Telegram Bot Api
 
+###### Before using project you will be needed to download file config.py. To download it, you should contact one of the contributers.
+
 ### Team members:
 Abdulkhamid Muminov - @homycdev
 
