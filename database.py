@@ -148,12 +148,9 @@ def __parse_str_to_list(list_str):
 
 def __parse_str_to_queue(queue_str):
     str_queue = queue_str[2:][:-2].split("), (")
-    if len(str_queue)>1:
-        queue_str_list = [str_queue[i].split(", ") for i in range(0, len(str_queue))]
-        result = [(int(queue_str_list[i][0]), queue_str_list[i][1].replace("\'", "")) for i in range(0, len(queue_str_list))]
-        return result
-    else:
-        return list()
+    queue_str_list = [str_queue[i].split(", ") for i in range(0, len(str_queue))]
+    result = [(int(queue_str_list[i][0]), queue_str_list[i][1].replace("\'", "")) for i in range(0, len(queue_str_list))]
+    return result
 
 
 def __parse_to_object(row):
