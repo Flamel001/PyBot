@@ -12,6 +12,7 @@ __cnxn = pyodbc.connect(
 
 __users_name = "innolib_users"
 __docs_name = "innolib_docs"
+__logs_name = "innolib_logs"
 __key_user_id = "id"
 __key_user_alias = "alias"
 __key_user_name = "name"
@@ -20,6 +21,7 @@ __key_user_number = "number"
 __key_user_address = "address"
 __key_user_registration_date = "registration_date"
 __key_user_type = "type"
+__key_user_librarian_privilege = "privilege"
 __key_user_patron_document_list = "docs"
 __key_user_patron_debt = "debt"
 
@@ -41,12 +43,14 @@ __key_doc_genre = "genre"
 __key_doc_bestseller = "bestseller"
 __key_doc_reference = "reference"
 
+__key_log = "log"
+
 
 def create_users_table():
     cursor = __cnxn.cursor()
     cursor.execute(
         "if not exists (select * from sysobjects where name='" + __users_name + "' and xtype='U') create table " + __users_name + "(" + __key_user_id + " int NOT NULL UNIQUE, " + __key_user_alias + " text, " + __key_user_name + " text, " + __key_user_mail +
-        " text, " + __key_user_number + " text, " + __key_user_address + " text, " + __key_user_registration_date + " text, " + __key_user_type + " text, " +
+        " text, " + __key_user_number + " text, " + __key_user_address + " text, " + __key_user_registration_date + " text, " + __key_user_type + " text, " + __key_user_librarian_privilege + " int, " +
         __key_user_patron_document_list + " text, " + __key_user_patron_debt + " int)")
     cursor.commit()
     cursor.close()
@@ -59,6 +63,14 @@ def create_docs_table():
         " text, " + __key_doc_price + " text, " + __key_doc_url + " text, " + __key_doc_publication_date + " text, " +
         __key_doc_publisher + " text, " + __key_doc_year + " text, " + __key_doc_journal + " text, " + __key_doc_editor + " text, " + __key_doc_edition + " text, " + __key_doc_genre + " text, " +
         __key_doc_bestseller + " bit, " + __key_doc_reference + " bit)")
+    cursor.commit()
+    cursor.close()
+
+
+def create_log_table():
+    cursor = __cnxn.cursor()
+    cursor.execute(
+        "if not exists (select * from sysobjects where name='" + __docs_name + "' and xtype='U') create table " + __logs_name + "(" + __key_log + " text)")
     cursor.commit()
     cursor.close()
 
@@ -79,8 +91,6 @@ def __parse(dictionary):
                 result = result + tuple([""])
             else:
                 result = result + tuple([str(element)])
-    # print(str(result))
-    # print(str(len(result)))
     if len(result) == 10 or len(result) == 7 or len(result) == 13 or len(result) == 8:
         return result
     else:
@@ -102,7 +112,7 @@ def insert(dictionary):
                 " values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", params)
         elif type == "Librarian":
             cursor.executemany(
-                "insert into " + __users_name + "(" + __key_user_id + ", " + __key_user_alias + ", " + __key_user_name + ", " + __key_user_mail + ", " + __key_user_number + ", " + __key_user_address + ", " + __key_user_type + ") values(?, ?, ?, ?, ?, ?, ?)",
+                "insert into " + __users_name + "(" + __key_user_id + ", " + __key_user_alias + ", " + __key_user_name + ", " + __key_user_mail + ", " + __key_user_number + ", " + __key_user_address + ", " + __key_user_type + ", " + __key_user_librarian_privilege + ") values(?, ?, ?, ?, ?, ?, ?, ?)",
                 params)
         elif type == "Book":
             cursor.executemany(
@@ -149,7 +159,8 @@ def __parse_str_to_list(list_str):
 def __parse_str_to_queue(queue_str):
     str_queue = queue_str[2:][:-2].split("), (")
     queue_str_list = [str_queue[i].split(", ") for i in range(0, len(str_queue))]
-    result = [(int(queue_str_list[i][0]), queue_str_list[i][1].replace("\'", "")) for i in range(0, len(queue_str_list))]
+    result = [(int(queue_str_list[i][0]), queue_str_list[i][1].replace("\'", "")) for i in
+              range(0, len(queue_str_list))]
     return result
 
 
@@ -160,19 +171,19 @@ def __parse_to_object(row):
             return user.Librarian(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5])
         elif row[7] == "Student":
             return user.Student(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                reg_date=row[6], doc_list=__parse_str_to_dict(row[8]), debt=row[9])
+                                reg_date=row[6], doc_list=__parse_str_to_dict(row[9]), debt=row[10])
         elif row[7] == "Instructor":
             return user.Instructor(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                   reg_date=row[6], doc_list=__parse_str_to_dict(row[8]), debt=row[9])
+                                   reg_date=row[6], doc_list=__parse_str_to_dict(row[9]), debt=row[10])
         elif row[7] == "TA":
             return user.TA(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                           reg_date=row[6], doc_list=__parse_str_to_dict(row[8]), debt=row[9])
+                           reg_date=row[6], doc_list=__parse_str_to_dict(row[9]), debt=row[10])
         elif row[7] == "Professor":
             return user.Professor(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                  reg_date=row[6], doc_list=__parse_str_to_dict(row[8]), debt=row[9])
+                                  reg_date=row[6], doc_list=__parse_str_to_dict(row[9]), debt=row[10])
         elif row[7] == "VP":
             return user.VP(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                           reg_date=row[6], doc_list=__parse_str_to_dict(row[8]), debt=row[9])
+                           reg_date=row[6], doc_list=__parse_str_to_dict(row[9]), debt=row[10])
         elif row[3] == "Book":
             return documents.Book(title=row[0], author=row[1], queue=__parse_str_to_queue(row[4]),
                                   copies=__parse_str_to_list(row[5]), url=row[7], publisher=row[9], year=row[10],
@@ -329,7 +340,8 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
                 elif url:
                     __update_query(cursor, __docs_name, __key_doc_url, url, __key_doc_title, title)
                 elif publication_date:
-                    __update_query(cursor, __docs_name, __key_doc_publication_date, publication_date, __key_doc_title, title)
+                    __update_query(cursor, __docs_name, __key_doc_publication_date, publication_date, __key_doc_title,
+                                   title)
                 elif publisher:
                     __update_query(cursor, __docs_name, __key_doc_publisher, publisher, __key_doc_title, title)
                 elif year:
@@ -358,7 +370,8 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
 
 def __update_query(cursor, table, column, arg, search_column, search_arg):
     # print(str(arg) + " jnd " + str(search_arg))
-    update_query = "update " + table + " set " + column + " = '" + str(arg) + "' where " + search_column + " like '" + str(
+    update_query = "update " + table + " set " + column + " = '" + str(
+        arg) + "' where " + search_column + " like '" + str(
         search_arg) + "'"
     print("This query " + update_query)
     return cursor.execute(update_query)
@@ -382,9 +395,10 @@ def __delete_query(cursor, table, column, arg):
     return cursor.execute(delete_query)
 
 
-def get_all_similar_info(id=None, alias=None, name=None, mail=None, number=None, address=None, type_user=None, title=None, author=None,
-        owner=None, type_book=None, publisher=None, year=None, journal=None, editor=None, genre=None,
-        bestseller=None, reference=None):
+def get_all_similar_info(id=None, alias=None, name=None, mail=None, number=None, address=None, type_user=None,
+                         title=None, author=None,
+                         owner=None, type_book=None, publisher=None, year=None, journal=None, editor=None, genre=None,
+                         bestseller=None, reference=None):
     counter = 0
     if id:
         counter += 1
