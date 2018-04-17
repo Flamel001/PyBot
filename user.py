@@ -1,44 +1,11 @@
 import documents as dc
 import datetime
 import database as db
-
-document_title = "title"
-document_author = "author"
-document_owner = "owner"
-document_keywords = "keywords"
-document_copies = "copies"
-document_price = "price"
-document_duration = "duration"
-document_keywords_count = "keywords_count"
-document_url = "url"
-book_publisher = "publisher"
-book_edition = "edition"
-book_genre = "genre"
-book_bestseller = "bestseller"
-count_of_books = "count"
-book_is_reference = "reference"
-article_journal = "journal"
-article_pub_date = "publication"
-article_editor = "editor"
+from dict_keys import *
 
 
 class User:
     pass
-
-
-user_name = "name"
-user_mail = "mail"
-user_number = "phoneNumber"
-user_alias = "alias"
-user_rating = "rating"
-user_document_duration = "document_duration"
-user_document_list = "document_list"
-user_debt = "debt"
-user_registration_date = "registration_date"
-user_type = "type"
-user_priority = "priority"
-user_id = "id"
-user_address = "address"
 
 
 class Librarian(User):
@@ -271,38 +238,46 @@ class Patron(User):
         return self.__info[user_id]
 
     def set_id(self, id):
+        db.update(id=self.get_id(), new_id=id)
         self.__info[user_id] = id
 
     def get_name(self):
         return self.__info[user_name]
 
     def set_name(self, new_name):
+        db.update(id=self.get_id(), name=new_name)
         self.__info[user_name] = new_name
 
     def get_mail(self):
         return self.__info[user_mail]
 
     def set_mail(self, new_mail):
+        db.update(id=self.get_id(), mail=new_mail)
         self.__info[user_mail] = new_mail
 
     def get_number(self):
         return self.__info[user_number]
 
     def set_number(self, new_number):
+        db.update(id=self.get_id(), number=new_number)
         self.__info[user_number] = new_number
 
     def get_alias(self):
         return self.__info[user_alias]
 
     def set_alias(self, new_alias):
+        db.update(id=self.get_id(), alias=new_alias)
         self.__info[user_alias] = new_alias
 
-    def remove_document(self, id):
-        self.__info[user_document_list].pop(id)
+    def remove_document(self, title):
+        self.__info[user_document_list].pop(title)
+        new_doc_list = self.get_docs_list()
+        db.update(id=self.get_id(), docs=new_doc_list)
 
     def add_document(self, title, date):
         self.__info[user_document_list][title] = date
-        return self.__info[user_document_list]
+        new_doc_list = self.get_docs_list()
+        db.update(id=self.get_id(), docs=new_doc_list)
 
     def has_book(self, title):
         for key in self.__info[user_document_list].keys():
@@ -319,21 +294,29 @@ class Patron(User):
     def set_docs_list(self, new_list):
         print("doc list in user " + str(type(new_list)))
         temp = dict(new_list)
+        db.update(id=self.get_id(), docs=new_list)
         self.__info[user_document_list] = temp
 
     def get_registration_date(self):
         return self.__info[user_registration_date]
 
     def increase_debt(self, value):
-        self.__info[user_debt] = self.__info[user_debt] + value
+        old_debt = self.get_debt()
+        new_debt = old_debt + value
+        db.update(id=self.get_id(), debt=new_debt)
+        self.__info[user_debt] = new_debt
 
     def decrease_debt(self, value):
-        self.__info[user_debt] = self.__info[user_debt] - value
+        old_debt = self.get_debt()
+        new_debt = old_debt - value
+        db.update(id=self.get_id(), debt=new_debt)
+        self.__info[user_debt] = new_debt
 
     def get_debt(self):
         return self.__info[user_debt]
 
     def set_debt(self, debt):
+        db.update(id=self.get_id(), debt=debt)
         self.__info[user_debt] = debt
 
     def summary(self):
@@ -343,6 +326,7 @@ class Patron(User):
         return self.__info[user_address]
 
     def set_address(self, address):
+        db.update(id=self.get_id(), address=address)
         self.__info[user_address] = address
 
     def get_type(self):
