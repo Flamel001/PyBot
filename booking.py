@@ -10,144 +10,72 @@ qu = []
 
 
 def order_book(usr, document, time):
-    ordered_times = 0
-
-    print(usr.summary())
-    usr = db.get(id=usr.get_id())
-    if document.get_list_of_copies().size() > 0:
-        if usr.has_book(document.get_title()):
-            # if db.get(title=document.get_title()):
-            ordered_times += 1
-            if ordered_times > 1:
-
-                if document.get_title():
-
-                    if not document.is_reference():
-                        init_date = datetime.datetime.toordinal(
-                            datetime.datetime.today())
-
-                        if usr.get_type() == "Professor":
-                            exp_date = datetime.datetime.fromordinal(
-                                init_date + 28)
-                            print("User: " + usr.get_name() + " took book till: " + str(exp_date))
-
-                            print("**SUCCESS**")
-                            len(document.get_list_of_copies()) - 1
-                            db.update(title=document.get_title(), queue=add_to_queue(usr))  # adding to the queue
-                            add_to_queue(usr)
-                            if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
-                                db.update(id=usr.get_id(), docs=usr.add_document(document.get_title(), time))  # adding to db
-                                return success + " " + str(exp_date)
-                            else:
-                                return "Y"
-                        else:
-                            if document.is_bestseller():
-                                exp_date = datetime.datetime.fromordinal(
-                                    init_date + 14)
-                                print("User: " + usr.get_name() +
-                                      " took book till: " + str(exp_date))
-
-                                print("**SUCCESS**")
-                                copy = document.get_list_of_copies().pop()
-                                db.update(id=usr.get_id(), copies=usr.add_document(copy, time))
-                                db.update(title=document.get_title(), queue=str(qu))  # adding to the queue
-                                add_to_queue(usr)
-                                if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
-                                    db.update(id=usr.get_id(), docs=usr.get_docs_list())  # adding to db
-                                return success + " " + str(exp_date)
-                            else:
-                                exp_date = datetime.datetime.fromordinal(
-                                    init_date + 21)
-
-                                print("User: " + str(usr.get_name()) +
-                                      " took book till: " + str(exp_date))
-
-                                print("**SUCCESS**")
-                                document.get_list_of_copies().size() - 1
-                                db.update(id=usr.get_title(), copies=usr.add_document(document.get_title(), time))
-                                db.update(title=document.get_title(), queue=str(qu))  # adding to the queue
-                                add_to_queue(usr)
-                                if pop_from_queue(qu)[usr.get_id()] == usr.get_id():
-                                    db.update(id=usr.get_id(), docs=usr.get_docs_list())  # adding to db
-                                return success + " " + str(exp_date)
-                    else:
-                        print("ERR. Unfortunately this doc is a reference material")
-                        return reference
-                else:
-                    return no_copies
-
-            else:
-                print("ERR. User: " + usr.get_name() + " already renewed " + document.get_title())
-                return max_renew_alert
+    if not usr.has_book(document.get_title()):
+        if not document.is_reference():
+            init_date = datetime.datetime.toordinal(
+                datetime.datetime.strptime(time, "%d.%m.%Y"))
+            exp_date = datetime.datetime.fromordinal(
+                init_date + distr(usr, document))
+            if len(document.get_queue()) == 0:
+                return give_on_hands(usr, document, exp_date)
+            elif len(document.get_queue()) > 0:
+                return add_to_waiting_list(usr, document)
+        else:
+            return reference
     else:
-        return no_copies
+        text = renew(usr, document, time)
+        return text
 
 
 def order_av(usr, document, time):
-    print("**av-file DETECTED")
     if not usr.has_book(document.get_title()):
-        # IMPORTANT: MAKE A CHECK FROM A DATABASE FOR A COPY VIA checked() METHOD
-        if document.get_title():
-            init_date = datetime.datetime.toordinal(
-                datetime.datetime.today())
-
-            if usr.get_type() == "Faculty":
-                exp_date = datetime.datetime.fromordinal(
-                    init_date + 28)
-                print("User: " + usr.get_name() + " took av-file until: " + str(exp_date))
-                print("**SUCCESS**")
-                return success + " " + str(exp_date)
-            else:
-                exp_date = datetime.datetime.fromordinal(
-                    init_date + 21)
-                print("User: " + usr.get_name() +
-                      "took av-file until: " + str(exp_date))
-
-                print("**SUCCESS**")
-                return success + " " + str(exp_date)
-        else:
-            print("ERR. No copies left.")
-            return no_copies
-
+        init_date = datetime.datetime.toordinal(
+            datetime.datetime.today())
+        exp_date = datetime.datetime.fromordinal(
+            init_date + distribute(usr, document))
+        if len(document.get_queue()) == 0:
+            return give_on_hands(usr, document, exp_date)
+        elif len(document.get_queue()) > 0:
+            return add_to_waiting_list(usr, document)
     else:
-        print("ERR. User: " + usr.get_name() + " already has " + document.get_title())
-        return max_renew_alert
+        return renew(usr, document, time)
 
 
 def order_article(usr, document, time):
-    print("**article DETECTED")
     if not usr.has_book(document.get_title()):
-        if document.get_title():
-            init_date = datetime.datetime.toordinal(
-                datetime.datetime.today())
-
-            if usr.get_type() == "Faculty":
-                exp_date = datetime.datetime.fromordinal(
-                    init_date + 28)
-                print("User: " + usr.get_name() + " took av-file until: " + str(exp_date))
-            else:
-                exp_date = datetime.datetime.fromordinal(
-                    init_date + 21)
-                print("User: " + usr.get_name() +
-                      " took article until: " + str(exp_date))
+        init_date = datetime.datetime.toordinal(
+            datetime.datetime.today())
+        exp_date = datetime.datetime.fromordinal(
+            init_date + distr(usr, document))
+        if len(document.get_queue()) == 0:
+            return give_on_hands(usr, document, exp_date)
+        elif len(document.get_queue()) > 0:
+            return add_to_waiting_list(usr, document)
+    else:
+        return renew(usr, document, time)
 
 
-def booking(usr, document, time):
-    print("**Booking func has been initialised")
+def booking(usr, document, time, code):
+    if code == 0:
+        if document.summary()["type"] == "Book":
+            return order_book(usr, document, time)
 
-    if document.summary()["type"] == "Book":
-        order_book(usr, document, time)
+        elif document.summary()["type"] == "AV":
+            return order_av(usr, document, time)
 
-    elif document.summary()["type"] == "AV":
-        order_av(usr, document, time)
+        elif document.summary()["type"] == "Article":
+            return order_article(usr, document, time)
+    elif code == 1:
+        return add_to_waiting_list(usr, document)
+    elif code == 2:
+        return renew(usr, document, time)
 
-    elif document.summary()["type"] == "Article":
-        order_article(usr, document, time)
 
-
-def add_to_queue(usr):
-    heapq.heappush(db.update(queue=qu), (usr.get_prior(), usr.get_id()))
-    return qu
+def add_to_queue(usr, document):
+    q = document.get_queue()
+    print("This is q " + str(q))
+    heapq.heappush(document.get_queue(), (usr.get_prior(), usr.get_id()))
+    return document.get_queue()
 
 
 def pop_from_queue(qu):
@@ -155,17 +83,73 @@ def pop_from_queue(qu):
     return qu
 
 
+def add_to_waiting_list(user, document):
+    queue = add_to_queue(user, document)
+    print("This is queue " + str(queue))
+    db.update(title=document.get_title(), queue=queue)
+    number = [queue[i][1] for i in range(0, len(queue))]
+    return waiting_list + str(number.index(user.get_id()))
+
+
+def give_on_hands(usr, document, exp_date):
+    copy = document.get_list_of_copies().pop().replace("\"", "")
+    db.update(id=usr.get_id(), docs=str(usr.add_document(copy, str(exp_date))).replace("\'", "\""))
+    db.update(title=document.get_title(), copies=str(document.get_list_of_copies()).replace("\'", "\""))
+    return success + " " + str(exp_date)
+
+
+def renew(usr, document, time):
+    copy = document.get_title()
+    if usr.is_renew_possible(copy) or usr.get_type() == "VP":
+        ini_date = datetime.datetime.toordinal(datetime.datetime.strptime(time, '%d.%m.%Y'))
+        exp_date = datetime.datetime.fromordinal(ini_date + 7)
+        docs = str(usr.add_document(copy, str(exp_date)))
+        db.update(id=usr.get_id(), docs=docs.replace("\'", "\""))
+        print("Good. Doc was renewed")
+        return renew_nail + str(exp_date)
+    else:
+        print("ERR. Doc can not be renewed")
+        return renew_fail
+
+
+def distr(usr, document):
+    if document.get_type() == "Book":
+        return distribute(usr, document.is_bestseller())
+    else:
+        return distribute(usr, False)
+
+
+def distribute(usr, bestseller):
+    if usr.get_type() in faculty:
+        return 28
+    elif usr.get_type() == vp:
+        return 7
+    elif usr.get_type() == student:
+        if bestseller:
+            return 14
+        else:
+            return 21
+
+
 now = datetime.datetime.now()
 today_format1 = now.strftime("%H:%d:%m:%Y")
 second_id = now.second
 userqueue = []
 
+faculty = ["Professor", "TA", "Instructor"]
+vp = "VP"
+student = "Student"
+
+
 success = "Congratulations! You have been successfully ordered a book until: "
 fail = "Unfortunately this doc is not yet available..."
 reference = "Unfortunately, You are trying to book a reference material which is unavailable. "
-no_copies = "No copies left."
 max_renew_alert = "You have reached maximum amount of renews. :( "
 no_copies = "No copies of current book were found."
+renew_fail = "You can not renew this book again"
+renew_nail = "You renewed this book until "
+waiting_list = "You have been added to the waiting list of this book. Your number is"
+
 """
 student = user.Student("stud", "Student", "name.surname@innopolis.ru", "1234567", "@student", "Innopolis City")
 prof = user.Faculty("prof", "Professor", "name.surname1@innopolis.ru", "1234568", "@professor", "Innopolis City")
