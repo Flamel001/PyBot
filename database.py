@@ -79,8 +79,8 @@ def __parse(dictionary):
                 result = result + tuple([""])
             else:
                 result = result + tuple([str(element)])
-    print(str(result))
-    print(str(len(result)))
+    # print(str(result))
+    # print(str(len(result)))
     if len(result) == 10 or len(result) == 7 or len(result) == 13 or len(result) == 8:
         return result
     else:
@@ -124,13 +124,15 @@ def insert(dictionary):
 
 
 def __parse_str_to_dict(dict_str):
-    dict_str_list = dict_str.replace("{", "").replace("}", "").replace("'", "").split(", ")
+    dict_str_list = dict_str.replace("{", "").replace("}", "").replace("\"", "").split(", ")
     print(dict_str_list)
     if dict_str_list:
         parsed_dict = dict()
         for i in range(0, len(dict_str_list)):
             if dict_str_list[i]:
-                parsed_dict = dict(tuple(dict_str_list[i].split(": ")))
+                splitted_dict = dict_str_list[i].split(": ")
+                print("This is something " + str(dict_str_list[i].split(": ")))
+                parsed_dict[splitted_dict[0]] = splitted_dict[1]
         return parsed_dict
     else:
         return dict()
@@ -144,8 +146,18 @@ def __parse_str_to_list(list_str):
         return list()
 
 
+def __parse_str_to_queue(queue_str):
+    str_queue = queue_str[2:][:-2].split("), (")
+    if len(str_queue)>1:
+        queue_str_list = [str_queue[i].split(", ") for i in range(0, len(str_queue))]
+        result = [(int(queue_str_list[i][0]), queue_str_list[i][1].replace("\'", "")) for i in range(0, len(queue_str_list))]
+        return result
+    else:
+        return list()
+
+
 def __parse_to_object(row):
-    print(str(row))
+    # print(str(row))
     if len(row) > 6:
         if row[7] == "Librarian":
             return user.Librarian(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5])
@@ -165,11 +177,11 @@ def __parse_to_object(row):
             return user.VP(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
                            reg_date=row[6], doc_list=__parse_str_to_dict(row[8]), debt=row[9])
         elif row[3] == "Book":
-            return documents.Book(title=row[0], author=row[1], queue=__parse_str_to_dict(row[4]),
+            return documents.Book(title=row[0], author=row[1], queue=__parse_str_to_queue(row[4]),
                                   copies=__parse_str_to_list(row[5]), url=row[7], publisher=row[9], year=row[10],
                                   edition=row[13], genre=row[14], bestseller=bool(row[15]), reference=bool(row[16]))
         elif row[3] == "Article":
-            return documents.Article(title=row[0], author=row[1], queue=__parse_str_to_dict(row[4]),
+            return documents.Article(title=row[0], author=row[1], queue=__parse_str_to_queue(row[4]),
                                      copies=__parse_str_to_list(row[5]), url=row[6], publication_date=row[8],
                                      journal=row[11],
                                      editor=row[12])
@@ -280,7 +292,7 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
     if title and id:
         raise Exception("DATABASE, Update. Only id or title should be provided")
     elif title or id:
-        print("Update is in process")
+        # print("Update is in process")
         if id:
             if alias or name or mail or number or address or docs or debt or new_id:
                 cursor = __cnxn.cursor()
@@ -348,9 +360,10 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
 
 
 def __update_query(cursor, table, column, arg, search_column, search_arg):
-    print(str(arg) + " jnd " + str(search_arg))
+    # print(str(arg) + " jnd " + str(search_arg))
     update_query = "update " + table + " set " + column + " = '" + str(arg) + "' where " + search_column + " like '" + str(
         search_arg) + "'"
+    print("This query " + update_query)
     return cursor.execute(update_query)
 
 
