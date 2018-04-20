@@ -133,6 +133,13 @@ def insert(dictionary):
         cursor.close()
 
 
+def insert_log(log_message):
+    cursor = __cnxn.cursor()
+    cursor.executemany("insert into " + __logs_name + "(" + __key_log + ") values(?)", log_message)
+    cursor.commit()
+    cursor.close()
+
+
 def __parse_str_to_dict(dict_str):
     dict_str_list = dict_str.replace("{", "").replace("}", "").replace("\"", "").split(", ")
     print(dict_str_list)
