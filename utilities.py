@@ -39,11 +39,22 @@ keyboard_patron_buttons_library = [["Books", "Books"], ["Articles", "Articles"],
 keyboard_patron_buttons_reserve = [["Reserve", "Reserve"], ["Back", "Back"]]
 keyboard_patron_buttons_doc = [["Return", "Return"], ["Renew", "Renew"], ["Back", "Back"]]
 
+"ADMIN"
+keyboard_admin_buttons_privileges = [["1", "1"], ["2", "2"], ["3", "3"]]
+keyboard_admin_buttons_home = [["Manage Librarians", "Manage Librarians"], ["Action Log", "Action Log"]]
+
+# current_email = ""
+# field = ""
+# # is_librarian = False
+# db_to_search = []
+# current_object = dict
+# current_type = ""
+# title_or_name = ""
 
 class current:
     current_email = ""
+    title_or_name = ""
     field = ""
-    # is_librarian = False
     db_to_search = []
     current_object = ""
     current_type = ""
@@ -52,6 +63,7 @@ class current:
     auth_arr = ["name","number","address"]
     auth_val_arr = []
     time = ""
+    user = ""
 
 
 multithreading = dict()
@@ -87,4 +99,9 @@ domain = "@innopolis.ru"
 pin_enter = "Please enter PIN I've sent to you. "
 
 tempData = {'userId': '0'}
+
+
+keyboard_initial = [["p1", "1010"], ["p2", "1011"], ["p3", "1100"], ["l", "l"], ["s", "1101"], ["v", "1110"]]
+current_id = ""
+
 
