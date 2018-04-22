@@ -254,6 +254,7 @@ class Librarian(User):
         return self.__info[librarian_priv]
 
     def set_priv(self, new_priv):
+        db.update(id=self.get_id(), privilege=new_priv)
         self.__info[librarian_priv] = new_priv
 
     # TO_DO outstanding request
