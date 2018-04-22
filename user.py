@@ -17,6 +17,7 @@ class Admin(User):
         self.__address = ""
         self.__mail = ""
 
+
     def get_mail(self):
         return self.__mail
 
@@ -44,7 +45,11 @@ class Admin(User):
         db.insert_log(date + " | Admin deleted Librarian with ID: " + id_str)
 
     def get_log(self):
-        pass
+        log = db.get_all_similar_info(log="kek")
+        log_file = open("log.txt",'w')
+        for record in log:
+            log_file.write(record + "\n")
+        return log_file
 
 
 class Librarian(User):
