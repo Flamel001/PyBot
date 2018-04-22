@@ -2,6 +2,7 @@ import documents as dc
 import datetime
 import database as db
 from dict_keys import *
+from utilities import get_date
 
 
 class User:
@@ -18,12 +19,25 @@ class Admin(User):
     def give_priv(self, librarian_id, priv):
         db.get(id=librarian_id)[0].set_priv(priv)
 
+        lib_id = str(librarian_id)
+        priv_str = str(priv)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") priveleg: " + priv_str)
+
     def add_librarian(self, id, alias, name, mail, number, address, priv):
         new = Librarian(id, alias, name, mail, number, address, priv)
         db.insert(new.summary())
 
+        id_str = str(id)
+        date = get_date()
+        db.insert_log(date + " | Admin added Librarian with ID: " + id_str)
+
     def delete_librarian(self, librarian_id):
         db.delete(id=librarian_id)
+
+        id_str = str(librarian_id)
+        date = get_date()
+        db.insert_log(date + " | Admin deleted Librarian with ID: " + id_str)
 
     def get_log(self):
         pass
@@ -49,6 +63,11 @@ class Librarian(User):
             new = dc.Book(title, author, publisher, year, edition, genre, url, bestseller, reference)
             print("this is book summary " + str(new.summary()))
             db.insert(new.summary())
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(title)
+            db.insert_log(date + " | Librarian(" + id_str + ") added book: " + title_str)
         else:
             return
             # return new
@@ -56,7 +75,12 @@ class Librarian(User):
     def add_copy_for_doc(self, original: dc.Document, copy_id):
         if self.get_priv() == 3:
             original.add_copy(copy_id)
-            db.update(title=original.get_title(), copies=original.set_list_of_copies())
+            db.update(title=original.get_title(), copies=original.get_list_of_copies())
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(original.get_title())
+            db.insert_log(date + " | Librarian(" + id_str + ") added copy for book: " + title_str)
         else:
             return
 
@@ -67,6 +91,11 @@ class Librarian(User):
         if self.get_priv() >= 2:
             new = dc.Article(title, author, journal, publication_date, editor, url)
             db.insert(new.summary())
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(title)
+            db.insert_log(date + " | Librarian(" + id_str + ") added article: " + title_str)
         else:
             return
             # return new
@@ -76,23 +105,71 @@ class Librarian(User):
             new = dc.AV_Materials(title, author, value, url)
             print("avmaterial " + str(new.summary()))
             db.insert(new.summary())
-            # return
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(title)
+            db.insert_log(date + " | Librarian(" + id_str + ") added AV: " + title_str)
         else:
             return
 
-    def new_student(self, id, name, mail, number, alias, address):
+    def new_student(self, id, alias, name, mail, number, address):
         if self.get_priv() >= 2:
-            new = Student(id, name, mail, number, alias, address)
+            new = Student(id, alias, name, mail, number, address)
             db.insert(new.summary())
-            # return new
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(id)
+            db.insert_log(date + " | Librarian(" + id_str + ") added Student with ID: " + title_str)
         else:
             return
 
-    def new_faculty(self, id, name, mail, number, alias, address):
+    def new_instructor(self, id, alias, name, mail, number, address):
         if self.get_priv() >= 2:
-            new = Faculty(id, name, mail, number, alias, address)
+            new = Instructor(id, alias, name, mail, number, address)
             db.insert(new.summary())
-            # return new
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(id)
+            db.insert_log(date + " | Librarian(" + id_str + ") added Instructor with ID: " + title_str)
+        else:
+            return
+
+    def new_ta(self, id, alias, name, mail, number, address):
+        if self.get_priv() >= 2:
+            new = TA(id, alias, name, mail, number, address)
+            db.insert(new.summary())
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(id)
+            db.insert_log(date + " | Librarian(" + id_str + ") added TA with ID: " + title_str)
+        else:
+            return
+
+    def new_professor(self, id, alias, name, mail, number, address):
+        if self.get_priv() >= 2:
+            new = Professor(id, alias, name, mail, number, address)
+            db.insert(new.summary())
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(id)
+            db.insert_log(date + " | Librarian(" + id_str + ") added Professor with ID: " + title_str)
+        else:
+            return
+
+    def new_vp(self, id, alias, name, mail, number, address):
+        if self.get_priv() >= 2:
+            new = VP(id, alias, name, mail, number, address)
+            db.insert(new.summary())
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(id)
+            db.insert_log(date + " | Librarian(" + id_str + ") added Visiting Prof. with ID: " + title_str)
         else:
             return
 
@@ -100,12 +177,22 @@ class Librarian(User):
         if self.get_priv() == 3:
             id = db.get(alias=alias)[0].get_id
             db.delete(id)
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(db.get(alias=alias)[0].get_id())
+            db.insert_log(date + " | Librarian(" + id_str + ") removed user with id: " + title_str)
         else:
             return
 
     def remove_document(self, title):
         if self.get_priv() == 3:
             db.delete(title)
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(title)
+            db.insert_log(date + " | Librarian(" + id_str + ") removed Document with title: " + title_str)
         else:
             return
 
@@ -174,6 +261,11 @@ class Librarian(User):
         if self.get_priv() >= 2:
             book = db.get(title=title)[0]
             pass
+
+            id_str = str(self.get_id())
+            date = get_date()
+            title_str = str(title)
+            db.insert_log(date + " | Librarian(" + id_str + ") marked Document " + title_str + " as outstanding")
         else:
             return
 
