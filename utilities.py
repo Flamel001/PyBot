@@ -1,6 +1,3 @@
-from telebot import *
-from user import *
-from documents import *
 import datetime as dt
 
 greeting = """Welcome to Innopolis Library Management System.
@@ -44,6 +41,7 @@ keyboard_patron_buttons_doc = [["Return", "Return"], ["Renew", "Renew"], ["Back"
 keyboard_admin_buttons_privileges = [["1", "1"], ["2", "2"], ["3", "3"]]
 keyboard_admin_buttons_home = [["Manage Librarians", "Manage Librarians"], ["Action Log", "Action Log"]]
 
+
 # current_email = ""
 # field = ""
 # # is_librarian = False
@@ -51,6 +49,42 @@ keyboard_admin_buttons_home = [["Manage Librarians", "Manage Librarians"], ["Act
 # current_object = dict
 # current_type = ""
 # title_or_name = ""
+
+def get_buttoms(name: str):
+    if name == "Patron":
+        result = []
+        temp = ['id', 'Alias', 'Name', 'Mail', 'Phone_number', 'Address']
+        for x in temp:
+            result.append([x, "$" + x])
+        return result
+    elif name == "Librarian":
+        result = []
+        temp = ['id', 'Alias', 'Name', 'Mail', 'Phone_number', 'Address', 'Privilege']
+        for x in temp:
+            result.append([x, "$" + x])
+        return result
+    elif name == "Book":
+        result = []
+        temp = ['Title', 'Author', 'Publisher', 'Year', 'Edition', 'Genre', 'Bestseller', 'Reference', 'Price']
+        for x in temp:
+            result.append([x, "$" + x])
+        return result
+    elif name == "Article":
+        result = []
+        temp = ['Title', 'Author', 'Journal', 'Pub_Date', 'Editor', 'Price']
+        for x in temp:
+            result.append([x, "$" + x])
+        return result
+    elif name == "AV":
+        result = []
+        temp = ['Title', 'Author', 'Price']
+        for x in temp:
+            result.append([x, "$" + x])
+        return result
+
+    else:
+        return None
+
 
 def get_date():
     date = str(dt.datetime.now())
@@ -68,7 +102,7 @@ class current:
     current_type = ""
     pin = ""
     temp_user_date = dict()
-    auth_arr = ["name","number","address"]
+    auth_arr = ["name", "number", "address"]
     auth_val_arr = []
     time = ""
     user = ""
@@ -108,8 +142,5 @@ pin_enter = "Please enter PIN I've sent to you. "
 
 tempData = {'userId': '0'}
 
-
 keyboard_initial = [["p1", "1010"], ["p2", "1011"], ["p3", "1100"], ["l", "l"], ["s", "1101"], ["v", "1110"]]
 current_id = ""
-
-

@@ -199,7 +199,7 @@ class Article(Document):
             self.__info = super().summary()
             self.__info[article_journal] = journal
             self.__info[article_pub_date] = publication_date
-            self.__info[article_editor] = article_editor
+            self.__info[article_editor] = editor
             self.__info[document_url] = url
             self.__info[document_copies] = copies
 
@@ -208,7 +208,7 @@ class Article(Document):
             self.__info = super().summary()
             self.__info[article_journal] = journal
             self.__info[article_pub_date] = publication_date
-            self.__info[article_editor] = article_editor
+            self.__info[article_editor] = editor
             self.__info[document_url] = url
 
         self.__info[document_type] = "Article"
