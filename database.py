@@ -70,7 +70,7 @@ def create_docs_table():
 def create_log_table():
     cursor = __cnxn.cursor()
     cursor.execute(
-        "if not exists (select * from sysobjects where name='" + __docs_name + "' and xtype='U') create table " + __logs_name + "(" + __key_log + " text)")
+        "if not exists (select * from sysobjects where name='" + __logs_name + "' and xtype='U') create table " + __logs_name + "(" + __key_log + " text)")
     cursor.commit()
     cursor.close()
 
@@ -135,7 +135,7 @@ def insert(dictionary):
 
 def insert_log(log_message):
     cursor = __cnxn.cursor()
-    cursor.executemany("insert into " + __logs_name + "(" + __key_log + ") values(?)", log_message)
+    cursor.execute("insert into " + __logs_name + "(" + __key_log + ") values(?)", log_message)
     cursor.commit()
     cursor.close()
 
@@ -175,7 +175,7 @@ def __parse_to_object(row):
     # print(str(row))
     if len(row) > 6:
         if row[7] == "Librarian":
-            return user.Librarian(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5])
+            return user.Librarian(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5], priv=row[8])
         elif row[7] == "Student":
             return user.Student(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
                                 reg_date=row[6], doc_list=__parse_str_to_dict(row[9]), debt=row[10])
@@ -222,6 +222,8 @@ def get(id=None, alias=None, name=None, mail=None, number=None, address=None, ty
     if address:
         counter += 1
     if type_user:
+        counter += 1
+    if privilege:
         counter += 1
     if title:
         counter += 1
@@ -309,7 +311,7 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
     elif title or id:
         # print("Update is in process")
         if id:
-            if alias or name or mail or number or address or docs or debt or new_id:
+            if alias or name or mail or number or address or docs or debt or privilege or new_id:
                 cursor = __cnxn.cursor()
                 if alias:
                     __update_query(cursor, __users_name, __key_user_alias, alias, __key_user_id, id)
@@ -444,6 +446,8 @@ def get_all_similar_info(id=None, alias=None, name=None, mail=None, number=None,
     if bestseller:
         counter += 1
     if reference:
+        counter += 1
+    if log:
         counter += 1
     if counter == 1:
         cursor = __cnxn.cursor()
