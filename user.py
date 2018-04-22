@@ -17,7 +17,6 @@ class Admin(User):
         self.__address = ""
         self.__mail = ""
 
-
     def get_mail(self):
         return self.__mail
 
@@ -46,7 +45,7 @@ class Admin(User):
 
     def get_log(self):
         log = db.get_all_similar_info(log="kek")
-        log_file = open("log.txt",'w')
+        log_file = open("log.txt", 'w')
         for record in log:
             log_file.write(record + "\n")
         return log_file
@@ -306,35 +305,40 @@ class Patron(User):
         return self.__info[user_id]
 
     def set_id(self, id):
-        db.update(id=self.get_id(), new_id=id)
+        if id != "" or id != None:
+            db.update(id=self.get_id(), new_id=id)
         self.__info[user_id] = id
 
     def get_name(self):
         return self.__info[user_name]
 
     def set_name(self, new_name):
-        db.update(id=self.get_id(), name=new_name)
+        if new_name != "" or new_name != None:
+            db.update(id=self.get_id(), name=new_name)
         self.__info[user_name] = new_name
 
     def get_mail(self):
         return self.__info[user_mail]
 
     def set_mail(self, new_mail):
-        db.update(id=self.get_id(), mail=new_mail)
+        if new_mail != "" or new_mail != None:
+            db.update(id=self.get_id(), mail=new_mail)
         self.__info[user_mail] = new_mail
 
     def get_number(self):
         return self.__info[user_number]
 
     def set_number(self, new_number):
-        db.update(id=self.get_id(), number=new_number)
+        if new_number != "" or new_number != None:
+            db.update(id=self.get_id(), number=new_number)
         self.__info[user_number] = new_number
 
     def get_alias(self):
         return self.__info[user_alias]
 
     def set_alias(self, new_alias):
-        db.update(id=self.get_id(), alias=new_alias)
+        if new_alias != "" or new_alias != None:
+            db.update(id=self.get_id(), alias=new_alias)
         self.__info[user_alias] = new_alias
 
     def remove_document(self, title):
@@ -362,7 +366,8 @@ class Patron(User):
     def set_docs_list(self, new_list):
         print("doc list in user " + str(type(new_list)))
         temp = dict(new_list)
-        db.update(id=self.get_id(), docs=new_list)
+        if new_list != "" or new_list != None:
+            db.update(id=self.get_id(), docs=new_list)
         self.__info[user_document_list] = temp
 
     def get_registration_date(self):
@@ -384,7 +389,8 @@ class Patron(User):
         return self.__info[user_debt]
 
     def set_debt(self, debt):
-        db.update(id=self.get_id(), debt=debt)
+        if debt != "" or debt != None:
+            db.update(id=self.get_id(), debt=debt)
         self.__info[user_debt] = debt
 
     def summary(self):
@@ -394,7 +400,8 @@ class Patron(User):
         return self.__info[user_address]
 
     def set_address(self, address):
-        db.update(id=self.get_id(), address=address)
+        if address != "" or address != None:
+            db.update(id=self.get_id(), address=address)
         self.__info[user_address] = address
 
     def get_type(self):
