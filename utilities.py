@@ -1,6 +1,7 @@
 from telebot import *
 from user import *
 from documents import *
+import datetime as dt
 
 greeting = """Welcome to Innopolis Library Management System.
               Please enter your e-mail address.
@@ -51,6 +52,13 @@ keyboard_admin_buttons_home = [["Manage Librarians", "Manage Librarians"], ["Act
 # current_type = ""
 # title_or_name = ""
 
+def get_date():
+    date = str(dt.datetime.now())
+    a = len(date)
+
+    return (date[:a - 7])
+
+
 class current:
     current_email = ""
     title_or_name = ""
@@ -70,22 +78,22 @@ multithreading = dict()
 
 # title, author, publisher, edition, genre
 
-book4 = Book("Jane Eyre", "Charlotte Bronte", "SomePublisher", "1", "SomeGenre")
-book2 = Book("Thinking in Java", "Bruce Eckel", "Innopolis", "4th", "Computer Science")
-book3 = Book("Think python", "Allen B. Downey", "O'REILEY", "2nd", "Computer Science")
-book1 = Book("One Hundred Years of Solitude", "Gabriel García Márquez", "Innopolis", "1", "Magical Realism")
-# book1.add_copy("1")
-# book1.add_copy("2")
-# book1.add_copy("3")
-# book1.add_copy("4")
-# book1.add_copy("5")
-book1.set_bestseller(True)
-user1 = Student("314603915", "Dalbaeb", "jsifj@iinno.ru", "+231312394", "@eblaneeshe")
-user2 = Faculty("314603916", "BigBrother", "9afiwe@ifrefre", "+013123", "@hahhahaha")
-# book1 = Book()
-# book1.setData(db.get_book("One Hundred Years of Solitude"))
-
-list_of_books = [book1, book2, book3, book4]
+# book4 = Book("Jane Eyre", "Charlotte Bronte", "SomePublisher", "1", "SomeGenre")
+# book2 = Book("Thinking in Java", "Bruce Eckel", "Innopolis", "4th", "Computer Science")
+# book3 = Book("Think python", "Allen B. Downey", "O'REILEY", "2nd", "Computer Science")
+# book1 = Book("One Hundred Years of Solitude", "Gabriel García Márquez", "Innopolis", "1", "Magical Realism")
+# # book1.add_copy("1")
+# # book1.add_copy("2")
+# # book1.add_copy("3")
+# # book1.add_copy("4")
+# # book1.add_copy("5")
+# book1.set_bestseller(True)
+# user1 = Student("314603915", "Dalbaeb", "jsifj@iinno.ru", "+231312394", "@eblaneeshe")
+# user2 = Faculty("314603916", "BigBrother", "9afiwe@ifrefre", "+013123", "@hahhahaha")
+# # book1 = Book()
+# # book1.setData(db.get_book("One Hundred Years of Solitude"))
+#
+# list_of_books = [book1, book2, book3, book4]
 
 # auth literals
 step0 = "Enter you email"
