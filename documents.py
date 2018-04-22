@@ -94,25 +94,25 @@ class Book(Document):
         if copies:
             super().__init__(title, author, queue)
             self.__info = super().summary()
-            self.set_publisher(publisher)
-            self.set_year(year)
-            self.set_edition(edition)
-            self.set_genre(genre)
-            self.set_bestseller(bestseller)
-            self.set_is_reference(reference)
-            self.set_url(url)
-            self.set_list_of_copies(copies)
+            self.__info[book_publisher] = publisher
+            self.__info[book_year] = year
+            self.__info[book_edition] = edition
+            self.__info[book_genre] = genre
+            self.__info[book_bestseller] = bestseller
+            self.__info[book_is_reference] = reference
+            self.__info[document_url] = url
+            self.__info[document_copies] = copies
         else:
             super().__init__(title, author, queue)
             self.__info = super().summary()
-            self.set_publisher(publisher)
-            self.set_year(year)
-            self.set_edition(edition)
-            self.set_genre(genre)
-            self.set_bestseller(bestseller)
-            self.set_is_reference(reference)
-            self.set_url(url)
-        self.set_type("Book")
+            self.__info[book_publisher] = publisher
+            self.__info[book_year] = year
+            self.__info[book_edition] = edition
+            self.__info[book_genre] = genre
+            self.__info[book_bestseller] = bestseller
+            self.__info[book_is_reference] = reference
+            self.__info[document_url] = url
+        self.__info[document_type] = "Book"
 
     def set_type(self, type):
         self.__info[document_type] = type
@@ -197,20 +197,21 @@ class Article(Document):
         if copies:
             super().__init__(title, author, queue)
             self.__info = super().summary()
-            self.set_journal(journal)
-            self.set_pub_date(publication_date)
-            self.set_editor(editor)
-            self.set_url(url)
-            self.set_list_of_copies(copies)
+            self.__info[article_journal] = journal
+            self.__info[article_pub_date] = publication_date
+            self.__info[article_editor] = article_editor
+            self.__info[document_url] = url
+            self.__info[document_copies] = copies
+
         else:
             super().__init__(title, author, queue)
             self.__info = super().summary()
-            self.set_journal(journal)
-            self.set_pub_date(publication_date)
-            self.set_editor(editor)
-            self.set_url(url)
+            self.__info[article_journal] = journal
+            self.__info[article_pub_date] = publication_date
+            self.__info[article_editor] = article_editor
+            self.__info[document_url] = url
 
-        self.set_type("Article")
+        self.__info[document_type] = "Article"
 
     def set_type(self, type):
         self.__info[document_type] = type
@@ -256,16 +257,17 @@ class AV_Materials(Document):
         if copies:
             super().__init__(title, author)
             self.__info = super().summary()
-            self.set_price(price)
-            self.set_url(url)
-            self.set_list_of_copies(copies)
+            self.__info[document_price] = price
+            self.__info[document_url] = url
+            self.__info[document_copies] = copies
+
         else:
             super().__init__(title, author)
             self.__info = super().summary()
-            self.set_price(price)
-            self.set_url(url)
+            self.__info[document_price] = price
+            self.__info[document_url] = url
 
-        self.set_type("AV")
+        self.__info[document_type] = "AV"
 
     def set_type(self, type):
         self.__info[document_type] = type

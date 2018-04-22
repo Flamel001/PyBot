@@ -424,13 +424,13 @@ class Student(Patron):
         if reg_date:
             super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
             self.__info = super().summary()
-            self.set_type("Student")
-            self.set_prior(5)
+            self.__info[user_type] = "Student"
+            self.__info[user_priority] = 5
         else:
             super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
             self.__info = super().summary()
-            self.set_type("Student")
-            self.set_prior(5)
+            self.__info[user_type] = "Student"
+            self.__info[user_priority] = 5
 
 
 class Faculty(Patron):
@@ -451,13 +451,13 @@ class Instructor(Faculty):
         if reg_date:
             super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
             self.__info = super().summary()
-            self.set_type("Instructor")
-            self.set_prior(4)
+            self.__info[user_type] = "Instructor"
+            self.__info[user_priority] = 4
         else:
             super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
             self.__info = super().summary()
-            self.set_type("Instructor")
-            self.set_prior(4)
+            self.__info[user_type] = "Instructor"
+            self.__info[user_priority] = 4
 
 
 class TA(Faculty):
@@ -466,14 +466,13 @@ class TA(Faculty):
         if reg_date:
             super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
             self.__info = super().summary()
-            self.set_type("TA")
-            self.set_prior(3)
+            self.__info[user_type] = "TA"
+            self.__info[user_priority] = 3
         else:
             super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
             self.__info = super().summary()
-            self.set_type("TA")
-            self.set_prior(3)
-
+            self.__info[user_type] = "TA"
+            self.__info[user_priority] = 3
 
 class Professor(Faculty):
     def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=0,
@@ -481,13 +480,13 @@ class Professor(Faculty):
         if reg_date:
             super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
             self.__info = super().summary()
-            self.set_type("Professor")
-            self.set_prior(1)
+            self.__info[user_type] = "Professor"
+            self.__info[user_priority] = 1
         else:
             super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
             self.__info = super().summary()
-            self.set_type("Professor")
-            self.set_prior(1)
+            self.__info[user_type] = "Professor"
+            self.__info[user_priority] = 1
 
 
 class VP(Faculty):
@@ -496,10 +495,10 @@ class VP(Faculty):
         if reg_date:
             super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
             self.__info = super().summary()
-            self.set_type("VP")
-            self.set_prior(2)
+            self.__info[user_type] = "VP"
+            self.__info[user_priority] = 2
         else:
             super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
             self.__info = super().summary()
-            self.set_type("VP")
-            self.set_prior(2)
+            self.__info[user_type] = "VP"
+            self.__info[user_priority] = 2
