@@ -8,9 +8,30 @@ class User:
     pass
 
 
+class Admin(User):
+
+    def __init__(self):
+        self.name = ""
+        self.alias = ""
+        self.address = ""
+
+    def give_priv(self, librarian_id, priv):
+        db.get(id=librarian_id)[0].set_priv(priv)
+
+    def add_librarian(self, id, alias, name, mail, number, address, priv):
+        new = Librarian(id, alias, name, mail, number, address, priv)
+        db.insert(new.summary())
+
+    def delete_librarian(self, librarian_id):
+        db.delete(id=librarian_id)
+
+    def get_log(self):
+        pass
+
+
 class Librarian(User):
 
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None):
+    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, priv=1):
         self.__info = dict()
         self.__info[user_id] = id
         self.__info[user_alias] = alias
@@ -19,149 +40,74 @@ class Librarian(User):
         self.__info[user_number] = number
         self.__info[user_address] = address
         self.__info[user_type] = "Librarian"
+        self.__info[librarian_priv] = priv
 
     def new_book(self, title, author, publisher, year, edition, genre, url, bestseller, reference):
-        print(
-            "these are the fields " + title + ", " + author + ", " + publisher + ", " + year + "," + edition + ", " + genre + ", " + url)
-        new = dc.Book(title, author, publisher, year, edition, genre, url, bestseller, reference)
-        print("this is book summary " + str(new.summary()))
-        db.insert(new.summary())
-        # return new
+        if self.get_priv() >= 2:
+            print(
+                "these are the fields " + title + ", " + author + ", " + publisher + ", " + year + "," + edition + ", " + genre + ", " + url)
+            new = dc.Book(title, author, publisher, year, edition, genre, url, bestseller, reference)
+            print("this is book summary " + str(new.summary()))
+            db.insert(new.summary())
+        else:
+            return
+            # return new
 
     def add_copy_for_doc(self, original: dc.Document, copy_id):
-        original.add_copy(copy_id)
-        self.modify_book(original, original.get_list_of_copies())
+        if self.get_priv() == 3:
+            original.add_copy(copy_id)
+            db.update(title=original.get_title(), copies=original.set_list_of_copies())
+        else:
+            return
 
     def set_book_bestseller(self, book, is_not):
         book.set_bestseller(is_not)
 
     def new_article(self, title, author, journal, publication_date, editor, url):
-        new = dc.Article(title, author, journal, publication_date, editor, url)
-        db.insert(new.summary())
-        # return new
+        if self.get_priv() >= 2:
+            new = dc.Article(title, author, journal, publication_date, editor, url)
+            db.insert(new.summary())
+        else:
+            return
+            # return new
 
     def new_AV_material(self, title, author, value, url):
-        new = dc.AV_Materials(title, author, value, url)
-        print("avmaterial " + str(new.summary()))
-        db.insert(new.summary())
-        # return new
+        if self.get_priv() >= 2:
+            new = dc.AV_Materials(title, author, value, url)
+            print("avmaterial " + str(new.summary()))
+            db.insert(new.summary())
+            # return
+        else:
+            return
 
     def new_student(self, id, name, mail, number, alias, address):
-        new = Student(id, name, mail, number, alias, address)
-        db.insert(new.summary())
-        # return new
+        if self.get_priv() >= 2:
+            new = Student(id, name, mail, number, alias, address)
+            db.insert(new.summary())
+            # return new
+        else:
+            return
 
     def new_faculty(self, id, name, mail, number, alias, address):
-        new = Faculty(id, name, mail, number, alias, address)
-        db.insert(new.summary())
-        # return new
+        if self.get_priv() >= 2:
+            new = Faculty(id, name, mail, number, alias, address)
+            db.insert(new.summary())
+            # return new
+        else:
+            return
 
     def remove_user(self, alias):
-        id = db.get(alias=alias)[0].get_id
-        db.delete(id)
+        if self.get_priv() == 3:
+            id = db.get(alias=alias)[0].get_id
+            db.delete(id)
+        else:
+            return
 
     def remove_document(self, title):
-        db.delete(title)
-
-    def modify_user(self, user_alias, new_name=None, new_mail=None, new_number=None, new_alias=None, new_rating=None,
-                    new_doc_list=None, new_debt=None):
-        dictionary = dict()
-        if new_name:
-            dictionary[user_name] = new_name
-        if new_mail:
-            dictionary[user_mail] = new_mail
-        if new_number:
-            dictionary[user_number] = new_number
-        if new_alias:
-            dictionary[user_alias] = new_alias
-        if new_rating:
-            dictionary[user_rating] = new_rating
-        if new_doc_list:
-            dictionary[user_document_list] = new_doc_list
-        if new_debt:
-            dictionary[user_debt] = new_debt
-
-        db.update_user(user_alias, dictionary)
-
-    def modify_book(self, book_title, new_title=None, new_author=None, new_publisher=None, new_edition=None,
-                    new_genre=None, new_price=None, bestseller=None, reference=None, new_keywords=None, new_copies=None,
-                    new_duration=None, new_url=None):
-        dictionary = dict()
-        if new_title:
-            dictionary[document_title] = new_title
-        if new_author:
-            dictionary[document_author] = new_author
-        if new_publisher:
-            dictionary[book_publisher] = new_publisher
-        if new_edition:
-            dictionary[book_edition] = new_edition
-        if new_genre:
-            dictionary[book_genre] = new_genre
-        if new_price:
-            dictionary[document_price] = new_price
-        if bestseller:
-            dictionary[book_bestseller] = bestseller
-        if reference:
-            dictionary[book_is_reference] = reference
-        if new_keywords:
-            dictionary[document_keywords] = new_keywords
-            dictionary[document_keywords_count] = len(new_keywords)
-        if new_copies:
-            dictionary[document_copies] = new_copies
-        if new_duration:
-            dictionary[document_duration] = new_duration
-        if new_url:
-            dictionary[document_url] = new_url
-
-        db.update_book(book_title, dictionary)
-
-    def modify_article(self, article_title, new_title=None, new_author=None, new_journal=None, new_pub_date=None,
-                       new_editor=None, new_price=None, new_keywords=None, new_copies=None,
-                       new_duration=None, new_url=None):
-        dictionary = dict()
-        if new_title:
-            dictionary[document_title] = new_title
-        if new_author:
-            dictionary[document_author] = new_author
-        if new_journal:
-            dictionary[article_journal] = new_journal
-        if new_pub_date:
-            dictionary[article_pub_date] = new_pub_date
-        if new_editor:
-            dictionary[article_editor] = new_editor
-        if new_price:
-            dictionary[document_price] = new_price
-        if new_keywords:
-            dictionary[document_keywords] = new_keywords
-            dictionary[document_keywords_count] = len(new_keywords)
-        if new_copies:
-            dictionary[document_copies] = new_copies
-        if new_duration:
-            dictionary[document_duration] = new_duration
-        if new_url:
-            dictionary[document_url] = new_url
-        db.update_book(article_title, dictionary)
-
-    def modify_AV(self, AV_title, new_title=None, new_author=None, new_price=None, new_keywords=None, new_copies=None,
-                  new_duration=None, new_url=None):
-        dictionary = dict()
-        if new_title:
-            dictionary[document_title] = new_title
-        if new_author:
-            dictionary[document_author] = new_author
-        if new_price:
-            dictionary[document_price] = new_price
-        if new_keywords:
-            dictionary[document_keywords] = new_keywords
-            dictionary[document_keywords_count] = len(new_keywords)
-        if new_copies:
-            dictionary[document_copies] = new_copies
-        if new_duration:
-            dictionary[document_duration] = new_duration
-        if new_url:
-            dictionary[document_url] = new_url
-
-        db.update_book(AV_title, dictionary)
+        if self.get_priv() == 3:
+            db.delete(title)
+        else:
+            return
 
     def get_user(self, alias):
         return db.get(alias=alias)
@@ -173,36 +119,42 @@ class Librarian(User):
         return self.__info[user_name]
 
     def set_name(self, new):
+        db.update(id=self.get_id(), name=new)
         self.__info[user_name] = new
 
     def get_mail(self):
         return self.__info[user_mail]
 
     def set_mail(self, new):
+        db.update(id=self.get_id(), mail=new)
         self.__info[user_mail] = new
 
     def get_number(self):
         return self.__info[user_number]
 
     def set_number(self, new):
+        db.update(id=self.get_id(), number=new)
         self.__info[user_number] = new
 
     def get_alias(self):
         return self.__info[user_alias]
 
     def set_alias(self, new):
+        db.update(id=self.get_id(), alias=new)
         self.__info[user_alias] = new
 
     def get_id(self):
         return self.__info[user_id]
 
     def set_id(self, id):
+        db.update(id=self.get_id(), new_id=id)
         self.__info[user_id] = id
 
     def get_address(self):
         return self.__info[user_address]
 
     def set_address(self, address):
+        db.update(id=self.get_id(), address=address)
         self.__info[user_address] = address
 
     def summary(self):
@@ -210,6 +162,20 @@ class Librarian(User):
 
     def get_type(self):
         return self.__info[user_type]
+
+    def get_priv(self):
+        return self.__info[librarian_priv]
+
+    def set_priv(self, new_priv):
+        self.__info[librarian_priv] = new_priv
+
+    # TO_DO outstanding request
+    def set_outstanding(self, title):
+        if self.get_priv() >= 2:
+            book = db.get(title=title)[0]
+            pass
+        else:
+            return
 
 
 class Patron(User):
