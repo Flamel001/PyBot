@@ -12,9 +12,13 @@ class User:
 class Admin(User):
 
     def __init__(self):
-        self.name = ""
-        self.alias = ""
-        self.address = ""
+        self.__name = ""
+        self.__alias = ""
+        self.__address = ""
+        self.__mail = ""
+
+    def get_mail(self):
+        return self.__mail
 
     def give_priv(self, librarian_id, priv):
         db.get(id=librarian_id)[0].set_priv(priv)
@@ -261,7 +265,7 @@ class Librarian(User):
     def set_outstanding(self, title):
         if self.get_priv() >= 2:
             book = db.get(title=title)[0]
-            pass
+            book.set_outstanding()
 
             id_str = str(self.get_id())
             date = get_date()

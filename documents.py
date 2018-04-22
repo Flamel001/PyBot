@@ -1,5 +1,6 @@
 from dict_keys import *
 import database as db
+from verification import mesage_sender as sm
 
 
 class Document:
@@ -164,6 +165,14 @@ class Book(Document):
 
     def is_reference(self):
         return self.__info[book_is_reference]
+
+    def set_outstanding(self):
+        db.update(title=self.get_title(), queue=[])
+        if self.get_owner() != None:
+            mail = str(self.get_owner().get_mail())
+            title_str = self.get_title()
+            message = "You need to return book: " + title_str + " due that this is book is outstanding now"
+            sm(mail, message)
 
     def summary(self):
         return self.__info
