@@ -205,7 +205,7 @@ def __parse_to_object(row):
                                           url=row[7])
 
 
-def get(id=None, alias=None, name=None, mail=None, number=None, address=None, type_user=None, title=None, author=None,
+def get(id=None, alias=None, name=None, mail=None, number=None, address=None, type_user=None, privilege=None, title=None, author=None,
         owner=None, type_book=None, publisher=None, year=None, journal=None, editor=None, genre=None,
         bestseller=None, reference=None):
     counter = 0
@@ -298,7 +298,7 @@ def __search_query(cursor, table, column, arg):
     return cursor.execute(search_query)
 
 
-def update(id=None, alias=None, name=None, mail=None, number=None, address=None, docs=None, debt=None, new_id=None,
+def update(id=None, alias=None, name=None, mail=None, number=None, address=None, privilege=None, docs=None, debt=None, new_id=None,
            title=None, author=None,
            owner=None, queue=None, copies=None, price=None, url=None, publication_date=None, publisher=None, year=None,
            journal=None, editor=None, edition=None,
@@ -321,6 +321,8 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
                     __update_query(cursor, __users_name, __key_user_number, number, __key_user_id, id)
                 elif address:
                     __update_query(cursor, __users_name, __key_user_address, address, __key_user_id, id)
+                elif privilege:
+                    __update_query(cursor, __users_name, __key_user_librarian_privilege, privilege, __key_user_id, id)
                 elif docs:
                     __update_query(cursor, __users_name, __key_user_patron_document_list, docs, __key_user_id, id)
                 elif debt:
@@ -405,7 +407,7 @@ def __delete_query(cursor, table, column, arg):
 def get_all_similar_info(id=None, alias=None, name=None, mail=None, number=None, address=None, type_user=None,
                          title=None, author=None,
                          owner=None, type_book=None, publisher=None, year=None, journal=None, editor=None, genre=None,
-                         bestseller=None, reference=None):
+                         bestseller=None, reference=None, log=None):
     counter = 0
     if id:
         counter += 1
@@ -481,6 +483,8 @@ def get_all_similar_info(id=None, alias=None, name=None, mail=None, number=None,
             cursor = __search_similar_query(cursor, __docs_name, __key_doc_bestseller)
         elif reference:
             cursor = __search_similar_query(cursor, __docs_name, __key_doc_reference)
+        elif log:
+            cursor = __search_similar_query(cursor, __logs_name, __key_log)
         result_list = list()
         rows = cursor.fetchall()
         for row in rows:
