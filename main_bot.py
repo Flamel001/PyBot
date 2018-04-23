@@ -250,7 +250,7 @@ def initialize_librarian(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Actions with Patrons")
 def search_patron(call):
     u.current.type = "Emails"  # TODO: обратиться по типу
-    u.current.field = db.get(type_book=call.data)
+    u.current.field = db.get(type_user="Student") + db.get(type_user="Instructor") + db.get(type_user="Professor") + db.get(type_user="TA")+ db.get(type_user="VP")
     print("{} - eto u.cur.field".format(u.current.field))
     list_of_patrons = ""
     if u.current.field == []:
@@ -258,7 +258,7 @@ def search_patron(call):
     else:
         list_of_patrons = "Enter email from list\n"
         for i in range(len(u.current.field)):
-            list_of_patrons += ("{}\n".format(u.current.field[i].get_title()))
+            list_of_patrons += ("{}\n".format(u.current.field[i].get_mail()))
 
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=list_of_patrons,
@@ -288,14 +288,18 @@ def search_doc(call):
 
 def search(call):
     u.current.title_or_name = call.text
-    u.current.title_or_name = call.text
     print(call.text)
     exist = False
     for i in u.current.field:
-        print(i.get_title, call.text)
-        if i.get_title() == call.text:
-            exist = True
-            u.current.object = i
+        if u.current.type == "Librarian" or u.current.type == "Emails":
+            if i.get_mail() == call.text:
+                exist = True
+                u.current.object = i
+        else:
+            print(i.get_title, call.text)
+            if i.get_title() == call.text:
+                exist = True
+                u.current.object = i
     if exist:
         if type(u.current.user) == Admin:
             message = "Choose action to do with {}".format(call.text)
@@ -401,10 +405,10 @@ def delete(call):
     print(u.current.object)
     if u.current.type =="Emails" or u.current.type=="Librarian":
         u.name = u.current.object.get_id()
-        db.delete(u.current.object.get_id())
+        db.delete(id=u.current.object.get_id())
     else:
         u.name = u.current.object.get_title()
-        db.delete(u.current.object.get_title())
+        db.delete(title=u.current.object.get_title())
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="{} is deleted from list of {}".format(u.name, u.current.type),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -440,22 +444,22 @@ def adding(call):
     elif u.current.type == "Librarians":
         doc = Librarian(id = array_of_values[0], alias=array_of_values[1], name=u.current.title_or_name, mail=array_of_values[2], number=array_of_values[3], address=array_of_values[4], priv=int(array_of_values[5]))
     else:
-        pass
-        # if facbase.is_instructor(mail):#KAK TYT DOBAVLYAT
-        #     usr = Instructor(id, alias, name, mail, number, address)
-        # elif facbase.is_ta(mail):
-        #     usr = TA(id, alias, name, mail, number, address)
-        # elif facbase.is_professor(mail):
-        #     usr = Professor(id, alias, name, mail, number, address)
-        # elif facbase.is_vp(mail):
-        #     usr = VP(id, alias, name, mail, number, address)
-        # else:
-        #     usr = Student(id, alias, name, mail, number, address)
+
+        if array_of_values[0]=="Instructor":#KAK TYT DOBAVLYAT
+            doc = Instructor(int(array_of_values[1]), array_of_values[2], array_of_values[3], array_of_values[0], array_of_values[4], array_of_values[5])
+        elif array_of_values[0]=="TA":
+            doc = TA(int(array_of_values[1]), array_of_values[2], array_of_values[3], array_of_values[0], array_of_values[4], array_of_values[5])
+        elif array_of_values[0]=="Professor":
+            doc = Professor(int(array_of_values[1]), array_of_values[2], array_of_values[3], array_of_values[0], array_of_values[4], array_of_values[5])
+        elif array_of_values[0]=="VP":
+            doc = VP(int(array_of_values[1]), array_of_values[2], array_of_values[3], array_of_values[0], array_of_values[4], array_of_values[5])
+        else:
+            doc = Student(int(array_of_values[1]), array_of_values[2], array_of_values[3], u.current.title_or_name, array_of_values[4], array_of_values[5])
 
     db.insert(doc.summary())
 
     print('SUCCESS')
-    print(u.current.db_to_search)
+    print(doc.summary()["type"])
     bot.send_message(call.chat.id, "Addition to database was successful",
                      reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 

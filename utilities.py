@@ -21,8 +21,7 @@ keyboard_buttons_library = [["Books", "Book"], ["Articles", "Article"], ["Audio/
                             ["Back", "Back"]]
 
 "LIBRARIAN"
-keyboard_librarian_buttons_home = [["Actions with Patrons", "Actions with Patrons"], ["Manage Docs", "Library"],
-                                   ["Docs on hands", "Docs on hands"]]
+keyboard_librarian_buttons_home = [["Actions with Patrons", "Actions with Patrons"], ["Manage Docs", "Library"]]#,["Docs on hands", "Docs on hands"]
 keyboard_librarian_buttons_library = [["Add", "Add doc"], ["Manage docs", "Library"]]
 keyboard_librarian_buttons_manage = [["Get information", "Get information"], ["Edit", "Edit"],  ["Delete", "Delete"],
                                      ["Return to home page", "Back"]]
@@ -53,7 +52,7 @@ keyboard_admin_buttons_home = [["Manage Librarians", "Manage Librarians"], ["Act
 def get_buttoms(name: str):
     if name == "Emails":
         result = []
-        temp = ['id', 'Alias', 'Name', 'Mail', 'Phone_number', 'Address']
+        temp = ['Mail', 'Type', 'id', 'Alias', 'Name', 'Phone_number', 'Address']
         for x in temp:
             result.append([x, "$" + x])
         return result
