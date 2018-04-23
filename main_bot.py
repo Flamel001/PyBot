@@ -74,7 +74,7 @@ def greeting(message):
 def auth(call):  # TODO: Прогнать один раз тестово
     if call.text[-13:] == u.domain and len(call.text) > 13:
         u.current_email = call.text
-        u.pin = veri.pin_generator()
+        u.current.pin = veri.pin_generator()
         veri.pin_sender(call.text, u.current.pin)
         bot.send_message(call.chat.id, "Enter code that we send to your email")
         bot.register_next_step_handler(call, pin_checker)
@@ -123,19 +123,25 @@ def address(call):
     number = temp["number"]
     alias = temp["alias"]
     address = temp["address"]
-
+    temp_type = ""
     if facbase.is_instructor(mail):
         usr = Instructor(id, alias, name, mail, number, address)
+        temp_type = "Instructor"
     elif facbase.is_ta(mail):
         usr = TA(id, alias, name, mail, number, address)
+        temp_type = "TA"
     elif facbase.is_professor(mail):
         usr = Professor(id, alias, name, mail, number, address)
+        temp_type = "Professor"
     elif facbase.is_vp(mail):
         usr = VP(id, alias, name, mail, number, address)
+        temp_type = "VP"
     else:
         usr = Student(id, alias, name, mail, number, address)
-
+        temp_type = "Student"
+    date = get_date()
     db.insert(usr.summary())
+    db.insert_log(date + " | " + temp_type + "with ID: " + str(id) + " added")
     print(temp)
 
     bot.send_message(call.chat.id, "Congratulations, registration is finished. Now choose, what do you want to do",

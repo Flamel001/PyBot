@@ -12,7 +12,7 @@ def pin_generator():
 
 
 def pin_sender(email, pin):
-    fromaddr = "innolibbot@gmail.com"
+    fromaddr = "libbot@yandex.ru"
     toaddr = str(email)
     msg = MIMEMultipart()
     msg['From'] = fromaddr
@@ -21,7 +21,7 @@ def pin_sender(email, pin):
 
     body = str(pin)
     msg.attach(MIMEText(body, 'plain'))
-    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server = smtplib.SMTP('smtp.yandex.ru', 587)
     server.starttls()
     server.login(fromaddr, "401206176")
     text = msg.as_string()
