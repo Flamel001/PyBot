@@ -133,6 +133,11 @@ def edit_attr(attr,new_attr):
     elif attr == "Privilege":
         current.object.set_priv(new_attr)
 
+def is_human():
+    if current.type == "Emails" or current.type == "Librarian":
+        return True
+    else:
+        return False
 
 def get_date():
     date = str(dt.datetime.now())

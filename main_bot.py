@@ -31,7 +31,7 @@ def admin(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Manage Librarians")
 def man_lib(call):
     u.current.field = db.get(type_user="Librarian")  # TODO: Проверить, работает ли с пустым списком лайбрерианов
-    u.current.type = call.data
+    u.current.type = "Librarian"
 
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="type email of Librarian from list\n{}".format([u.current.field[i].get_mail()
@@ -149,8 +149,6 @@ def my_docs(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Enter doc from list {}".format(u.current.field),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
-    # bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
-    #                               reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
 
 
@@ -297,6 +295,7 @@ def search(call):  # TODO: пройтись по всем возможным if
     u.current.title_or_name = call.text
     print(call.text)
     exist = False
+    print(u.current.type)
     for i in u.current.field:
         if u.current.type == "Librarian" or u.current.type == "Emails":
             if i.get_mail() == call.text:
@@ -374,10 +373,10 @@ def edit(call):
 
 @bot.callback_query_handler(func=lambda call: call.data[0] == "$")
 def editing(call):
-    print(u.current.object.get_title())
     u.current.attr = call.data[1:]
+
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter new parameter for {} of {}".format(call.data[1:], u.current.object.get_title()),
+                          text="Enter new parameter for {} of {}".format(call.data[1:], u.current.title_or_name),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, edited)
 
@@ -396,7 +395,7 @@ def edited(call):
 def delete(call):
     print(u.current.type)
     print(u.current.object)
-    if u.current.type == "Emails" or u.current.type == "Librarian":
+    if u.is_human():
         u.name = u.current.object.get_id()
         db.delete(id=u.current.object.get_id())
     else:
