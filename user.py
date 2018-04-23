@@ -5,6 +5,14 @@ from dict_keys import *
 from utilities import get_date
 
 
+def get_log():
+    log = db.get_all_similar_info(log="kek")
+    log_file = open("log.txt", 'w')
+    for record in log:
+        log_file.write(record + " \n")
+    log_file.close()
+    return log_file
+
 class User:
     pass
 
@@ -43,12 +51,7 @@ class Admin(User):
         date = get_date()
         db.insert_log(date + " | Admin deleted Librarian with ID: " + id_str)
 
-    def get_log(self):
-        log = db.get_all_similar_info(log="kek")
-        log_file = open("log.txt", 'w')
-        for record in log:
-            log_file.write(record + "\n")
-        return log_file
+
 
 
 class Librarian(User):
