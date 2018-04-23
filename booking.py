@@ -88,7 +88,7 @@ def add_to_waiting_list(user, document):
     print("This is queue " + str(queue))
     db.update(title=document.get_title(), queue=queue)
     number = [queue[i][1] for i in range(0, len(queue))]
-    return waiting_list + str(number.index(user.get_id()))
+    return waiting_list + str(number.index(user.get_id()) + 1)
 
 
 def give_on_hands(usr, document, exp_date):
@@ -148,7 +148,7 @@ max_renew_alert = "You have reached maximum amount of renews. :( "
 no_copies = "No copies of current book were found."
 renew_fail = "You can not renew this book again"
 renew_nail = "You renewed this book until "
-waiting_list = "You have been added to the waiting list of this book. Your number is"
+waiting_list = "You have been added to the waiting list of this book. Your number is "
 
 """
 student = user.Student("stud", "Student", "name.surname@innopolis.ru", "1234567", "@student", "Innopolis City")

@@ -23,8 +23,7 @@ keyboard_buttons_library = [["Books", "Book"], ["Articles", "Article"], ["Audio/
 "LIBRARIAN"
 keyboard_librarian_buttons_home = [["Actions with Patrons", "Actions with Patrons"], ["Manage Docs", "Library"]]#,["Docs on hands", "Docs on hands"]
 keyboard_librarian_buttons_library = [["Add", "Add doc"], ["Manage docs", "Library"]]
-keyboard_librarian_buttons_manage = [["Get information", "Get information"], ["Edit", "Edit"],  ["Delete", "Delete"],
-                                     ["Return to home page", "Back"]]
+keyboard_librarian_buttons_manage = [["Get information", "Get information"], ["Edit", "Edit"],  ["Delete", "Delete"]]
 keyboard_librarian_buttons_edit = [["Name", "Name"], ["Surname", "Surname"], ["mail", "mail"], ["number", "number"],
                                    ["alias", "alias"], ["address", "address"], ["Back", "Back"]]
 keyboard_librarian_buttons_confirmation = [["Add", "Add"], ["Back", "Back"]]
@@ -39,15 +38,6 @@ keyboard_patron_buttons_doc = [["Return", "Return"], ["Renew", "Renew"], ["Back"
 "ADMIN"
 keyboard_admin_buttons_privileges = [["1", "1"], ["2", "2"], ["3", "3"]]
 keyboard_admin_buttons_home = [["Manage Librarians", "Manage Librarians"], ["Action Log", "Action Log"]]
-
-
-# current_email = ""
-# field = ""
-# # is_librarian = False
-# db_to_search = []
-# current_object = dict
-# current_type = ""
-# title_or_name = ""
 
 def get_buttoms(name: str):
     if name == "Emails":
@@ -148,7 +138,7 @@ def get_date():
 
 class current:
     attr = ""
-    current_email = ""
+    email = ""
     title_or_name = ""
     field = ""# PO IDEE VOZVRASHAET DB RAZNOGO DERMA
     db_to_search = []
