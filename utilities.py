@@ -51,7 +51,7 @@ keyboard_admin_buttons_home = [["Manage Librarians", "Manage Librarians"], ["Act
 # title_or_name = ""
 
 def get_buttoms(name: str):
-    if name == "Patron":
+    if name == "Emails":
         result = []
         temp = ['id', 'Alias', 'Name', 'Mail', 'Phone_number', 'Address']
         for x in temp:
@@ -149,13 +149,14 @@ class current:
     field = ""# PO IDEE VOZVRASHAET DB RAZNOGO DERMA
     db_to_search = []
     object = ""#saves object from db
-    current_type = ""
+    type = ""
     pin = ""
     temp_user_date = dict()
     auth_arr = ["name", "number", "address"]
     auth_val_arr = []
     time = ""
     user = ""
+    name = ""
 
 
 multithreading = dict()

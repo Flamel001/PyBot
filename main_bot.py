@@ -32,6 +32,8 @@ def admin(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Manage Librarians")
 def man_lib(call):
     u.current.field = db.get(type_user="Librarian")
+    u.current.type = call.data
+
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="type name(or smthg else, we wil choose what) of Librarian from list\n{}".format([u.current.field[i].get_mail()
                                                                                                                       for i in range(len(u.current.field))]),
@@ -247,28 +249,45 @@ def initialize_librarian(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Actions with Patrons")
 def search_patron(call):
-    u.current.field = "Emails"  # TODO: обратиться по типу
+    u.current.type = "Emails"  # TODO: обратиться по типу
+    u.current.field = db.get(type_book=call.data)
+    print("{} - eto u.cur.field".format(u.current.field))
+    list_of_patrons = ""
+    if u.current.field == []:
+        list_of_patrons = "Now list of patrons is empty. They can be added by Librarian by typing email"
+    else:
+        list_of_patrons = "Enter email from list\n"
+        for i in range(len(u.current.field)):
+            list_of_patrons += ("{}\n".format(u.current.field[i].get_title()))
 
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter e-mail from list {}".format(u.current.db_to_search),
+                          text=list_of_patrons,
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Book" or call.data == "Article" or call.data == "AV")
 def search_doc(call):
-    print(str(call.data))
+    u.current.type = call.data
     u.current.field = db.get(type_book=call.data)
-    print(u.current.field[0].get_title())
+    print("{} - eto u.cur.field".format(u.current.field))
+    list_of_docs = ""
+    if u.current.field == []:
+        list_of_docs = "Now list of {}s is empty. They can be added by Librarian by typing title".format(call.data)
+    else:
+        list_of_docs = "Enter name of doc from list\n"
+        for i in range(len(u.current.field)):
+            list_of_docs+=("{}\n".format(u.current.field[i].get_title()))
+    # "Enter name of doc from list\n{}".format([u.current.field[i].get_title()
+    #                                           for i in range(len(u.current.field))])
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter name of doc from list\n{}".format([u.current.field[i].get_title()
-                                                                    for i in range(len(u.current.field))]),
+                          text=list_of_docs,
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))#TODO: sdelat tak 4tob metod viglyadel ne yebanski
     bot.register_next_step_handler(call.message, search)
 
 
 def search(call):
-      # TODO: обратиться по типу
+    u.current.title_or_name = call.text
     u.current.title_or_name = call.text
     print(call.text)
     exist = False
@@ -292,7 +311,7 @@ def search(call):
             else:
                 markup = u.keyboard_librarian_buttons_manage
 
-            if u.current.field[0].get_type() == "Book" or "Article" or "AV":
+            if u.current.type == "Book" or "Article" or "AV":
                 markup = markup + [["Waiting list", "Waiting list"]] + u.keyboard_librarian_buttons_manage[-1:]
 
             else:
@@ -301,7 +320,7 @@ def search(call):
 
 
         else:
-            if u.current.field == "Patron docs":
+            if u.current.type == "Emails":
                 message = "What do you want to do with {}?".format(call.text)
                 markup = u.keyboard_patron_buttons_doc
             else:
@@ -378,11 +397,16 @@ def edited(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Delete")
 def delete(call):
     # TODO: примерно как выше, но удалить
-    db.delete(u.current.object.get)
-    u.current.db_to_search.remove(u.current.current_object.text)
-    print(u.current.db_to_search)
+    print(u.current.type)
+    print(u.current.object)
+    if u.current.type =="Emails" or u.current.type=="Librarian":
+        u.name = u.current.object.get_id()
+        db.delete(u.current.object.get_id())
+    else:
+        u.name = u.current.object.get_title()
+        db.delete(u.current.object.get_title())
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="{} is deleted from {}".format(u.current.current_object.text, u.current.field),
+                          text="{} is deleted from list of {}".format(u.name, u.current.type),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
@@ -390,7 +414,9 @@ def delete(call):
 def add(call):
     list = ""
 
-    attr = u.get_buttoms(u.current.field[0].get_type())
+    attr = u.get_buttoms(u.current.type)
+    print(attr)
+
     for i in range(1,len(attr)):
         list+="{}, ".format(attr[i][0])
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -402,18 +428,29 @@ def add(call):
 def adding(call):
     array_of_values = call.text.split("\n")
     print(array_of_values)
+    print(u.current.type)
     while len(array_of_values) < 10:
         array_of_values.append("0")
-    if u.current.field[0].get_type() == "Book":
+    if u.current.type == "Book":
         doc = Book(title=u.current.title_or_name,author=array_of_values[0],publisher=array_of_values[1],year=array_of_values[2],edition=array_of_values[3],genre=array_of_values[4])
-    elif u.current.field.get_type() == "AV":
+    elif u.current.type == "AV":
         doc = AV_Materials(title=u.current.title_or_name,author=array_of_values[0],price=array_of_values[1])
-    elif u.current.field.get_type() == "Article":
+    elif u.current.type == "Article":
         doc = Article(title=u.current.title_or_name,author=array_of_values[0],journal=array_of_values[1],publication_date=array_of_values[2],editor=array_of_values[3])
-    elif u.current.field.get_type() == "Librarians":
+    elif u.current.type == "Librarians":
         doc = Librarian(id = array_of_values[0], alias=array_of_values[1], name=u.current.title_or_name, mail=array_of_values[2], number=array_of_values[3], address=array_of_values[4], priv=int(array_of_values[5]))
     else:
-        doc = "bla-bla"
+        pass
+        # if facbase.is_instructor(mail):#KAK TYT DOBAVLYAT
+        #     usr = Instructor(id, alias, name, mail, number, address)
+        # elif facbase.is_ta(mail):
+        #     usr = TA(id, alias, name, mail, number, address)
+        # elif facbase.is_professor(mail):
+        #     usr = Professor(id, alias, name, mail, number, address)
+        # elif facbase.is_vp(mail):
+        #     usr = VP(id, alias, name, mail, number, address)
+        # else:
+        #     usr = Student(id, alias, name, mail, number, address)
 
     db.insert(doc.summary())
 
