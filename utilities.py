@@ -148,7 +148,7 @@ def get_date():
 
 class current:
     attr = ""
-    current_email = ""
+    email = ""
     title_or_name = ""
     field = ""# PO IDEE VOZVRASHAET DB RAZNOGO DERMA
     db_to_search = []

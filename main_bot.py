@@ -44,7 +44,7 @@ def man_lib(call):
 def log(call):
     date = get_date()
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Log for: " + date,  # TODO: выводить лог файлом
+                          text="Log for: " + date,  # TODO: пофиксить отображение лога
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     id = call.message.chat.id
     get_log()
@@ -73,13 +73,13 @@ def greeting(message):
 
 def auth(call):  # TODO: Прогнать один раз тестово
     if call.text[-13:] == u.domain and len(call.text) > 13:
-        u.current_email = call.text
+        u.current.email = call.text.lower()
         u.current.pin = veri.pin_generator()
-        veri.pin_sender(call.text, u.current.pin)
+        veri.pin_sender(u.current.email, u.current.pin)#TODO: пофиксить пин сендер
         bot.send_message(call.chat.id, "Enter code that we send to your email")
         bot.register_next_step_handler(call, pin_checker)
     else:
-        bot.send_message(call.chat.id, "Please try again")
+        bot.send_message(call.chat.id, "Your email does not belong to @innopolis.ru. Please try again")
         bot.register_next_step_handler(call, auth)
 
 
@@ -89,7 +89,7 @@ def pin_checker(call):
         bot.send_message(call.chat.id, "Enter your name")
         bot.register_next_step_handler(call, name)
     else:
-        bot.send_message(call.chat.id, "Please try again")
+        bot.send_message(call.chat.id, "Incorrect pin. Please, try again")
         bot.register_next_step_handler(call, pin_checker)
 
 
@@ -115,7 +115,7 @@ def address(call):
         temp[u.current.auth_arr[i]] = u.current.auth_val_arr[i]
     temp["id"] = str(call.chat.id)
     temp["alias"] = call.from_user.username
-    temp["mail"] = u.current.current_email
+    temp["mail"] = u.current.email
 
     id = temp["id"]
     name = temp["name"]
@@ -160,15 +160,12 @@ def my_docs(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Reserve")
 def reserve(call):
-    # u.field = "Patron docs"  # TODO: обратиться в дб по полю
-    # u.db_to_search = get_db(u.current.field)
-    # u.current.db_to_search.append(u.current.current_object.text)
-    # print(u.current.db_to_search)
+    # u.field = "Patron docs"  # TODO: обратиться в дб по полю                  DEFUNCT
     print(u.current.field)
     print(type(u.current.field))
-    msg = (call.message.text).split(", ")
-    u.current.field = db.get(title=msg[0])
-    result_text = "{} is added to your list".format(u.current.current_object.text) # this text is redundant
+    # msg = (call.message.text).split(", ")#TODO: сделать нормально
+    # u.current.field = db.get(title=msg[0])
+    result_text = "{} is added to your list".format(u.current.object.get_title()) # this text is redundant
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=b.booking(db.get(id=call.message.chat.id), u.current.field, msg[1], 0),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -177,9 +174,11 @@ def reserve(call):
 @bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
 def patron_waiting_list(call):
     # TODO:прикрутить сам вейтинг лист и какое то уведомление молодого о том, когда появится книга
-    doc = db.get(title=call.message.text)
-    usr = db.get(id=call.message.chat.id)
-    result_text = "You are added to the waiting list for {}".format(u.current.current_object.text) # this text is redundant
+    doc = u.current.object
+    print(u.current.object)
+    print(u.current.object.get_title())
+    usr = db.get(id=call.message.chat.id)[0]#TODO: подумать, мб можно без обращения к дб и доделать, чтоб работало
+    # result_text = "You are added to the waiting list for {}".format(u.current.object.get_title()) # this text is redundant
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=b.booking(usr, doc, "time doesn't matter", 1),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -200,9 +199,9 @@ def return_doc(call):
 def renew(call):
     # TODO: update time
     usr = db.get(id=call.message.chat.id)
-    msg = (call.message.text).split(", ")
-    doc = db.get(title=msg[0])
-    result_text = "Time for your doc updated" # this is text is redundant
+    msg = (call.message.text).split(", ")#eto ne to
+    doc = u.current.object
+    # result_text = "Time for your doc updated" # this is text is redundant
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=b.booking(usr, doc, msg[1], 2),
                           reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
@@ -216,14 +215,6 @@ def tech_sup(call):
 
 
 "LIBRARIAN"
-
-
-# @bot.callback_query_handler(func=lambda call: call.data == "Librarian")
-# def initialize_librarian(call):
-#     u.is_librarian = True  # TODO: проверка типов(мб нет)
-#     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-#                           text="Now choose what you want to do",
-#                           reply_markup=bot_features.get_inline_markup(u.keyboard_librarian_buttons_home))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Docs on hands")
@@ -290,7 +281,11 @@ def search_doc(call):
     print("{} - eto u.cur.field".format(u.current.field))
     list_of_docs = ""
     if u.current.field == []:
-        list_of_docs = "Now list of {}s is empty. They can be added by Librarian by typing title".format(call.data)
+        if facbase.is_librarian(db.get(id=call.chat.id)[0]):
+            msg = "They can be added by typing title"
+        else:
+            msg = "Try to check later"
+        list_of_docs = "Now list of {}s is empty. {}".format(call.data,msg)
     else:
         list_of_docs = "Enter name of doc from list\n"
         for i in range(len(u.current.field)):
@@ -364,7 +359,7 @@ def search(call):  # TODO: пройтись по всем возможным if
             message = "Do you want to add {} to database?".format(call.text)
             markup = u.keyboard_librarian_buttons_confirmation
         else:
-            if u.current.field == "Patron docs":
+            if u.current.field == "Patron docs":#eto ne to, menyai
                 message = "Sorry, {} is not in your list, but you can try to find it in the Library".format(call.text)
                 markup = u.keyboard_patron_buttons_home
             else:
