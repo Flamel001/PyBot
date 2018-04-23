@@ -24,19 +24,18 @@ userNumber = ""
 @bot.message_handler(commands=["admin"])
 def admin(call):
     u.current.user = Admin()
-    #ne pishy na full potomu 4to nado bydet link s bd tyt srazy i 4ek na libra
     bot.send_message(call.chat.id, "Choose action",
                      reply_markup=bot_features.get_inline_markup(u.keyboard_admin_buttons_home))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Manage Librarians")
 def man_lib(call):
-    u.current.field = db.get(type_user="Librarian")
+    u.current.field = db.get(type_user="Librarian")#TODO: Проверить, работает ли с пустым списком лайбрерианов
     u.current.type = call.data
 
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="type name(or smthg else, we wil choose what) of Librarian from list\n{}".format([u.current.field[i].get_mail()
-                                                                                                                      for i in range(len(u.current.field))]),
+                          text="type email of Librarian from list\n{}".format([u.current.field[i].get_mail()
+                                                                                for i in range(len(u.current.field))]),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
 
@@ -50,17 +49,15 @@ def log(call):
 
 @bot.message_handler(commands=["start"])
 def greeting(message):
-    book = Book("q", "Charlotte Bronte", "SomePublisher", "1337", "first", "SomeGenre","nexo",False,False,["titles","titles"], [])
+    # book = Book("q", "Charlotte Bronte", "SomePublisher", "1337", "first", "SomeGenre","nexo",False,False,["titles","titles"], [])
     # db.insert(book.summary())
     exist = aut.check(message.chat.id)
     if not exist:
         print(message)
         message = bot.send_message(message.chat.id, "Please send your e-mail with @innopolis.ru")
         bot.register_next_step_handler(message, auth)
-        # lib = Librarian(message.chat.id, "alias", "name", "mail", "number", "address")
-        # db.insert(lib.summary())
     else:
-        if facbase.is_librarian(db.get(id=message.chat.id)[0]):
+        if facbase.is_librarian(db.get(id=message.chat.id)[0]):#TODO: Проверить, не крашится ли с пустым списком лайбрерианов
             bot.send_message(message.chat.id, "Now choose what you want to do",
                              reply_markup=bot_features.get_inline_markup(u.keyboard_librarian_buttons_home))
         else:
@@ -68,7 +65,7 @@ def greeting(message):
                              reply_markup=bot_features.get_inline_markup(u.keyboard_patron_buttons_home))
 
 
-def auth(call):
+def auth(call):#TODO: Прогнать один раз тестово
     if call.text[-13:] == u.domain and len(call.text) > 13:
         u.current_email = call.text
         u.pin = veri.pin_generator()
@@ -228,7 +225,7 @@ def library(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Waiting list")
 def initialize_librarian(call):
-    # TODO: прикрутить сам лист     DEFUNCT
+    # TODO: прикрутить метод waiting list   DEFUNCT
     list = ["patron1", "faculty2", "Ramil-pezduk999"]
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="{} now in the waiting list".format(list),
@@ -239,6 +236,7 @@ def initialize_librarian(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Outstanding Request")
 def initialize_librarian(call):
+    #TODO: прикрутить метод аутстендинг реквест
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Request is done",
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -249,10 +247,9 @@ def initialize_librarian(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Actions with Patrons")
 def search_patron(call):
-    u.current.type = "Emails"  # TODO: обратиться по типу
+    u.current.type = "Emails"
     u.current.field = db.get(type_user="Student") + db.get(type_user="Instructor") + db.get(type_user="Professor") + db.get(type_user="TA")+ db.get(type_user="VP")
     print("{} - eto u.cur.field".format(u.current.field))
-    list_of_patrons = ""
     if u.current.field == []:
         list_of_patrons = "Now list of patrons is empty. They can be added by Librarian by typing email"
     else:
@@ -286,7 +283,7 @@ def search_doc(call):
     bot.register_next_step_handler(call.message, search)
 
 
-def search(call):
+def search(call):#TODO: пройтись по всем возможным if
     u.current.title_or_name = call.text
     print(call.text)
     exist = False
@@ -308,7 +305,7 @@ def search(call):
             message = "Choose action to do with {}".format(call.text)
             priv = db.get(call.chat.id)[0].get_priv()
             print(priv)
-            if priv==2:#TODO: ==1,
+            if priv==2:#TODO: ==1, пока так для простоты, в финальной версии заменить на единицу
                 markup = u.keyboard_librarian_buttons_manage[[0]]
             elif priv==2:
                 markup = u.keyboard_librarian_buttons_manage[0:2]
@@ -354,19 +351,6 @@ def search(call):
     bot.send_message(call.chat.id, message, reply_markup=bot_features.get_inline_markup(markup))
 
 
-# def get_db(db):  # дешево-сердито, расписал только для патрона и книги
-#     if db == "Emails":
-#         return ["patron1", "patron2"]
-#     if db == "Books":
-#         return ["Book1", "Book2"]
-#     if db == "Patron docs":
-#         return ["doc1", "doc2"]
-#     if db == "Librarians":
-#         return ["lib1","lib2"]
-        # "Articles": ["Article1", "Article2"],
-        # "Audio/Video": ["Audio/Video1", "Audio/Video2"]
-
-
 "METHODS FOR EDIT"
 
 
@@ -400,7 +384,6 @@ def edited(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Delete")
 def delete(call):
-    # TODO: примерно как выше, но удалить
     print(u.current.type)
     print(u.current.object)
     if u.current.type =="Emails" or u.current.type=="Librarian":
@@ -417,19 +400,18 @@ def delete(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Add")
 def add(call):
     list = ""
-
     attr = u.get_buttoms(u.current.type)
     print(attr)
-
     for i in range(1,len(attr)):
         list+="{}, ".format(attr[i][0])
-    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter values for the following fields using new line and commas: {}".format(list[:-1]),#(get_isinstance(u.current_object)))#TODO: fields этого объекта
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,#TODO:возможно сделать более приятный интерфейс
+                          text="Enter values for the following fields using new line and commas: {}".format(list[:-1]),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, adding)
 
 
 def adding(call):
+    #TODO: Вроде норм, но возможно лучше отрефакторить
     array_of_values = call.text.split("\n")
     print(array_of_values)
     print(u.current.type)
@@ -445,7 +427,7 @@ def adding(call):
         doc = Librarian(id = array_of_values[0], alias=array_of_values[1], name=u.current.title_or_name, mail=array_of_values[2], number=array_of_values[3], address=array_of_values[4], priv=int(array_of_values[5]))
     else:
 
-        if array_of_values[0]=="Instructor":#KAK TYT DOBAVLYAT
+        if array_of_values[0]=="Instructor":
             doc = Instructor(int(array_of_values[1]), array_of_values[2], array_of_values[3], array_of_values[0], array_of_values[4], array_of_values[5])
         elif array_of_values[0]=="TA":
             doc = TA(int(array_of_values[1]), array_of_values[2], array_of_values[3], array_of_values[0], array_of_values[4], array_of_values[5])
@@ -467,8 +449,7 @@ def adding(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Get information")
 def get_info(call):
-    # TODO: получить инфо объекта u.current_object
-    obj = str(u.current.object.summary())
+    obj = str(u.current.object.summary())#TODO: Сделать более приятный интерфейс
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=obj,
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
