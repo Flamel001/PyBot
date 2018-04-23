@@ -154,25 +154,28 @@ def my_docs(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Reserve")
 def reserve(call):
-    # u.field = "Patron docs"  # TODO: обратиться в дб по полю                  DEFUNCT
+    # u.field = "Patron docs"  # TODO: обратиться в дб по полю
     # u.db_to_search = get_db(u.current.field)
     # u.current.db_to_search.append(u.current.current_object.text)
     # print(u.current.db_to_search)
     print(u.current.field)
     print(type(u.current.field))
     msg = (call.message.text).split(", ")
-    u.current.field = db.get()
+    u.current.field = db.get(title=msg[0])
+    result_text = "{} is added to your list".format(u.current.current_object.text) # this text is redundant
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="{} is added to your list".format(u.current.current_object.text),
+                          text=b.booking(db.get(id=call.message.chat.id), u.current.field, msg[1], 0),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
 def patron_waiting_list(call):
-    # TODO:прикрутить сам вейтинг лист и какое то уведомление молодого о том, когда появится книга          DEFUNCT
-
+    # TODO:прикрутить сам вейтинг лист и какое то уведомление молодого о том, когда появится книга
+    doc = db.get(title=call.message.text)
+    usr = db.get(id=call.message.chat.id)
+    result_text = "You are added to the waiting list for {}".format(u.current.current_object.text) # this text is redundant
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="You are added to the waiting list for {}".format(u.current.current_object.text),
+                          text=b.booking(usr, doc, "time doesn't matter", 1),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
@@ -189,9 +192,13 @@ def return_doc(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Renew")
 def renew(call):
-    # TODO: update time         DEFUNCT
+    # TODO: update time
+    usr = db.get(id=call.message.chat.id)
+    msg = (call.message.text).split(", ")
+    doc = db.get(title=msg[0])
+    result_text = "Time for your doc updated" # this is text is redundant
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Time for your doc updated",
+                          text=b.booking(usr, doc, msg[1], 2),
                           reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
 
