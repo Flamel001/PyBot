@@ -17,23 +17,23 @@ keyboard_button_back = [["Back", "Back"]]
 
 keyboard_buttons_choice = [["Librarian", "Librarian"], ["Patron", "Patron"]]
 
-keyboard_buttons_library = [["Books", "Books"], ["Articles", "Articles"], ["Audio/Video", "Audio/Video"],
+keyboard_buttons_library = [["Books", "Book"], ["Articles", "Article"], ["Audio/Video", "AV"],
                             ["Back", "Back"]]
 
 "LIBRARIAN"
 keyboard_librarian_buttons_home = [["Actions with Patrons", "Actions with Patrons"], ["Manage Docs", "Library"],
                                    ["Docs on hands", "Docs on hands"]]
 keyboard_librarian_buttons_library = [["Add", "Add doc"], ["Manage docs", "Library"]]
-keyboard_librarian_buttons_manage = [["Edit", "Edit"], ["Get information", "Get information"], ["Delete", "Delete"],
+keyboard_librarian_buttons_manage = [["Get information", "Get information"], ["Edit", "Edit"],  ["Delete", "Delete"],
                                      ["Return to home page", "Back"]]
 keyboard_librarian_buttons_edit = [["Name", "Name"], ["Surname", "Surname"], ["mail", "mail"], ["number", "number"],
                                    ["alias", "alias"], ["address", "address"], ["Back", "Back"]]
-keyboard_librarian_buttons_confirmation = [["Add", "Add"], ["Back", "Actions with Patrons"]]
+keyboard_librarian_buttons_confirmation = [["Add", "Add"], ["Back", "Back"]]
 
 "PATRON"
 keyboard_patron_buttons_home = [["Library", "Library"], ["My docs", "My docs"], ["Tech support", "Tech support"]]
-keyboard_patron_buttons_library = [["Books", "Books"], ["Articles", "Articles"], ["Audio/Video", "Audio/Video"],
-                                   ["Back", "Back"]]
+# keyboard_patron_buttons_library = [["Books", "Book"], ["Articles", "Article"], ["Audio/Video", "AV"],
+#                                    ["Back", "Back"]]
 keyboard_patron_buttons_reserve = [["Reserve", "Reserve"], ["Back", "Back"]]
 keyboard_patron_buttons_doc = [["Return", "Return"], ["Renew", "Renew"], ["Back", "Back"]]
 
@@ -85,6 +85,55 @@ def get_buttoms(name: str):
     else:
         return None
 
+def edit_attr(attr,new_attr):
+    "BOOK"
+    if attr == "Title":
+        current.object.set_title(new_attr)
+    elif attr == "Author":
+        current.object.set_author(new_attr)
+    elif attr == "Publisher":
+        current.object.set_publisher(new_attr)
+    elif attr == "Year":
+        current.object.set_year(new_attr)
+    elif attr == "Edition":
+        current.object.set_edition(new_attr)
+    elif attr == "Genre":
+        current.object.set_genre(new_attr)
+    elif attr == "Bestseller":
+        current.object.set_bestseller(new_attr)
+    elif attr == "Reference":
+        current.object.set_reference(new_attr)
+    elif attr == "Price":
+        current.object.set_price(new_attr)
+
+        "ARTICLE"
+
+    elif attr == "Journal":
+        current.object.set_journal(new_attr)
+    elif attr == "Pub_Date":
+        current.object.set_pub_date(new_attr)
+    elif attr == "Editor":
+        current.object.set_editor(new_attr)
+
+        "PATRON"
+
+    elif attr == "id":
+        current.object.set_id(new_attr)
+    elif attr == "Alias":
+        current.object.set_alias(new_attr)
+    elif attr == "Name":
+        current.object.set_name(new_attr)
+    elif attr == "Mail":
+        current.object.set_mail(new_attr)
+    elif attr == "Phone_number":
+        current.object.set_number(new_attr)
+    elif attr == "Address":
+        current.object.set_address(new_attr)
+
+        "LIBRARIAN"
+    elif attr == "Privilege":
+        current.object.set_priv(new_attr)
+
 
 def get_date():
     date = str(dt.datetime.now())
@@ -94,11 +143,12 @@ def get_date():
 
 
 class current:
+    attr = ""
     current_email = ""
     title_or_name = ""
-    field = ""
+    field = ""# PO IDEE VOZVRASHAET DB RAZNOGO DERMA
     db_to_search = []
-    current_object = ""
+    object = ""#saves object from db
     current_type = ""
     pin = ""
     temp_user_date = dict()
@@ -112,7 +162,7 @@ multithreading = dict()
 
 # title, author, publisher, edition, genre
 
-# book4 = Book("Jane Eyre", "Charlotte Bronte", "SomePublisher", "1", "SomeGenre")
+# book4 = Book("Jane Eyre", "Charlotte Bronte", "SomePublisher", "1", "SomeGenre","")
 # book2 = Book("Thinking in Java", "Bruce Eckel", "Innopolis", "4th", "Computer Science")
 # book3 = Book("Think python", "Allen B. Downey", "O'REILEY", "2nd", "Computer Science")
 # book1 = Book("One Hundred Years of Solitude", "Gabriel García Márquez", "Innopolis", "1", "Magical Realism")
@@ -126,7 +176,7 @@ multithreading = dict()
 # user2 = Faculty("314603916", "BigBrother", "9afiwe@ifrefre", "+013123", "@hahhahaha")
 # # book1 = Book()
 # # book1.setData(db.get_book("One Hundred Years of Solitude"))
-#
+
 # list_of_books = [book1, book2, book3, book4]
 
 # auth literals

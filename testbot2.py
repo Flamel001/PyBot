@@ -2,7 +2,6 @@ import types
 import config
 import database as db
 from telebot import *
-import telegraph
 import datetime as date
 import utilities as u
 import verification as veri
@@ -224,8 +223,8 @@ def initialize_librarian(call):
                           text="{} now in the waiting list".format(l))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(
-                                      [["Make  ebenii request", "Outstanding Request"],
-                                       ["Spasibo-dosvidaniya", "Back"]]))
+                                      [["Make  outsanding request", "Outstanding Request"],
+                                       ["Back", "Back"]]))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Outstanding Request")
@@ -246,7 +245,7 @@ def search_patron(call):
     u.multithreading[str(call.message.chat.id)].db_to_search = db.get_all_similar_info(mail="yes")
     print("Hello, these are emails " + str(u.multithreading[str(call.message.chat.id)].db_to_search))
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter e-mail from list {}".format(u.multithreading[str(call.message.chat.id)].db_to_search))
+                          text="Enter e-mail from list {} \n or type e-mail of new user".format(u.multithreading[str(call.message.chat.id)].db_to_search))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
@@ -264,7 +263,7 @@ def search_doc(call):
     list_of_docs = db.get(type_book=u.multithreading[str(call.message.chat.id)].field)
     u.multithreading[str(call.message.chat.id)].db_to_search = [i.get_title() for i in list_of_docs]
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter name of doc from list {}".format(u.multithreading[str(call.message.chat.id)].db_to_search))
+                          text="Enter name of doc from list {}  \n or type title of new one".format(u.multithreading[str(call.message.chat.id)].db_to_search))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
@@ -272,49 +271,93 @@ def search_doc(call):
 
 def search(call):
     if "innopolis.ru" in call.text.split("@"):
-        list_of_all_books = db.get(type_user="TA") + db.get(type_user="VP") + db.get(type_user="Instructor") + db.get(
-            type_user="Professor") + db.get(type_user="Student")
-        u.multithreading[str(call.chat.id)].db_to_search = [i.get_mail() for i in list_of_all_books]
-        u.multithreading[str(call.chat.id)].current_object = db.get(mail=call.text)[0]  # Searchit' chto?
+        if db.get(mail=call.text) != []:
+            list_of_all_books = db.get(type_user="TA") + db.get(type_user="VP") + db.get(type_user="Instructor") + db.get(
+                type_user="Professor") + db.get(type_user="Student")
+            u.multithreading[str(call.chat.id)].db_to_search = [i.get_mail() for i in list_of_all_books]
+            u.multithreading[str(call.chat.id)].current_object = db.get(mail=call.text)[0]
+            if aut.if_librarian(call.chat.id):
+                message = "Choose action to do with {}".format(call.text)
+                markup = u.keyboard_librarian_buttons_manage
+            #else idi nahoi patron
+        else:
+            if aut.if_librarian(call.chat.id):
+                message = "Do you want to add {} to database?".format(call.text)
+                markup = u.keyboard_librarian_buttons_confirmation
+
+
     else:
-        time = call.text.split(", ")
-        call.text = time[0]
-        u.multithreading[str(call.chat.id)].time = time[1]
-        list_of_all_books = db.get(type_book=u.multithreading[str(call.chat.id)].field)
-        u.multithreading[str(call.chat.id)].db_to_search = [i.get_title() for i in list_of_all_books]
-        u.multithreading[str(call.chat.id)].current_object = db.get(title=call.text)[0]
-    if call.text in u.multithreading[str(call.chat.id)].db_to_search:
-        if aut.if_librarian(call.chat.id):
-            message = "Choose action to do with {}".format(call.text)
-            markup = u.keyboard_librarian_buttons_manage
-            if u.multithreading[str(call.chat.id)].field == "Book" or u.multithreading[str(call.chat.id)].field == "Article" or u.multithreading[str(call.chat.id)].field == "AV":  # костыльная проверка на док
-                markup = u.keyboard_librarian_buttons_manage[:-1] + [
-                    ["Waiting list", "Waiting list"]] + u.keyboard_librarian_buttons_manage[-1:]
+        if db.get(title=call.text) != []:
+
+            time = call.text.split(", ")
+            call.text = time[0]
+            u.multithreading[str(call.chat.id)].time = time[1]
+            list_of_all_books = db.get(type_book=u.multithreading[str(call.chat.id)].field)
+            u.multithreading[str(call.chat.id)].db_to_search = [i.get_title() for i in list_of_all_books]
+            u.multithreading[str(call.chat.id)].current_object = db.get(title=call.text)[0]
+            #    if call.text in u.multithreading[str(call.chat.id)].db_to_search:
+#upper line may be needed
+            if aut.if_librarian(call.chat.id):
+                message = "Choose action to do with {}".format(call.text)
+                markup = u.keyboard_librarian_buttons_manage
+                if u.multithreading[str(call.chat.id)].field == "Book" or u.multithreading[
+                    str(call.chat.id)].field == "Article" or u.multithreading[
+                    str(call.chat.id)].field == "AV":  # костыльная проверка на док
+                    markup = u.keyboard_librarian_buttons_manage[:-1] + [
+                        ["Waiting list", "Waiting list"]] + u.keyboard_librarian_buttons_manage[-1:]
+
+            else:
+                if u.multithreading[str(call.chat.id)].field == "Patron docs":
+                    message = "What do you want to do with {}?".format(call.text)
+                    markup = u.keyboard_patron_buttons_doc
+                else:
+                    if len(u.multithreading[str(call.chat.id)].current_object.get_list_of_copies())>0:
+                        message = "Do you want to reserve {}?".format(call.text)
+                        button = "Reserve"
+                    else:
+                        message = "Do you want to be added to the waiting list to take {} when it will be availible?".format(
+                            call.text)
+                        button = "To waiting list"
+                    markup = [[button, button]]
 
         else:
-            if u.multithreading[str(call.chat.id)].field == "Patron docs":
-                message = "What do you want to do with {}?".format(call.text)
-                markup = u.keyboard_patron_buttons_doc
-            else:
-                if len(u.multithreading[str(call.chat.id)].current_object.get_list_of_copies())>0:  # TODO: тут должно чекать, если количество книг>0
-                    message = "Do you want to reserve {}?".format(call.text)
-                    button = "Reserve"
-                else:
-                    message = "Do you want to be added to the waiting list to take {} when it will be availible?".format(
-                        call.text)
-                    button = "To waiting list"
-                markup = [[button, button]]
-    else:
-        if aut.if_librarian(call.chat.id):
-            message = "Do you want to add {} to database?".format(call.text)
-            markup = u.keyboard_librarian_buttons_confirmation
-        else:
-            if u.multithreading[str(call.chat.id)].field == "Patron docs":
-                message = "Sorry, {} is not in your list, but you can try to find it in the Library".format(call.text)
+            if aut.if_librarian(call.chat.id):
+                message = "Do you want to add {} to database?".format(call.text)
+                markup = u.keyboard_librarian_buttons_confirmation
+            elif u.current.field == "Patron docs":
+                #            if u.multithreading[str(call.chat.id)].field == "Patron docs":
+                # upper line may be needed
+
+                message = "Sorry, {} is not in your list, but you can try to find it in the Library".format(
+                    call.text)
                 markup = u.keyboard_patron_buttons_home
             else:
                 message = "Sorry, {} is not available. Try again. Choose needed type".format(call.text)
                 markup = u.keyboard_buttons_library
+
+
+    # if call.text in u.db_to_search:
+    #     if aut.if_librarian(call.chat.id):
+    #         message = "Choose action to do with {}".format(call.text)
+    #         markup = u.keyboard_librarian_buttons_manage
+    #         if u.field == "Book" or u.field == "Article" or u.field == "AV":  # костыльная проверка на док
+    #             markup = u.keyboard_librarian_buttons_manage[:-1] + [
+    #                 ["Waiting list", "Waiting list"]] + u.keyboard_librarian_buttons_manage[-1:]
+    #     else:
+    #         if u.field == "Patron docs":
+    #             message = "What do you want to do with {}?".format(call.text)
+    #             markup = u.keyboard_patron_buttons_doc
+    #         else:
+    #             if False:  # TODO: тут должно чекать, если количество книг>0
+    #                 message = "Do you want to reserve {}?".format(call.text)
+    #                 button = "Reserve"
+    #             else:
+    #                 message = "Do you want to be added to the waiting list to take {} when it will be availible?".format(
+    #                     call.text)
+    #                 button = "To waiting list"
+    #             markup = [[button, button]]
+    # else:
+    u.title_or_name = call.text
     bot.send_message(call.chat.id, message, reply_markup=bot_features.get_inline_markup(markup))
 
 
@@ -440,7 +483,7 @@ def edited(call):
                                                                                 Article) or isinstance(u.multithreading[field_id].current_object,
                                                                                                        AV_Materials) else u.multithreading[field_id].current_object.get_id(),
                                                                             call.text),
-                     reply_markup=bot_features.get_inline_markup([["ebanumba, zaebis", "Back"]]))
+                     reply_markup=bot_features.get_inline_markup([["Ok", "Back"]]))
 
 
 "KbIK db"
@@ -451,14 +494,11 @@ def get_type(obj):
         return [["Id", "id"], ["Alias", "alias"], ["Name", "name"], ["Mail", "mail"], ["Number", "number"],
                 ["Address", "address"], ["Back", "Back"]]
     if obj == "Book":
-        return [["Title", "title"], ["Author", "author"], ["Owner", "owner"], ["Copies", "copies"], ["Url", "url"],
-                ["Year", "year"], ["Publisher", "publisher"], ["Edition", "edition"], ["Genre", "genre"],
-                ["Bestseller", "bestseller"], ["Reference", "reference"], ["Back", "Back"]]
+        return [ ["Author", "author"],["Year", "year"], ["Publisher", "publisher"], ["Edition", "edition"], ["Genre", "genre"]]#,["Bestseller", "bestseller"], ["Reference", "reference"]
     elif obj == "Article":
-        return [["Title", "title"], ["Author", "author"], ["Owner", "owner"], ["Copies", "copies"], ["Url", "url"],
-                ["Year", "year"], ["Journal", "journal"], ["Publication date", "publication_date"], ["Editor", "editor"], ["Back", "Back"]]
+        return [["Author", "author"], ["Year", "year"], ["Journal", "journal"], ["Publication date", "publication_date"], ["Editor", "editor"]]
     elif obj == "AV":
-        return [["Title", "title"], ["Author", "author"], ["Owner", "owner"], ["Copies", "copies"], ["Url", "url"], ["Price", "price"], ["Back", "Back"]]
+        return [["Title", "title"], ["Author", "author"], ["Price", "price"]]
 
 
 "DELETE, GETINFO AND ADD"
@@ -479,20 +519,51 @@ def delete(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Add")
 def add(call):
-    # TODO: и change
-    u.multithreading[str(call.message.chat.id)].db_to_search.append(u.multithreading[str(call.message.chat.id)].current_object.text)
-    print(u.multithreading[str(call.message.chat.id)].db_to_search)
+    list = ""
+    print(u.current.field)
+    print(get_type(u.current.field)[1][0])
+    for i in range(len(get_type(u.current.field))):
+        list+="{}, ".format(get_type(u.current.field)[i][0])
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="{} is added to {}".format(u.multithreading[str(call.message.chat.id)].current_object.text, u.multithreading[str(call.message.chat.id)].field))
+                          text="Enter values for the following fields using new line and commas: {}".format(list))#(get_type(u.current_object)))#TODO: fields этого объекта
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
+    bot.register_next_step_handler(call.message, adding)
+
+
+def adding(call):
+    array_of_values = call.text.split("\n")
+    print(array_of_values)
+    i = 0
+    # for i in range(1,len(get_type(u.field))-1):
+    #     print(get_type(u.field)[i][0])
+    #     u.current_object[get_type(u.field)[i][0]] = array_of_values[i]
+        # print(u.current_object)
+    if u.current.field == "Book":
+        doc = Book(title=u.current.title_or_name,author=array_of_values[0],publisher=array_of_values[1],year=array_of_values[2],edition=array_of_values[3],genre=array_of_values[4])
+    elif u.current.field == "AV":
+        doc = AV_Materials(title=u.current.title_or_name,author=array_of_values[0],price=array_of_values[1])
+    elif u.current.field == "Aricle":
+        doc = Article(title=u.current.title_or_name,author=array_of_values[0],journal=array_of_values[1],publication_date=array_of_values[2],editor=array_of_values[3])
+    else:
+        doc = "bla-bla"
+    db.insert(doc.summary())
+
+    print('SUCCESS')
+    print(u.current.db_to_search)
+    bot.send_message(call.chat.id, "Addition to database was successful",
+                     reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
+    # bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+    #                       text="Addition to database was successful")#"{} is added to {}".format(u.current_object.text, u.field)
+    # bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
+    #                               reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Get information")
 def get_info(call):
     # TODO: получить инфо объекта u.current_object
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="{} is zaebis".format(u.multithreading[str(call.message.chat.id)].current_object.summary()))
+                          text="Info is the following: {}".format(u.current.current_object.summary()))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 

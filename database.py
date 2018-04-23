@@ -85,7 +85,7 @@ def __parse(dictionary):
         if element == True or element == False:
             result = result + tuple([int(element)])
         elif element:
-            result = result + tuple([element])
+            result = result + tuple([str(element)])
         else:
             if element == None:
                 result = result + tuple([""])
@@ -101,10 +101,12 @@ def insert(dictionary):
     cursor = __cnxn.cursor()
     type = ""
     params = list()
+    print(str(dictionary))
     if dictionary:
         if "type" in dictionary.keys():
             type = dictionary["type"]
             params.append(__parse(dictionary))
+    print(str(params))
     if type and params:
         if type == "Student" or type == "VP" or type == "TA" or type == "Instructor" or type == "Professor":
             cursor.executemany(
@@ -164,11 +166,18 @@ def __parse_str_to_list(list_str):
 
 
 def __parse_str_to_queue(queue_str):
-    str_queue = queue_str[2:][:-2].split("), (")
-    queue_str_list = [str_queue[i].split(", ") for i in range(0, len(str_queue))]
-    result = [(int(queue_str_list[i][0]), queue_str_list[i][1].replace("\'", "")) for i in
-              range(0, len(queue_str_list))]
-    return result
+    print(str(queue_str[2:][:-2].split("), (")))
+    str_queue_unsplit = queue_str[2:][:-2]
+    print(str(str_queue_unsplit))
+    if str_queue_unsplit:
+        str_queue = str_queue_unsplit.split("), (")
+        print(str(str_queue))
+        queue_str_list = [str_queue[i].split(", ") for i in range(0, len(str_queue))]
+        print(str(queue_str_list))
+        result = [(int(queue_str_list[i][0]), queue_str_list[i][1].replace("\'", "")) for i in range(0, len(queue_str_list))]
+        return result
+    else:
+        return []
 
 
 def __parse_to_object(row):

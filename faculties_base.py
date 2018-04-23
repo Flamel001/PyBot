@@ -1,3 +1,4 @@
+from user import *
 # ==============================Authentication features======================================================
 librarians = dict()
 librarians.setdefault(0)
@@ -7,8 +8,8 @@ def add_librarian(id):
     librarians[id] = 1
 
 
-def is_librarian(id):
-    if (librarians.get(id) == 1):
+def is_librarian(lib_or_not):
+    if lib_or_not.summary()["type"] == "Librarian":
         return True
     else:
         return False
