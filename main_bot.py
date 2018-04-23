@@ -31,7 +31,7 @@ def admin(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Manage Librarians")
 def man_lib(call):
     u.current.field = db.get(type_user="Librarian")  # TODO: Проверить, работает ли с пустым списком лайбрерианов
-    u.current.type = call.data
+    u.current.type = "Librarian"
 
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="type email of Librarian from list\n{}".format([u.current.field[i].get_mail()
@@ -155,32 +155,33 @@ def my_docs(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Enter doc from list {}".format(u.current.field),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
-    # bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
-    #                               reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Reserve")
 def reserve(call):
-    # u.field = "Patron docs"  # TODO: обратиться в дб по полю                  DEFUNCT
+    # u.field = "Patron docs"  # TODO: обратиться в дб по полю
     # u.db_to_search = get_db(u.current.field)
     # u.current.db_to_search.append(u.current.current_object.text)
     # print(u.current.db_to_search)
     print(u.current.field)
     print(type(u.current.field))
     msg = (call.message.text).split(", ")
-    u.current.field = db.get()
+    u.current.field = db.get(title=msg[0])
+    result_text = "{} is added to your list".format(u.current.current_object.text) # this text is redundant
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="{} is added to your list".format(u.current.current_object.text),
+                          text=b.booking(db.get(id=call.message.chat.id), u.current.field, msg[1], 0),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
 def patron_waiting_list(call):
-    # TODO:прикрутить сам вейтинг лист и какое то уведомление молодого о том, когда появится книга          DEFUNCT
-
+    # TODO:прикрутить сам вейтинг лист и какое то уведомление молодого о том, когда появится книга
+    doc = db.get(title=call.message.text)
+    usr = db.get(id=call.message.chat.id)
+    result_text = "You are added to the waiting list for {}".format(u.current.current_object.text) # this text is redundant
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="You are added to the waiting list for {}".format(u.current.current_object.text),
+                          text=b.booking(usr, doc, "time doesn't matter", 1),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
@@ -197,9 +198,13 @@ def return_doc(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Renew")
 def renew(call):
-    # TODO: update time         DEFUNCT
+    # TODO: update time
+    usr = db.get(id=call.message.chat.id)
+    msg = (call.message.text).split(", ")
+    doc = db.get(title=msg[0])
+    result_text = "Time for your doc updated" # this is text is redundant
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Time for your doc updated",
+                          text=b.booking(usr, doc, msg[1], 2),
                           reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
 
@@ -303,6 +308,7 @@ def search(call):  # TODO: пройтись по всем возможным if
     u.current.title_or_name = call.text
     print(call.text)
     exist = False
+    print(u.current.type)
     for i in u.current.field:
         if u.current.type == "Librarian" or u.current.type == "Emails":
             if i.get_mail() == call.text:
@@ -380,10 +386,10 @@ def edit(call):
 
 @bot.callback_query_handler(func=lambda call: call.data[0] == "$")
 def editing(call):
-    print(u.current.object.get_title())
     u.current.attr = call.data[1:]
+
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter new parameter for {} of {}".format(call.data[1:], u.current.object.get_title()),
+                          text="Enter new parameter for {} of {}".format(call.data[1:], u.current.title_or_name),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, edited)
 
@@ -402,7 +408,7 @@ def edited(call):
 def delete(call):
     print(u.current.type)
     print(u.current.object)
-    if u.current.type == "Emails" or u.current.type == "Librarian":
+    if u.is_human():
         u.name = u.current.object.get_id()
         db.delete(id=u.current.object.get_id())
     else:
