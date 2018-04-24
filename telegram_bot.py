@@ -263,7 +263,7 @@ def edited(message):
     attrib = str(users[message.chat.id].attr)
     cur_type = users[message.chat.id].user.get_type()
     new_attr = message.text
-    if cur_type == 'Librarian':
+    if cur_type == Librarian:
         db.insert_log(
             date + " | " + cur_type + " with ID(" + id_str + ") changed user's " + attrib + " with ID: " + us_id + " to " + new_attr)
     else:
