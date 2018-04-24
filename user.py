@@ -184,15 +184,15 @@ class Librarian(User):
         else:
             return
 
-    def remove_user(self, alias):
+    def remove_user(self, id):
         if self.get_priv() == 3:
-            id = db.get(alias=alias)[0].get_id
-            db.delete(id)
+
+            db.delete(id=id)
 
             id_str = str(self.get_id())
             date = get_date()
-            title_str = str(db.get(alias=alias)[0].get_id())
-            db.insert_log(date + " | Librarian(" + id_str + ") removed user with id: " + title_str)
+            us_id_str = str(id)
+            db.insert_log(date + " | Librarian(" + id_str + ") removed user with id: " + us_id_str)
         else:
             return
 
