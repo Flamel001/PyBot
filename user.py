@@ -350,9 +350,12 @@ class Patron(User):
         db.update(id=self.get_id(), docs=new_doc_list)
 
     def add_document(self, title, date):
-        self.__info[user_document_list][title] = date
+        if title in self.__info[user_document_list]:
+            self.__info[user_document_list][title] = self.__info[user_document_list][title] + ";" + str(date)
+        else:
+            self.__info[user_document_list][title] = str(date)
         new_doc_list = self.get_docs_list()
-        db.update(id=self.get_id(), docs=new_doc_list)
+        db.update(id=self.get_id(), docs=str(new_doc_list).replace("\'", "\""))
 
     def has_book(self, title):
         for key in self.__info[user_document_list].keys():
@@ -418,6 +421,17 @@ class Patron(User):
 
     def set_type(self, type):
         self.__info[user_type] = type
+
+    def is_renew_possible(self, title):
+        if title in self.__info[user_document_list].keys():
+            splitted_date = self.__info[user_document_list][title].split(";")
+            print("This is splitted date " + str(splitted_date))
+            if len(splitted_date)<=1:
+                return True
+            else:
+                return False
+        else:
+            return False
 
 
 class Student(Patron):
@@ -505,3 +519,6 @@ class VP(Faculty):
             self.__info = super().summary()
             self.__info[user_type] = "VP"
             self.__info[user_priority] = 2
+
+def print_something(string = "message"):
+    print("This is method print_something from user module and message to print is " + string)

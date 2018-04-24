@@ -40,9 +40,9 @@ keyboard_admin_buttons_privileges = [["1", "1"], ["2", "2"], ["3", "3"]]
 keyboard_admin_buttons_home = [["Manage Librarians", "Manage Librarians"], ["Action Log", "Action Log"]]
 
 def get_buttoms(name: str):
-    if name == "Emails":
+    if name == "Student" or name == "Instructor" or name == "TA" or name == "Professor" or name == "VP":
         result = []
-        temp = ['Mail', 'Type', 'id', 'Alias', 'Name', 'Phone_number', 'Address']
+        temp = ['id', 'Alias', 'Name', 'Mail', 'Phone_number', 'Address']
         for x in temp:
             result.append([x, "$" + x])
         return result
@@ -70,7 +70,6 @@ def get_buttoms(name: str):
         for x in temp:
             result.append([x, "$" + x])
         return result
-
     else:
         return None
 

@@ -12,8 +12,8 @@ qu = []
 def order_book(usr, document, time):
     if not usr.has_book(document.get_title()):
         if not document.is_reference():
-            init_date = datetime.datetime.toordinal(
-                datetime.datetime.strptime(time, "%d.%m.%Y"))
+            init_date = datetime.date.toordinal(
+                datetime.date.today())
             exp_date = datetime.datetime.fromordinal(
                 init_date + distr(usr, document))
             if len(document.get_queue()) == 0:
@@ -29,8 +29,8 @@ def order_book(usr, document, time):
 
 def order_av(usr, document, time):
     if not usr.has_book(document.get_title()):
-        init_date = datetime.datetime.toordinal(
-            datetime.datetime.today())
+        init_date = datetime.date.toordinal(
+            datetime.date.today())
         exp_date = datetime.datetime.fromordinal(
             init_date + distribute(usr, document))
         if len(document.get_queue()) == 0:
@@ -43,8 +43,8 @@ def order_av(usr, document, time):
 
 def order_article(usr, document, time):
     if not usr.has_book(document.get_title()):
-        init_date = datetime.datetime.toordinal(
-            datetime.datetime.today())
+        init_date = datetime.date.toordinal(
+            datetime.date.today())
         exp_date = datetime.datetime.fromordinal(
             init_date + distr(usr, document))
         if len(document.get_queue()) == 0:
@@ -75,6 +75,7 @@ def add_to_queue(usr, document):
     q = document.get_queue()
     print("This is q " + str(q))
     heapq.heappush(document.get_queue(), (usr.get_prior(), usr.get_id()))
+    db.update(title=document.get_title(), queue=document.get_queue())
     return document.get_queue()
 
 
@@ -85,26 +86,22 @@ def pop_from_queue(qu):
 
 def add_to_waiting_list(user, document):
     queue = add_to_queue(user, document)
-    print("This is queue " + str(queue))
-    db.update(title=document.get_title(), queue=queue)
     number = [queue[i][1] for i in range(0, len(queue))]
     return waiting_list + str(number.index(user.get_id()) + 1)
 
 
 def give_on_hands(usr, document, exp_date):
-    copy = document.get_list_of_copies().pop().replace("\"", "")
-    db.update(id=usr.get_id(), docs=str(usr.add_document(copy, str(exp_date))).replace("\'", "\""))
-    db.update(title=document.get_title(), copies=str(document.get_list_of_copies()).replace("\'", "\""))
+    copy = document.pop_copy()
+    usr.add_document(copy, str(exp_date))
     return success + " " + str(exp_date)
 
 
 def renew(usr, document, time):
     copy = document.get_title()
     if usr.is_renew_possible(copy) or usr.get_type() == "VP":
-        ini_date = datetime.datetime.toordinal(datetime.datetime.strptime(time, '%d.%m.%Y'))
-        exp_date = datetime.datetime.fromordinal(ini_date + 7)
-        docs = str(usr.add_document(copy, str(exp_date)))
-        db.update(id=usr.get_id(), docs=docs.replace("\'", "\""))
+        ini_date = datetime.date.toordinal(datetime.date.today())
+        exp_date = datetime.date.fromordinal(ini_date + 7)
+        usr.add_document(copy, str(exp_date))
         print("Good. Doc was renewed")
         return renew_nail + str(exp_date)
     else:

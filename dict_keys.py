@@ -1,7 +1,6 @@
 document_title = "title"
 document_author = "author"
 document_owner = "owner"
-document_keywords = "keywords"
 document_copies = "copies"
 document_price = "price"
 document_duration = "duration"

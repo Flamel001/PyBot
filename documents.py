@@ -57,6 +57,14 @@ class Document:
         new_copies = self.get_list_of_copies()
         db.update(title=self.get_title(), copies=new_copies)
 
+    def pop_copy(self):
+        new_copies = self.get_list_of_copies()
+        print("new_copies1 " + str(new_copies))
+        copy = new_copies.pop(0)
+        print("new_copies2 " + str(new_copies))
+        db.update(title=self.get_title(), copies=new_copies)
+        return copy
+
     def get_list_of_copies(self):
         return self.__info[document_copies]
 

@@ -1,6 +1,7 @@
 import pyodbc
 import user
 import documents
+import ast
 
 __server = 'inno-lib-server.database.windows.net'
 __database = 'InnoLib'
@@ -101,12 +102,12 @@ def insert(dictionary):
     cursor = __cnxn.cursor()
     type = ""
     params = list()
-    print(str(dictionary))
+    print("This is something " + str(dictionary))
     if dictionary:
         if "type" in dictionary.keys():
             type = dictionary["type"]
             params.append(__parse(dictionary))
-    print(str(params))
+    print("This is something 2 Hello World " + str(params))
     if type and params:
         if type == "Student" or type == "VP" or type == "TA" or type == "Instructor" or type == "Professor":
             cursor.executemany(
@@ -144,13 +145,13 @@ def insert_log(log_message):
 
 def __parse_str_to_dict(dict_str):
     dict_str_list = dict_str.replace("{", "").replace("}", "").replace("\"", "").split(", ")
-    print(dict_str_list)
+    print("This is dict " + dict_str_list)
     if dict_str_list:
         parsed_dict = dict()
         for i in range(0, len(dict_str_list)):
             if dict_str_list[i]:
                 splitted_dict = dict_str_list[i].split(": ")
-                print("This is something " + str(dict_str_list[i].split(": ")))
+                print("This is something 3 Jango " + str(dict_str_list[i].split(": ")))
                 parsed_dict[splitted_dict[0]] = splitted_dict[1]
         return parsed_dict
     else:
@@ -166,14 +167,14 @@ def __parse_str_to_list(list_str):
 
 
 def __parse_str_to_queue(queue_str):
-    print(str(queue_str[2:][:-2].split("), (")))
+    print("Yo another print int queue " + str(queue_str[2:][:-2].split("), (")))
     str_queue_unsplit = queue_str[2:][:-2]
-    print(str(str_queue_unsplit))
+    print("Another one " + str(str_queue_unsplit))
     if str_queue_unsplit:
         str_queue = str_queue_unsplit.split("), (")
-        print(str(str_queue))
+        print("1 " + str(str_queue))
         queue_str_list = [str_queue[i].split(", ") for i in range(0, len(str_queue))]
-        print(str(queue_str_list))
+        print("2 " + str(queue_str_list))
         result = [(int(queue_str_list[i][0]), queue_str_list[i][1].replace("\'", "")) for i in range(0, len(queue_str_list))]
         return result
     else:
@@ -181,36 +182,38 @@ def __parse_str_to_queue(queue_str):
 
 
 def __parse_to_object(row):
-    # print(str(row))
+    print(str(row))
     if len(row) > 6:
         if row[7] == "Librarian":
             return user.Librarian(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5], priv=row[8])
         elif row[7] == "Student":
             return user.Student(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                reg_date=row[6], doc_list=__parse_str_to_dict(row[9]), debt=row[10])
+                                reg_date=row[6], doc_list=ast.literal_eval(row[9]), debt=row[10])
         elif row[7] == "Instructor":
             return user.Instructor(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                   reg_date=row[6], doc_list=__parse_str_to_dict(row[9]), debt=row[10])
+                                   reg_date=row[6], doc_list=ast.literal_eval(row[9]), debt=row[10])
         elif row[7] == "TA":
             return user.TA(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                           reg_date=row[6], doc_list=__parse_str_to_dict(row[9]), debt=row[10])
+                           reg_date=row[6], doc_list=ast.literal_eval(row[9]), debt=row[10])
         elif row[7] == "Professor":
             return user.Professor(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                                  reg_date=row[6], doc_list=__parse_str_to_dict(row[9]), debt=row[10])
+                                  reg_date=row[6], doc_list=ast.literal_eval(row[9]), debt=row[10])
         elif row[7] == "VP":
             return user.VP(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
-                           reg_date=row[6], doc_list=__parse_str_to_dict(row[9]), debt=row[10])
+                           reg_date=row[6], doc_list=ast.literal_eval(row[9]), debt=row[10])
         elif row[3] == "Book":
-            return documents.Book(title=row[0], author=row[1], queue=__parse_str_to_queue(row[4]),
-                                  copies=__parse_str_to_list(row[5]), url=row[7], publisher=row[9], year=row[10],
+            print(str(row[4]))
+            print(str(ast.literal_eval(row[4])))
+            return documents.Book(title=row[0], author=row[1], queue=ast.literal_eval(row[4]),
+                                  copies=ast.literal_eval(row[5]), url=row[7], publisher=row[9], year=row[10],
                                   edition=row[13], genre=row[14], bestseller=bool(row[15]), reference=bool(row[16]))
         elif row[3] == "Article":
-            return documents.Article(title=row[0], author=row[1], queue=__parse_str_to_queue(row[4]),
-                                     copies=__parse_str_to_list(row[5]), url=row[6], publication_date=row[8],
+            return documents.Article(title=row[0], author=row[1], queue=ast.literal_eval(row[4]),
+                                     copies=ast.literal_eval(row[5]), url=row[6], publication_date=row[8],
                                      journal=row[11],
                                      editor=row[12])
         elif row[3] == "AV":
-            return documents.AV_Materials(title=row[0], author=row[1], copies=__parse_str_to_list(row[5]), price=row[6],
+            return documents.AV_Materials(title=row[0], author=row[1], copies=ast.literal_eval(row[5]), price=row[6],
                                           url=row[7])
 
 
@@ -320,7 +323,7 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
     elif title or id:
         # print("Update is in process")
         if id:
-            if alias or name or mail or number or address or docs or debt or privilege or new_id:
+            if alias or name or mail or number or address or docs or docs == dict() or debt or privilege or new_id:
                 cursor = __cnxn.cursor()
                 if alias:
                     __update_query(cursor, __users_name, __key_user_alias, alias, __key_user_id, id)
@@ -345,7 +348,7 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
             else:
                 raise Exception("DATABASE, Update. Only id was provided, need something else for an update")
         if title:
-            if author or owner or queue or copies or price or url or publisher or year or journal or editor or genre or bestseller or reference or new_title:
+            if author or owner or queue or queue == list() or copies or copies == list() or price or url or publisher or year or journal or editor or genre or bestseller or reference or new_title:
                 cursor = __cnxn.cursor()
                 if author:
                     __update_query(cursor, __docs_name, __key_doc_author, author, __key_doc_title, title)
@@ -390,9 +393,7 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
 
 def __update_query(cursor, table, column, arg, search_column, search_arg):
     # print(str(arg) + " jnd " + str(search_arg))
-    update_query = "update " + table + " set " + column + " = '" + str(
-        arg) + "' where " + search_column + " like '" + str(
-        search_arg) + "'"
+    update_query = "update " + table + " set " + column + " = '" + str(arg).replace("\'", "\"") + "' where " + search_column + " like '" + str(search_arg).replace("\'", "\"") + "'"
     print("This query " + update_query)
     return cursor.execute(update_query)
 
@@ -406,6 +407,8 @@ def delete(id=None, title=None):
             __delete_query(cursor, __users_name, __key_user_id, id)
         else:
             __delete_query(cursor, __docs_name, __key_doc_title, title)
+        cursor.commit()
+        cursor.close()
     else:
         raise Exception("DATABASE, Deletion. Please provide one argument")
 
