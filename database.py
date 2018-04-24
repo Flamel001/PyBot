@@ -521,3 +521,28 @@ def get_all_similar_info(id=None, alias=None, name=None, mail=None, number=None,
 def __search_similar_query(cursor, table, arg):
     search_similar_query = "select " + str(arg) + " from " + table
     return cursor.execute(search_similar_query)
+
+def search(search_title, list_of_titles):
+    result = list()
+    for title in list_of_titles:
+        if search_title in title:
+            result.append(title)
+    if not result:
+        for title in list_of_titles:
+            if match(search_title, 0, title, 0, 0):
+                result.append(title)
+    return result
+
+
+def match(search_string:str, search_string_i:int, title:str, i:int, miss:int):
+    if i == len(title) or search_string_i == len(search_string) or miss >= 0.2 * len(search_string):
+        if search_string_i >= 0.8 * len(search_string) and miss < 0.2 * len(search_string):
+            return True
+        else:
+            return False
+    elif title[i] == search_string[search_string_i]:
+        return match(search_string, search_string_i + 1, title, i + 1, miss)
+    else:
+        b1 = match(search_string, search_string_i + 1, title, i + 1, miss + 1)
+        b2 = match(search_string, search_string_i, title, i + 1, miss)
+        return True if b1 else b2

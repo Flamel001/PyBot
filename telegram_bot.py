@@ -248,7 +248,7 @@ def edit(call):
 def editing(call):
     users[call.message.chat.id].attr = call.data[1:]
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter new parameter for {} of {}".format(call.data[1:], users[call.message.chat.id]),
+                          text="Enter new parameter for {} of {}".format(call.data[1:], get_property(users[call.message.chat.id].object, 2)),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, edited)
 
@@ -307,32 +307,37 @@ def initialize_librarian(call):
 
 def search(message):
     if users[message.chat.id].action == "Library":
-        doc = find(message, 0)
-        if type(users[message.chat.id].user) == Librarian:
-            if doc:
-                message_text = "Choose action to do with :"
-                markup = distribute_by_privilege(users[message.chat.id].user.get_priv(), False)
-            else:
-                if users[message.chat.id].user.get_priv() > 1:
-                    message_text = "Do you want to add {} to database?".format(message.text)
-                    markup = u.keyboard_librarian_buttons_confirmation + [["Return to home page", "Back"]]
+        docs = find(message, 0)
+        if len(docs) <= 1:
+            doc = docs[0] if len(docs)>0 else None
+            if type(users[message.chat.id].user) == Librarian:
+                if doc:
+                    message_text = "Choose action to do with :"
+                    markup = distribute_by_privilege(users[message.chat.id].user.get_priv(), False)
                 else:
-                    message = "Sorry, you don't have permissions for addition".format(message.text)
-                    markup = u.keyboard_button_back
+                    if users[message.chat.id].user.get_priv() > 1:
+                        message_text = "Do you want to add {} to database?".format(message.text)
+                        markup = u.keyboard_librarian_buttons_confirmation + [["Return to home page", "Back"]]
+                    else:
+                        message = "Sorry, you don't have permissions for addition".format(message.text)
+                        markup = u.keyboard_button_back
+            else:
+                if doc:
+                    if doc.get_number_of_copies() > 0:
+                        message_text = "Do you want to reserve {}?".format(message.text)
+                        button = "Reserve"
+                    else:
+                        message_text = "Do you want to be added to the waiting list to take {} when it will be availible?".format(
+                            message.text)
+                        button = "To waiting list"
+                    markup = [[button, button]]
+                else:
+                    message_text = "Sorry, {} is not available. Try again. Choose needed isinstance".format(message.text)
+                    markup = u.keyboard_buttons_library
+            users[message.chat.id].object = doc
         else:
-            if doc:
-                if doc.get_number_of_copies() > 0:
-                    message_text = "Do you want to reserve {}?".format(message.text)
-                    button = "Reserve"
-                else:
-                    message_text = "Do you want to be added to the waiting list to take {} when it will be availible?".format(
-                        message.text)
-                    button = "To waiting list"
-                markup = [[button, button]]
-            else:
-                message_text = "Sorry, {} is not available. Try again. Choose needed isinstance".format(message.text)
-                markup = u.keyboard_buttons_library
-        users[message.chat.id].object = doc
+            bot.edit_message_text("Please look through suggestions and select one", message.chat.id, message.message_id)
+            bot.register_next_step_handler(message, search)
     elif users[message.chat.id].action == "My docs":
         if message.text in users[message.chat.id].user.get_docs_list().keys():
             message_text = "What do you want to do with this document?"
@@ -342,35 +347,41 @@ def search(message):
             markup = u.keyboard_patron_buttons_home
         users[message.chat.id].object = db.get(title=message.text)
     elif users[message.chat.id].action == "Manage Librarians":
-        lib = find(message, 1)
-        if lib:
-            message_text = "Choose action to do with {}".format(message.text)
-            markup = u.keyboard_librarian_buttons_manage
+        libs = find(message, 1)
+        if len(libs) <= 1:
+            lib = libs[0] if len(libs)>0 else None
+            if lib:
+                message_text = "Choose action to do with {}".format(message.text)
+                markup = u.keyboard_librarian_buttons_manage
+            else:
+                message_text = "Do you want to add {} to database?".format(message.text)
+                markup = u.keyboard_librarian_buttons_confirmation
+                users[message.chat.id].type_to_add = "Librarian"
+            users[message.chat.id].object = lib
         else:
-            message_text = "Do you want to add {} to database?".format(message.text)
-            markup = u.keyboard_librarian_buttons_confirmation
-            users[message.chat.id].type_to_add = "Librarian"
-        users[message.chat.id].object = lib
+            bot.edit_message_text("Please look through suggestions and select one", message.chat.id, message.message_id)
+            bot.register_next_step_handler(message, search)
     elif users[message.chat.id].action == "Actions with Patrons":
-        patron_or_lib = find(message, 1)
-        if patron_or_lib:
-            message_text = "Choose action to do"
-            markup = distribute_by_privilege(users[message.chat.id].user.get_priv(), True)
+        patrons = find(message, 1)
+        if len(patrons) <= 1:
+            patron = patrons[0] if len(patrons)>0 else None
+            if patron:
+                message_text = "Choose action to do"
+                markup = distribute_by_privilege(users[message.chat.id].user.get_priv(), True)
+            else:
+                message_text = "Do you want to add {} to database?".format(message.text)
+                markup = u.keyboard_librarian_buttons_confirmation
+                users[message.chat.id].type_to_add = "Student"
+            users[message.chat.id].object = patron
         else:
-            message_text = "Do you want to add {} to database?".format(message.text)
-            markup = u.keyboard_librarian_buttons_confirmation
-            users[message.chat.id].type_to_add = "Student"
-        users[message.chat.id].object = patron_or_lib
+            bot.edit_message_text("Please look through suggestions and select one", message.chat.id, message.message_id)
+            bot.register_next_step_handler(message, search)
     bot.send_message(message.chat.id, message_text, reply_markup=bot_features.get_inline_markup(markup))
 
 
 def find(message, code: int):
     object_list = users[message.chat.id].list_of_object_to_search
-    for i in range(0, len(object_list)):
-        # print("This is object list element's title " + str(object_list[i].get_title()))
-        if message.text.split(", ")[0] == get_property(object_list[i], code):
-            return object_list[i]
-    return None
+    return db.search(message.text.split(", ")[0], [get_property(object_list[i], code) for i in range(0, len(object_list))])
 
 
 def get_property(obj, code):
@@ -384,15 +395,14 @@ def get_property(obj, code):
 
 def distribute_by_privilege(priv: int, user: bool):
     markup = u.keyboard_librarian_buttons_manage[0:1]
-    if priv == 1:
-        if not user:
+    if priv == 3:
+        markup += u.keyboard_librarian_buttons_manage[2]
+    if not user:
+        if priv == 1:
             markup += [["Waiting list", "Waiting list"]]
-    elif priv == 2:
-        if not user:
+        elif priv == 2:
             markup += [["Waiting list", "Waiting list"], ["Outstanding Request", "Outstanding Request"]]
-    else:
-        markup = u.keyboard_librarian_buttons_manage
-        if not user:
+        else:
             markup += [["Waiting list", "Waiting list"], ["Outstanding Request", "Outstanding Request"]]
     markup += [["Return to home page", "Back"]]
     return markup
