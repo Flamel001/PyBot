@@ -5,7 +5,7 @@ from verification import mesage_sender as sm
 
 class Document:
 
-    def __init__(self, title=None, author=None, queue=list()):
+    def __init__(self, title=None, author="", queue=list()):
         self.__info = dict()
         self.__info[document_title] = title
         self.__info[document_author] = author
@@ -97,29 +97,18 @@ class Document:
 
 
 class Book(Document):
-    def __init__(self, title=None, author=None, publisher=None, year=None, edition=None, genre=None, url=None,
+    def __init__(self, title=None, author="", publisher="", year="", edition="", genre="", url="",
                  bestseller=False, reference=False, copies=list(), queue=list()):
-        if copies:
-            super().__init__(title, author, queue)
-            self.__info = super().summary()
-            self.__info[book_publisher] = publisher
-            self.__info[book_year] = year
-            self.__info[book_edition] = edition
-            self.__info[book_genre] = genre
-            self.__info[book_bestseller] = bestseller
-            self.__info[book_is_reference] = reference
-            self.__info[document_url] = url
-            self.__info[document_copies] = copies
-        else:
-            super().__init__(title, author, queue)
-            self.__info = super().summary()
-            self.__info[book_publisher] = publisher
-            self.__info[book_year] = year
-            self.__info[book_edition] = edition
-            self.__info[book_genre] = genre
-            self.__info[book_bestseller] = bestseller
-            self.__info[book_is_reference] = reference
-            self.__info[document_url] = url
+        super().__init__(title, author, queue)
+        self.__info = super().summary()
+        self.__info[book_publisher] = publisher
+        self.__info[book_year] = year
+        self.__info[book_edition] = edition
+        self.__info[book_genre] = genre
+        self.__info[book_bestseller] = bestseller
+        self.__info[book_is_reference] = reference
+        self.__info[document_url] = url
+        self.__info[document_copies] = copies
         self.__info[document_type] = "Book"
 
     def set_type(self, type):
@@ -201,25 +190,15 @@ class Book(Document):
 
 
 class Article(Document):
-    def __init__(self, title=None, author=None, journal=None, publication_date=None, editor=None, url=None,
+    def __init__(self, title=None, author="", journal="", publication_date="", editor="", url="",
                  copies=list(), queue=list()):
-        if copies:
-            super().__init__(title, author, queue)
-            self.__info = super().summary()
-            self.__info[article_journal] = journal
-            self.__info[article_pub_date] = publication_date
-            self.__info[article_editor] = editor
-            self.__info[document_url] = url
-            self.__info[document_copies] = copies
-
-        else:
-            super().__init__(title, author, queue)
-            self.__info = super().summary()
-            self.__info[article_journal] = journal
-            self.__info[article_pub_date] = publication_date
-            self.__info[article_editor] = editor
-            self.__info[document_url] = url
-
+        super().__init__(title, author, queue)
+        self.__info = super().summary()
+        self.__info[article_journal] = journal
+        self.__info[article_pub_date] = publication_date
+        self.__info[article_editor] = editor
+        self.__info[document_url] = url
+        self.__info[document_copies] = copies
         self.__info[document_type] = "Article"
 
     def set_type(self, type):
@@ -262,20 +241,12 @@ class Article(Document):
 
 
 class AV_Materials(Document):
-    def __init__(self, title=None, author=None, price=None, url=None, copies=list()):
-        if copies:
-            super().__init__(title, author)
-            self.__info = super().summary()
-            self.__info[document_price] = price
-            self.__info[document_url] = url
-            self.__info[document_copies] = copies
-
-        else:
-            super().__init__(title, author)
-            self.__info = super().summary()
-            self.__info[document_price] = price
-            self.__info[document_url] = url
-
+    def __init__(self, title=None, author="", price="", url="", copies=list()):
+        super().__init__(title, author)
+        self.__info = super().summary()
+        self.__info[document_price] = price
+        self.__info[document_url] = url
+        self.__info[document_copies] = copies
         self.__info[document_type] = "AV"
 
     def set_type(self, type):
