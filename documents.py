@@ -188,7 +188,8 @@ class Book(Document):
         return self.__info[book_is_reference]
 
     def set_outstanding(self):
-        db.update(title=self.get_title(), queue=[])
+        print("At documents")
+        db.update(title=self.get_title(), queue=list())
         if self.get_owner() != None:
             mail = str(self.get_owner().get_mail())
             title_str = self.get_title()

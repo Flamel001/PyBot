@@ -359,6 +359,7 @@ class Patron(User):
 
     def has_book(self, title):
         for key in self.__info[user_document_list].keys():
+            print("This is has_book method " + str(key) + " title " + str(title))
             if title == key.split("_")[0]:
                 return True
             else:

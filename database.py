@@ -86,12 +86,12 @@ def __parse(dictionary):
         if element == True or element == False:
             result = result + tuple([int(element)])
         elif element:
-            result = result + tuple([str(element)])
+            result = result + tuple([str(element).replace("\'", "\"")])
         else:
             if element == None:
                 result = result + tuple([""])
             else:
-                result = result + tuple([str(element)])
+                result = result + tuple([str(element).replace("\'", "\"")])
     if len(result) == 10 or len(result) == 7 or len(result) == 13 or len(result) == 8:
         return result
     else:
@@ -308,7 +308,7 @@ def get(id=None, alias=None, name=None, mail=None, number=None, address=None, ty
 
 
 def __search_query(cursor, table, column, arg):
-    search_query = "select * from " + table + " where " + column + " like '" + str(arg) + "'"
+    search_query = "select * from " + table + " where " + column + " like '" + str(arg).replace("\'", "\"") + "'"
     return cursor.execute(search_query)
 
 
@@ -337,7 +337,7 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
                     __update_query(cursor, __users_name, __key_user_address, address, __key_user_id, id)
                 elif privilege:
                     __update_query(cursor, __users_name, __key_user_librarian_privilege, privilege, __key_user_id, id)
-                elif docs:
+                elif docs or docs == dict():
                     __update_query(cursor, __users_name, __key_user_patron_document_list, docs, __key_user_id, id)
                 elif debt:
                     __update_query(cursor, __users_name, __key_user_patron_debt, debt, __key_user_id, id)
@@ -354,9 +354,9 @@ def update(id=None, alias=None, name=None, mail=None, number=None, address=None,
                     __update_query(cursor, __docs_name, __key_doc_author, author, __key_doc_title, title)
                 elif owner:
                     __update_query(cursor, __docs_name, __key_doc_owner, owner, __key_doc_title, title)
-                elif queue:
+                elif queue or queue == list():
                     __update_query(cursor, __docs_name, __key_doc_queue, queue, __key_doc_title, title)
-                elif copies:
+                elif copies or copies == list():
                     __update_query(cursor, __docs_name, __key_doc_copies, copies, __key_doc_title, title)
                 elif price:
                     __update_query(cursor, __docs_name, __key_doc_price, price, __key_doc_title, title)
