@@ -94,11 +94,11 @@ def search_doc(call):
     bot.register_next_step_handler(call.message, search)
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "Reserve")
+@bot.callback_query_handler(func=lambda call: call.data == "Reserve")#TODO: объединить эти метода 3 в один
 def reserve(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object,
-                                               "Hello", 0),
+                                               "Hello", 0),#ZDAROVA
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
@@ -114,7 +114,7 @@ def patron_waiting_list(call):
 def renew(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object,
-                                               "Hello", 2),
+                                               "Hello", 2),#ZDAROVA
                           reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
 
@@ -152,13 +152,13 @@ def search_patron(call):
         type_user="Instructor") + db.get(
         type_user="Professor") + db.get(type_user="TA") + db.get(type_user="VP")
     users[call.message.chat.id].action = "Actions with Patrons"
-    patrons_and_libs = users[call.message.chat.id].list_of_object_to_search
-    if not patrons_and_libs:
-        list_of_patrons = "Now list of patrons is empty. They can be added by Librarian by typing email"
+    patrons = users[call.message.chat.id].list_of_object_to_search
+    if not patrons:
+        list_of_patrons = "Now list of patrons is empty. They can be added by typing email"
     else:
         list_of_patrons = "Enter email from list\n"
-        for i in range(len(patrons_and_libs)):
-            list_of_patrons += ("{}\n".format(get_property(patrons_and_libs[i], 1)))
+        for i in range(len(patrons)):
+            list_of_patrons += ("{}\n".format(get_property(patrons[i], 1)))
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=list_of_patrons,
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -169,7 +169,7 @@ def search_patron(call):
 def get_info(call):
     temp_dict = users[call.message.chat.id].object.summary()
     text = "\n".join([":".join([str(list(temp_dict.keys())[i]), str(list(temp_dict.values())[i])]) for i in
-                      range(0, len(temp_dict))])
+                      range(len(temp_dict))])
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=text,
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -179,7 +179,7 @@ def get_info(call):
 def add(call):
     list = ""
     attr = u.get_buttoms(users[call.message.chat.id].type_to_add)
-    for i in range(0, len(attr)):
+    for i in range(len(attr)):
         list += "{}, ".format(attr[i][0])
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                             text="Enter values for the following fields using new line and commas: {}".format(list[:-1],
@@ -248,7 +248,7 @@ def edit(call):
 def editing(call):
     users[call.message.chat.id].attr = call.data[1:]
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter new parameter for {} of {}".format(call.data[1:], u.current.title_or_name),
+                          text="Enter new parameter for {} of {}".format(call.data[1:], users[call.message.chat.id]),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, edited)
 
@@ -310,7 +310,7 @@ def search(message):
         doc = find(message, 0)
         if type(users[message.chat.id].user) == Librarian:
             if doc:
-                message_text = "Choose action to do:"
+                message_text = "Choose action to do with :"
                 markup = distribute_by_privilege(users[message.chat.id].user.get_priv(), False)
             else:
                 if users[message.chat.id].user.get_priv() > 1:
@@ -383,13 +383,15 @@ def get_property(obj, code):
 
 
 def distribute_by_privilege(priv: int, user: bool):
-    markup = list()
-    if priv == 1 or priv == 2:
-        markup += u.keyboard_librarian_buttons_manage[0:1]
+    markup = u.keyboard_librarian_buttons_manage[0:1]
+    if priv == 1:
         if not user:
             markup += [["Waiting list", "Waiting list"]]
+    elif priv == 2:
+        if not user:
+            markup += [["Waiting list", "Waiting list"], ["Outstanding Request", "Outstanding Request"]]
     else:
-        markup += u.keyboard_librarian_buttons_manage
+        markup = u.keyboard_librarian_buttons_manage
         if not user:
             markup += [["Waiting list", "Waiting list"], ["Outstanding Request", "Outstanding Request"]]
     markup += [["Return to home page", "Back"]]
