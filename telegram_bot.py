@@ -20,6 +20,7 @@ class user_info():
     attr = ""
     type_to_add = ""
 
+
 @bot.message_handler(commands=["start"])
 def start(message):
     user_type = message.text.split(" ")[1]
@@ -29,11 +30,15 @@ def start(message):
         bot.send_message(message.chat.id, "Choose action",
                          reply_markup=bot_features.get_inline_markup(u.keyboard_admin_buttons_home))
     elif user_type == "student":
-        users[message.chat.id].user = Student(id=message.chat.id, alias=message.chat.username, name=(message.chat.first_name + message.chat.last_name), mail="somemail", number="someNumber", address="SomeAddress")
+        users[message.chat.id].user = Student(id=message.chat.id, alias=message.chat.username,
+                                              name=(message.chat.first_name + message.chat.last_name), mail="somemail",
+                                              number="someNumber", address="SomeAddress")
         bot.send_message(message.chat.id, "Now choose what you want to do",
                          reply_markup=bot_features.get_inline_markup(u.keyboard_patron_buttons_home))
     elif user_type == "librarian":
-        users[message.chat.id].user = Librarian(id=message.chat.id, alias=message.chat.username, name=(message.chat.first_name + message.chat.last_name), mail="somemail", number="someNumber", address="SomeAddress", priv=3)
+        users[message.chat.id].user = Librarian(id=message.chat.id, alias=message.chat.username,
+                                                name=(message.chat.first_name + message.chat.last_name),
+                                                mail="somemail", number="someNumber", address="SomeAddress", priv=3)
         bot.send_message(message.chat.id, "Now choose what you want to do",
                          reply_markup=bot_features.get_inline_markup(u.keyboard_librarian_buttons_home))
     # print(str(users[message.chat.id].user.summary()))
@@ -43,7 +48,8 @@ def start(message):
 def man_lib(call):
     users[call.message.chat.id].list_of_object_to_search = db.get(type_user="Librarian")
     users[call.message.chat.id].action = call.data
-    emails_of_librarians = [users[call.message.chat.id].list_of_object_to_search[i].get_mail() for i in range(0, len(users[call.message.chat.id].list_of_object_to_search))]
+    emails_of_librarians = [users[call.message.chat.id].list_of_object_to_search[i].get_mail() for i in
+                            range(0, len(users[call.message.chat.id].list_of_object_to_search))]
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="type email of Librarian from list\n{}".format(emails_of_librarians),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -58,8 +64,9 @@ def log(call):
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     get_log()
 
-    doc = open('log.txt',mode='rb')
+    doc = open('log.txt', mode='rb')
     bot.send_document(chat_id=call.message.chat.id, data=doc)
+
 
 @bot.callback_query_handler(func=lambda call: call.data == "Library")
 def library(call):
@@ -90,21 +97,24 @@ def search_doc(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Reserve")
 def reserve(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object, "Hello", 0),
+                          text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object,
+                                               "Hello", 0),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
 def patron_waiting_list(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object, "Hello", 1),
+                          text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object,
+                                               "Hello", 1),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Renew")
 def renew(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object, "Hello", 2),
+                          text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object,
+                                               "Hello", 2),
                           reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
 
@@ -138,7 +148,8 @@ def tech_sup(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Actions with Patrons")
 def search_patron(call):
-    users[call.message.chat.id].list_of_object_to_search = db.get(type_user="Student") + db.get(type_user="Instructor") + db.get(
+    users[call.message.chat.id].list_of_object_to_search = db.get(type_user="Student") + db.get(
+        type_user="Instructor") + db.get(
         type_user="Professor") + db.get(type_user="TA") + db.get(type_user="VP")
     users[call.message.chat.id].action = "Actions with Patrons"
     patrons_and_libs = users[call.message.chat.id].list_of_object_to_search
@@ -157,7 +168,8 @@ def search_patron(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Get information")
 def get_info(call):
     temp_dict = users[call.message.chat.id].object.summary()
-    text = "\n".join([":".join([str(list(temp_dict.keys())[i]), str(list(temp_dict.values())[i])]) for i in range(0, len(temp_dict))])
+    text = "\n".join([":".join([str(list(temp_dict.keys())[i]), str(list(temp_dict.values())[i])]) for i in
+                      range(0, len(temp_dict))])
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=text,
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -172,7 +184,8 @@ def add(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           # TODO:возможно сделать более приятный интерфейс
                           text="Enter values for the following fields using new line and commas: {}".format(list[:-1],
-                          reply_markup=bot_features.get_inline_markup(u.keyboard_button_back)))
+                                                                                                            reply_markup=bot_features.get_inline_markup(
+                                                                                                                u.keyboard_button_back)))
     bot.register_next_step_handler(call.message, adding)
 
 
@@ -182,33 +195,51 @@ def adding(message):
     # while len(array_of_values) < 10:
     #     array_of_values.append("0")
     if array_of_values[0] == "Book":
-        users[message.chat.id].user.new_book(title=array_of_values[1], author=array_of_values[2], publisher=array_of_values[3], year=array_of_values[4], edition=array_of_values[5], genre=array_of_values[6], url=array_of_values[7], bestseller=True if array_of_values[8]=="True" else False, reference=True if array_of_values[9]=="True" else False)
+        users[message.chat.id].user.new_book(title=array_of_values[1], author=array_of_values[2],
+                                             publisher=array_of_values[3], year=array_of_values[4],
+                                             edition=array_of_values[5], genre=array_of_values[6],
+                                             url=array_of_values[7],
+                                             bestseller=True if array_of_values[8] == "True" else False,
+                                             reference=True if array_of_values[9] == "True" else False)
     elif array_of_values[0] == "AV":
-        users[message.chat.id].user.new_AV_material(title=array_of_values[1], author=array_of_values[2], price=array_of_values[3], url=array_of_values[4])
+        users[message.chat.id].user.new_AV_material(title=array_of_values[1], author=array_of_values[2],
+                                                    price=array_of_values[3], url=array_of_values[4])
     elif array_of_values[0] == "Article":
-        users[message.chat.id].user.new_article(title=array_of_values[1], author=array_of_values[2], journal=array_of_values[3], publication_date=array_of_values[4], editor=array_of_values[5], url=array_of_values[6])
+        users[message.chat.id].user.new_article(title=array_of_values[1], author=array_of_values[2],
+                                                journal=array_of_values[3], publication_date=array_of_values[4],
+                                                editor=array_of_values[5], url=array_of_values[6])
     elif array_of_values[0] == "Librarians":
-        users[message.chat.id].user.add_librarian(id=int(array_of_values[1]), alias=array_of_values[2], name=array_of_values[3],
-                        mail=array_of_values[4], number=array_of_values[5], address=array_of_values[6],
-                        priv=int(array_of_values[7]))
+        users[message.chat.id].user.add_librarian(id=int(array_of_values[1]), alias=array_of_values[2],
+                                                  name=array_of_values[3],
+                                                  mail=array_of_values[4], number=array_of_values[5],
+                                                  address=array_of_values[6],
+                                                  priv=int(array_of_values[7]))
     elif array_of_values[0] == "Instructor":
-        users[message.chat.id].user.new_instructor(id=int(array_of_values[1]), alias=array_of_values[2], name=array_of_values[3], mail=array_of_values[4], number=array_of_values[5], address=array_of_values[6])
+        users[message.chat.id].user.new_instructor(id=int(array_of_values[1]), alias=array_of_values[2],
+                                                   name=array_of_values[3], mail=array_of_values[4],
+                                                   number=array_of_values[5], address=array_of_values[6])
     elif array_of_values[0] == "TA":
-        users[message.chat.id].user.new_ta(id=int(array_of_values[1]), alias=array_of_values[2], name=array_of_values[3], mail=array_of_values[4], number=array_of_values[5])
+        users[message.chat.id].user.new_ta(id=int(array_of_values[1]), alias=array_of_values[2],
+                                           name=array_of_values[3], mail=array_of_values[4], number=array_of_values[5])
     elif array_of_values[0] == "Professor":
-        users[message.chat.id].user.new_professor(id=int(array_of_values[1]), alias=array_of_values[2], name=array_of_values[3], mail=array_of_values[4], number=array_of_values[5], address=array_of_values[6])
+        users[message.chat.id].user.new_professor(id=int(array_of_values[1]), alias=array_of_values[2],
+                                                  name=array_of_values[3], mail=array_of_values[4],
+                                                  number=array_of_values[5], address=array_of_values[6])
     elif array_of_values[0] == "VP":
-        users[message.chat.id].user.new_vp(id=int(array_of_values[1]), alias=array_of_values[1], name=array_of_values[2], mail=array_of_values[3], number=array_of_values[3])
+        users[message.chat.id].user.new_vp(id=int(array_of_values[1]), alias=array_of_values[1],
+                                           name=array_of_values[2], mail=array_of_values[3], number=array_of_values[3])
     else:
-        users[message.chat.id].user.new_student(id=int(array_of_values[1]), alias=array_of_values[2], name=array_of_values[3], mail=array_of_values[4], number=array_of_values[5], address=array_of_values[6])
+        users[message.chat.id].user.new_student(id=int(array_of_values[1]), alias=array_of_values[2],
+                                                name=array_of_values[3], mail=array_of_values[4],
+                                                number=array_of_values[5], address=array_of_values[6])
     bot.send_message(message.chat.id, "Addition to database was successful",
-                 reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
+                     reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Edit")
 def edit(call):
     buttons = u.get_buttoms(users[call.message.chat.id].object.summary()["type"])
-    buttons += [["Back","Back"]]
+    buttons += [["Back", "Back"]]
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Choose parameter to edit:",
                           reply_markup=bot_features.get_inline_markup(buttons), parse_mode="markdown")
@@ -225,6 +256,20 @@ def editing(call):
 
 def edited(message):
     getattr(users[message.chat.id].object, "set_" + str(users[message.chat.id].attr).lower())(message.text)
+
+    date = get_date()
+    id_str = str(message.chat.id)
+    us_id = str(users[message.chat.id].object.get_id())
+    attrib = str(users[message.chat.id].attr)
+    cur_type = users[message.chat.id].user.get_type()
+    new_attr = message.text
+    if cur_type == 'Librarian':
+        db.insert_log(
+            date + " | " + cur_type + " with ID(" + id_str + ") changed user's " + attrib + " with ID: " + us_id + " to " + new_attr)
+    else:
+        db.insert_log(
+            date + " | Admin changed Librarian's " + attrib + " with ID: " + us_id + " to " + new_attr)
+
     bot.send_message(message.chat.id,
                      text="This field is now equals to {}".format(message.text),
                      reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -282,7 +327,7 @@ def search(message):
                     button = "Reserve"
                 else:
                     message_text = "Do you want to be added to the waiting list to take {} when it will be availible?".format(
-                            message.text)
+                        message.text)
                     button = "To waiting list"
                 markup = [[button, button]]
             else:
@@ -320,7 +365,7 @@ def search(message):
     bot.send_message(message.chat.id, message_text, reply_markup=bot_features.get_inline_markup(markup))
 
 
-def find(message, code:int):
+def find(message, code: int):
     object_list = users[message.chat.id].list_of_object_to_search
     for i in range(0, len(object_list)):
         # print("This is object list element's title " + str(object_list[i].get_title()))
@@ -338,7 +383,7 @@ def get_property(obj, code):
         return obj.get_id()
 
 
-def distribute_by_privilege(priv:int, user:bool):
+def distribute_by_privilege(priv: int, user: bool):
     markup = list()
     if priv == 1 or priv == 2:
         markup += u.keyboard_librarian_buttons_manage[0:1]
@@ -347,7 +392,7 @@ def distribute_by_privilege(priv:int, user:bool):
     else:
         markup += u.keyboard_librarian_buttons_manage
         if not user:
-            markup += [["Waiting list", "Waiting list"],["Outstanding Request", "Outstanding Request"]]
+            markup += [["Waiting list", "Waiting list"], ["Outstanding Request", "Outstanding Request"]]
     markup += [["Return to home page", "Back"]]
     return markup
 

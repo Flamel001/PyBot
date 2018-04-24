@@ -44,7 +44,7 @@ class Admin(User):
         date = get_date()
         db.insert_log(date + " | Admin added Librarian with ID: " + id_str)
 
-    def delete_librarian(self, librarian_id):
+    def remove(self, librarian_id):
         db.delete(id=librarian_id)
 
         id_str = str(librarian_id)
@@ -184,7 +184,7 @@ class Librarian(User):
         else:
             return
 
-    def remove_user(self, id):
+    def remove(self, id):
         if self.get_priv() == 3:
 
             db.delete(id=id)
