@@ -11,13 +11,13 @@ def check(id):
             return False
 
 
-def if_librarian(id):
-    if id:
-        librarian = db.get(id=id)[0]
-        if isinstance(librarian, user.Librarian):
-            return True
-        else:
-            return False
+# def if_librarian(id):
+#     if id:
+#         user_to_check = db.get(id=id)[0]
+#         if isinstance(user_to_check, user.Librarian):
+#             return True
+#         else:
+#             return False
 
 def check_doc(dictionary):
     if dictionary and "type" in dictionary.keys():

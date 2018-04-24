@@ -9,7 +9,8 @@ __username = 'a.kuspakov'
 __password = 'H5j7p1f6_'
 __driver = '{ODBC Driver 13 for SQL Server}'
 __cnxn = pyodbc.connect(
-    'DRIVER=' + __driver + ';PORT=1433;SERVER=' + __server + ';PORT=1443;DATABASE=' + __database + ';UID=' + __username + ';PWD=' + __password)
+    'DRIVER=' + __driver + ';PORT=1433;SERVER=' + __server + ';PORT=1443;DATABASE=' + __database + ';UID=' + __username
+    + ';PWD=' + __password)
 
 __users_name = "innolib_users"
 __docs_name = "innolib_docs"
@@ -50,9 +51,11 @@ __key_log = "log"
 def create_users_table():
     cursor = __cnxn.cursor()
     cursor.execute(
-        "if not exists (select * from sysobjects where name='" + __users_name + "' and xtype='U') create table " + __users_name + "(" + __key_user_id + " int NOT NULL UNIQUE, " + __key_user_alias + " text, " + __key_user_name + " text, " + __key_user_mail +
-        " text, " + __key_user_number + " text, " + __key_user_address + " text, " + __key_user_registration_date + " text, " + __key_user_type + " text, " + __key_user_librarian_privilege + " int, " +
-        __key_user_patron_document_list + " text, " + __key_user_patron_debt + " int)")
+        "if not exists (select * from sysobjects where name='" + __users_name + "' and xtype='U') create table "
+        + __users_name + "(" + __key_user_id + " int NOT NULL UNIQUE, " + __key_user_alias + " text, " + __key_user_name
+        + " text, " + __key_user_mail +" text, " + __key_user_number + " text, " + __key_user_address + " text, "
+        + __key_user_registration_date + " text, " + __key_user_type + " text, " + __key_user_librarian_privilege
+        + " int, " + __key_user_patron_document_list + " text, " + __key_user_patron_debt + " int)")
     cursor.commit()
     cursor.close()
 
@@ -60,10 +63,13 @@ def create_users_table():
 def create_docs_table():
     cursor = __cnxn.cursor()
     cursor.execute(
-        "if not exists (select * from sysobjects where name='" + __docs_name + "' and xtype='U') create table " + __docs_name + "(" + __key_doc_title + " varchar(255) NOT NULL UNIQUE, " + __key_doc_author + " text, " + __key_doc_owner + " text, " + __key_doc_type + " text, " + __key_doc_queue + " text, " + __key_doc_copies +
-        " text, " + __key_doc_price + " text, " + __key_doc_url + " text, " + __key_doc_publication_date + " text, " +
-        __key_doc_publisher + " text, " + __key_doc_year + " text, " + __key_doc_journal + " text, " + __key_doc_editor + " text, " + __key_doc_edition + " text, " + __key_doc_genre + " text, " +
-        __key_doc_bestseller + " bit, " + __key_doc_reference + " bit)")
+        "if not exists (select * from sysobjects where name='" + __docs_name + "' and xtype='U') create table "
+        + __docs_name + "(" + __key_doc_title + " varchar(255) NOT NULL UNIQUE, " + __key_doc_author + " text, "
+        + __key_doc_owner + " text, " + __key_doc_type + " text, " + __key_doc_queue + " text, " + __key_doc_copies
+        + " text, " + __key_doc_price + " text, " + __key_doc_url + " text, " + __key_doc_publication_date + " text, "
+        + __key_doc_publisher + " text, " + __key_doc_year + " text, " + __key_doc_journal + " text, "
+        + __key_doc_editor + " text, " + __key_doc_edition + " text, " + __key_doc_genre + " text, "
+        + __key_doc_bestseller + " bit, " + __key_doc_reference + " bit)")
     cursor.commit()
     cursor.close()
 
@@ -71,7 +77,8 @@ def create_docs_table():
 def create_log_table():
     cursor = __cnxn.cursor()
     cursor.execute(
-        "if not exists (select * from sysobjects where name='" + __logs_name + "' and xtype='U') create table " + __logs_name + "(" + __key_log + " text)")
+        "if not exists (select * from sysobjects where name='" + __logs_name + "' and xtype='U') create table "
+        + __logs_name + "(" + __key_log + " text)")
     cursor.commit()
     cursor.close()
 

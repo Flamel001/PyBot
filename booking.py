@@ -32,7 +32,7 @@ def order_av(usr, document, time):
         init_date = datetime.date.toordinal(
             datetime.date.today())
         exp_date = datetime.datetime.fromordinal(
-            init_date + distribute(usr, document))
+            init_date + distr(usr, document))
         if len(document.get_queue()) == 0:
             return give_on_hands(usr, document, exp_date)
         elif len(document.get_queue()) > 0:

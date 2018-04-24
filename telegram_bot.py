@@ -49,7 +49,7 @@ def man_lib(call):
     users[call.message.chat.id].list_of_object_to_search = db.get(type_user="Librarian")
     users[call.message.chat.id].action = call.data
     emails_of_librarians = [users[call.message.chat.id].list_of_object_to_search[i].get_mail() for i in
-                            range(0, len(users[call.message.chat.id].list_of_object_to_search))]
+                            range(len(users[call.message.chat.id].list_of_object_to_search))]
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="type email of Librarian from list\n{}".format(emails_of_librarians),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -90,7 +90,7 @@ def search_doc(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=list_of_docs,
                           reply_markup=bot_features.get_inline_markup(
-                              u.keyboard_button_back))  # TODO: sdelat tak 4tob metod viglyadel ne yebanski
+                              u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
 
 
@@ -182,10 +182,9 @@ def add(call):
     for i in range(0, len(attr)):
         list += "{}, ".format(attr[i][0])
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          # TODO:возможно сделать более приятный интерфейс
-                          text="Enter values for the following fields using new line and commas: {}".format(list[:-1],
-                                                                                                            reply_markup=bot_features.get_inline_markup(
-                                                                                                                u.keyboard_button_back)))
+                            text="Enter values for the following fields using new line and commas: {}".format(list[:-1],
+                            reply_markup=bot_features.get_inline_markup(
+                            u.keyboard_button_back)))
     bot.register_next_step_handler(call.message, adding)
 
 
@@ -261,7 +260,7 @@ def edited(message):
     id_str = str(message.chat.id)
     us_id = str(users[message.chat.id].object.get_id())
     attrib = str(users[message.chat.id].attr)
-    cur_type = users[message.chat.id].user.get_type()
+    cur_type = type(users[message.chat.id].user)
     new_attr = message.text
     if cur_type == 'Librarian':
         db.insert_log(
