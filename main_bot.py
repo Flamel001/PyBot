@@ -53,6 +53,8 @@ def log(call):
 @bot.message_handler(commands=["start"])
 def greeting(message):
     exist = aut.check(message.chat.id)
+    ya = db.get(id=message.chat.id)[0]
+    print(ya.get_type())
     if not exist:
         print(message)
         message = bot.send_message(message.chat.id, "Please send your e-mail with @innopolis.ru")
