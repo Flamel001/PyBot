@@ -118,7 +118,6 @@ def address(call):
     number = temp["number"]
     alias = temp["alias"]
     address = temp["address"]
-    temp_type = ""
     if facbase.is_instructor(mail):
         usr = Instructor(id, alias, name, mail, number, address)
         temp_type = "Instructor"
@@ -260,7 +259,7 @@ def search_patron(call):
     if u.current.field == []:
         list_of_patrons = "Now list of patrons is empty. They can be added by typing email"
     else:
-        list_of_patrons = "Enter email from list\n"
+        list_of_patrons = "Enter email from list:\n"
         for i in range(len(u.current.field)):
             list_of_patrons += ("{}\n".format(u.current.field[i].get_mail()))
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -281,9 +280,9 @@ def search_doc(call):
             msg = "Try to check later"
         list_of_docs = "Now list of {}s is empty. {}".format(call.data, msg)
     else:
-        list_of_docs = "Enter title of doc from list\n  Title              :              Author\n"
+        list_of_docs = "Enter title of doc from list\nTitle              -                                     Author\n"
         for i in range(len(u.current.field)):
-            list_of_docs += ("{}:{}\n".format(u.current.field[i].get_title(),u.current.field[i].get_author()))
+            list_of_docs += ("{}-{}\n".format(u.current.field[i].get_title(),u.current.field[i].get_author()))
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=list_of_docs,
                           reply_markup=bot_features.get_inline_markup(
@@ -311,7 +310,7 @@ def search(call):  # TODO: пройтись по if связанным с бук
         elif facbase.is_librarian(db.get(id=call.chat.id)[0]):
             message = "Choose action to do with {}".format(call.text)
             priv = db.get(call.chat.id)[0].get_priv()
-            if priv == 2:  # TODO: ==1, пока так для простоты, в финальной версии заменить на единицу
+            if priv == 2:  # TODO: ==1, пока так для простоты, в финальной версии заменить
                 markup = u.keyboard_librarian_buttons_manage[0:2].copy()
             else:
                 markup = u.keyboard_librarian_buttons_manage.copy()
@@ -320,7 +319,7 @@ def search(call):  # TODO: пройтись по if связанным с бук
             print(markup)
             if u.current.type == "Book" or u.current.type == "Article" or u.current.type == "AV":
                 markup += [["Waiting list", "Waiting list"]]
-                if priv > 0:  # TODO: >0, пока так для простоты, в финальной версии заменить на единицу
+                if priv > 0:  # TODO: >1, пока так для простоты, в финальной версии заменить
                     markup += [["Outstanding Request", "Outstanding Request"]]
             markup += [["Return to home page", "Back"]]
 
@@ -362,6 +361,7 @@ def search(call):  # TODO: пройтись по if связанным с бук
 @bot.callback_query_handler(func=lambda call: call.data == "Edit")
 def edit(call):
     buttons = u.get_buttoms(u.current.type)
+    buttons += [["Back","Back"]]
     print(buttons)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Choose parameter to edit:",
@@ -392,15 +392,16 @@ def edited(call):
 def delete(call):
     print(u.current.type)
     print(u.current.object)
-    print(u.current.object.summary())  # TODO: починить ДБ, не удаляет, не edit
+    print(u.current.object.summary())
+    print(u.current.object.get_id())  # TODO: починить ДБ, не удаляет, не edit
     if u.is_human():
-        u.name = u.current.object.get_id()
+        u.current.name = u.current.object.get_id()
         db.delete(id=u.current.object.get_id())
     else:
-        u.name = u.current.object.get_title()
+        u.current.name = u.current.object.get_title()
         db.delete(title=u.current.object.get_title())
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="{} is deleted from list of {}".format(u.name, u.current.type),
+                          text="{} is deleted from list of {}".format(u.current.name, u.current.type),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
@@ -465,7 +466,7 @@ def adding(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Get information")
 def get_info(call):
-    temp = u.current.object.summary()  # TODO: Сделать более приятный интерфейс
+    temp = u.current.object.summary()
     obj = ""
     for i in temp:
         if i != "queue":
