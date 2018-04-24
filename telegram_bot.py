@@ -57,9 +57,9 @@ def log(call):
                           text="Log for: " + date,  # TODO: выводить лог файлом
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     get_log()
-    with open('log.txt', encoding='utf-8') as doc:
-        bot.send_document(chat_id=call.message.chat.id, data=doc)
 
+    doc = open('log.txt',mode='rb')
+    bot.send_document(chat_id=call.message.chat.id, data=doc)
 
 @bot.callback_query_handler(func=lambda call: call.data == "Library")
 def library(call):
