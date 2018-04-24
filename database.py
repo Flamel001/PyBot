@@ -209,7 +209,7 @@ def __parse_to_object(row):
             return user.VP(id=row[0], alias=row[1], name=row[2], mail=row[3], number=row[4], address=row[5],
                            reg_date=row[6], doc_list=ast.literal_eval(row[9]), debt=row[10])
         elif row[3] == "Book":
-            print(str(row[4]))
+            print("This is something!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + str(row[4]))
             print(str(ast.literal_eval(row[4])))
             return documents.Book(title=row[0], author=row[1], queue=ast.literal_eval(row[4]),
                                   copies=ast.literal_eval(row[5]), url=row[7], publisher=row[9], year=row[10],

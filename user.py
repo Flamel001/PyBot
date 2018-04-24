@@ -56,7 +56,7 @@ class Admin(User):
 
 class Librarian(User):
 
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, priv=1):
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="", priv=1):
         self.__info = dict()
         self.__info[user_id] = id
         self.__info[user_alias] = alias
@@ -284,10 +284,8 @@ class Librarian(User):
 
 class Patron(User):
 
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=0,
-                 doc_list=None):
-        if doc_list is None:
-            doc_list = dict()
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
+                 doc_list=dict()):
         self.__info = dict()
         self.__info[user_id] = id
         self.__info[user_alias] = alias
@@ -296,10 +294,7 @@ class Patron(User):
         self.__info[user_number] = number
         self.__info[user_address] = address
         self.__info[user_type] = ""
-        if reg_date:
-            self.__info[user_registration_date] = reg_date
-        else:
-            self.__info[user_registration_date] = str(datetime.datetime.now())
+        self.__info[user_registration_date] = reg_date
         self.__info[user_document_list] = doc_list
         self.__info[user_debt] = debt
         self.__info[user_priority] = 0
@@ -437,7 +432,7 @@ class Patron(User):
 
 class Student(Patron):
 
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
         if reg_date:
             super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
@@ -453,73 +448,42 @@ class Student(Patron):
 
 class Faculty(Patron):
 
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
-        if reg_date:
-            super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
-            self.__info = super().summary()
-        else:
-            super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
-            self.__info = super().summary()
+        super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
+        self.__info = super().summary()
 
 
 class Instructor(Faculty):
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
-        if reg_date:
-            super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
-            self.__info = super().summary()
-            self.__info[user_type] = "Instructor"
-            self.__info[user_priority] = 4
-        else:
-            super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
-            self.__info = super().summary()
-            self.__info[user_type] = "Instructor"
-            self.__info[user_priority] = 4
+        super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
+        self.__info = super().summary()
+        self.__info[user_type] = "Instructor"
+        self.__info[user_priority] = 4
 
 
 class TA(Faculty):
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
-        if reg_date:
-            super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
-            self.__info = super().summary()
-            self.__info[user_type] = "TA"
-            self.__info[user_priority] = 3
-        else:
-            super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
-            self.__info = super().summary()
-            self.__info[user_type] = "TA"
-            self.__info[user_priority] = 3
+        super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
+        self.__info = super().summary()
+        self.__info[user_type] = "TA"
+        self.__info[user_priority] = 3
 
 class Professor(Faculty):
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
-        if reg_date:
-            super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
-            self.__info = super().summary()
-            self.__info[user_type] = "Professor"
-            self.__info[user_priority] = 1
-        else:
-            super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
-            self.__info = super().summary()
-            self.__info[user_type] = "Professor"
-            self.__info[user_priority] = 1
+        super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
+        self.__info = super().summary()
+        self.__info[user_type] = "Professor"
+        self.__info[user_priority] = 1
 
 
 class VP(Faculty):
-    def __init__(self, id=None, alias=None, name=None, mail=None, number=None, address=None, reg_date=None, debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
-        if reg_date:
-            super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
-            self.__info = super().summary()
-            self.__info[user_type] = "VP"
-            self.__info[user_priority] = 2
-        else:
-            super().__init__(id, alias, name, mail, number, address, debt=debt, doc_list=doc_list)
-            self.__info = super().summary()
-            self.__info[user_type] = "VP"
-            self.__info[user_priority] = 2
-
-def print_something(string = "message"):
-    print("This is method print_something from user module and message to print is " + string)
+        super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
+        self.__info = super().summary()
+        self.__info[user_type] = "VP"
+        self.__info[user_priority] = 2

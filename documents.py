@@ -5,7 +5,7 @@ from verification import mesage_sender as sm
 
 class Document:
 
-    def __init__(self, title=None, author=None, queue=None):
+    def __init__(self, title=None, author=None, queue=list()):
         self.__info = dict()
         self.__info[document_title] = title
         self.__info[document_author] = author
@@ -98,7 +98,7 @@ class Document:
 
 class Book(Document):
     def __init__(self, title=None, author=None, publisher=None, year=None, edition=None, genre=None, url=None,
-                 bestseller=False, reference=False, copies=None, queue=None):
+                 bestseller=False, reference=False, copies=list(), queue=list()):
         if copies:
             super().__init__(title, author, queue)
             self.__info = super().summary()
@@ -202,7 +202,7 @@ class Book(Document):
 
 class Article(Document):
     def __init__(self, title=None, author=None, journal=None, publication_date=None, editor=None, url=None,
-                 copies=None, queue=None):
+                 copies=list(), queue=list()):
         if copies:
             super().__init__(title, author, queue)
             self.__info = super().summary()
@@ -262,7 +262,7 @@ class Article(Document):
 
 
 class AV_Materials(Document):
-    def __init__(self, title=None, author=None, price=None, url=None, copies=None):
+    def __init__(self, title=None, author=None, price=None, url=None, copies=list()):
         if copies:
             super().__init__(title, author)
             self.__info = super().summary()
