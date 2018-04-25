@@ -2,9 +2,9 @@ import database as db
 import user
 
 
-def check(id):
-    if id:
-        info = db.get(id=id)
+def check(alias):
+    if alias:
+        info = db.get(alias=alias)
         if len(info)>0:
             return True
         else:

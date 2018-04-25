@@ -9,7 +9,7 @@ import database as db
 qu = []
 
 
-def order_book(usr, document, time):
+def order_book(usr, document):
     if not usr.has_book(document.get_title()):
         if not document.is_reference():
             init_date = datetime.date.toordinal(
@@ -23,11 +23,11 @@ def order_book(usr, document, time):
         else:
             return reference
     else:
-        text = renew(usr, document, time)
+        text = renew(usr, document)
         return text
 
 
-def order_av(usr, document, time):
+def order_av(usr, document):
     if not usr.has_book(document.get_title()):
         init_date = datetime.date.toordinal(
             datetime.date.today())
@@ -38,10 +38,10 @@ def order_av(usr, document, time):
         elif len(document.get_queue()) > 0:
             return add_to_waiting_list(usr, document)
     else:
-        return renew(usr, document, time)
+        return renew(usr, document)
 
 
-def order_article(usr, document, time):
+def order_article(usr, document):
     if not usr.has_book(document.get_title()):
         init_date = datetime.date.toordinal(
             datetime.date.today())
@@ -52,23 +52,23 @@ def order_article(usr, document, time):
         elif len(document.get_queue()) > 0:
             return add_to_waiting_list(usr, document)
     else:
-        return renew(usr, document, time)
+        return renew(usr, document)
 
 
-def booking(usr, document, time, code):
-    if code == 0:
+def booking(usr, document, code):
+    if code == "Reserve":
         if document.summary()["type"] == "Book":
-            return order_book(usr, document, time)
+            return order_book(usr, document)
 
         elif document.summary()["type"] == "AV":
-            return order_av(usr, document, time)
+            return order_av(usr, document)
 
         elif document.summary()["type"] == "Article":
-            return order_article(usr, document, time)
-    elif code == 1:
+            return order_article(usr, document)
+    elif code == "To waiting list":
         return add_to_waiting_list(usr, document)
-    elif code == 2:
-        return renew(usr, document, time)
+    elif code == "Renew":
+        return renew(usr, document)
 
 
 def add_to_queue(usr, document):
@@ -96,7 +96,7 @@ def give_on_hands(usr, document, exp_date):
     return success + " " + str(exp_date)
 
 
-def renew(usr, document, time):
+def renew(usr, document):
     copy = document.get_title()
     if usr.is_renew_possible(copy) or usr.get_type() == "VP":
         ini_date = datetime.date.toordinal(datetime.date.today())

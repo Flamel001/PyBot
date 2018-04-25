@@ -41,93 +41,93 @@ keyboard_admin_buttons_privileges = [["1", "1"], ["2", "2"], ["3", "3"]]
 keyboard_admin_buttons_home = [["Manage Librarians", "Manage Librarians"], ["Action Log", "Action Log"]]
 
 def get_buttoms(name: str):
-    if name == "Student" or name == "Instructor" or name == "TA" or name == "Professor" or name == "VP":
+    if name == "Emails":#"Student" or name == "Instructor" or name == "TA" or name == "Professor" or name == "VP"
         result = []
-        temp = ['id', 'Alias', 'Name', 'Mail', 'Phone_number', 'Address']
+        temp = ['id', 'Alias', 'Name',  'Phone_number', 'Address','Mail']
         for x in temp:
             result.append([x, "$" + x])
         return result
     elif name == "Librarian":
         result = []
-        temp = ['id', 'Alias', 'Name', 'Mail', 'Phone_number', 'Address', 'Privilege']
+        temp = ['id', 'Alias', 'Name', 'Phone_number', 'Address', 'Privilege','Mail']
         for x in temp:
             result.append([x, "$" + x])
         return result
     elif name == "Book":
         result = []
-        temp = ['Title', 'Author', 'Publisher', 'Year', 'Edition', 'Genre', 'Bestseller', 'Reference', 'Price']
+        temp = ['Author', 'Publisher', 'Year', 'Edition', 'Genre', 'Bestseller', 'Reference', 'Price']#'Title',
         for x in temp:
             result.append([x, "$" + x])
         return result
     elif name == "Article":
         result = []
-        temp = ['Title', 'Author', 'Journal', 'Pub_Date', 'Editor', 'Price']
+        temp = [ 'Author', 'Journal', 'Pub_Date', 'Editor', 'Price', 'Url']#'Title',
         for x in temp:
             result.append([x, "$" + x])
         return result
     elif name == "AV":
         result = []
-        temp = ['Title', 'Author', 'Price']
+        temp = ['Author', 'Price']#'Title',
         for x in temp:
             result.append([x, "$" + x])
         return result
     else:
         return None
 
-def edit_attr(attr,new_attr):
-    "BOOK"
-    if attr == "Title":
-        current.object.set_title(new_attr)
-    elif attr == "Author":
-        current.object.set_author(new_attr)
-    elif attr == "Publisher":
-        current.object.set_publisher(new_attr)
-    elif attr == "Year":
-        current.object.set_year(new_attr)
-    elif attr == "Edition":
-        current.object.set_edition(new_attr)
-    elif attr == "Genre":
-        current.object.set_genre(new_attr)
-    elif attr == "Bestseller":
-        current.object.set_bestseller(new_attr)
-    elif attr == "Reference":
-        current.object.set_reference(new_attr)
-    elif attr == "Price":
-        current.object.set_price(new_attr)
-
-        "ARTICLE"
-
-    elif attr == "Journal":
-        current.object.set_journal(new_attr)
-    elif attr == "Pub_Date":
-        current.object.set_pub_date(new_attr)
-    elif attr == "Editor":
-        current.object.set_editor(new_attr)
-
-        "PATRON"
-
-    elif attr == "id":
-        current.object.set_id(new_attr)
-    elif attr == "Alias":
-        current.object.set_alias(new_attr)
-    elif attr == "Name":
-        current.object.set_name(new_attr)
-    elif attr == "Mail":
-        current.object.set_mail(new_attr)
-    elif attr == "Phone_number":
-        current.object.set_number(new_attr)
-    elif attr == "Address":
-        current.object.set_address(new_attr)
-
-        "LIBRARIAN"
-    elif attr == "Privilege":
-        current.object.set_priv(new_attr)
-
-def is_human():
-    if current.type == "Emails" or current.type == "Librarian":
-        return True
-    else:
-        return False
+# def edit_attr(attr,new_attr):
+#     "BOOK"
+#     if attr == "Title":
+#         current.object.set_title(new_attr)
+#     elif attr == "Author":
+#         current.object.set_author(new_attr)
+#     elif attr == "Publisher":
+#         current.object.set_publisher(new_attr)
+#     elif attr == "Year":
+#         current.object.set_year(new_attr)
+#     elif attr == "Edition":
+#         current.object.set_edition(new_attr)
+#     elif attr == "Genre":
+#         current.object.set_genre(new_attr)
+#     elif attr == "Bestseller":
+#         current.object.set_bestseller(new_attr)
+#     elif attr == "Reference":
+#         current.object.set_reference(new_attr)
+#     elif attr == "Price":
+#         current.object.set_price(new_attr)
+#
+#         "ARTICLE"
+#
+#     elif attr == "Journal":
+#         current.object.set_journal(new_attr)
+#     elif attr == "Pub_Date":
+#         current.object.set_pub_date(new_attr)
+#     elif attr == "Editor":
+#         current.object.set_editor(new_attr)
+#
+#         "PATRON"
+#
+#     elif attr == "id":
+#         current.object.set_id(new_attr)
+#     elif attr == "Alias":
+#         current.object.set_alias(new_attr)
+#     elif attr == "Name":
+#         current.object.set_name(new_attr)
+#     elif attr == "Mail":
+#         current.object.set_mail(new_attr)
+#     elif attr == "Phone_number":
+#         current.object.set_number(new_attr)
+#     elif attr == "Address":
+#         current.object.set_address(new_attr)
+#
+#         "LIBRARIAN"
+#     elif attr == "Privilege":
+#         current.object.set_priv(new_attr)
+#
+# def is_human():
+#     if current.type == "Emails" or current.type == "Librarian":
+#         return True
+#     else:
+#         return False
 
 def get_date():
     date = str(dt.datetime.now())
@@ -140,9 +140,9 @@ class current:
     attr = ""
     email = ""
     title_or_name = ""
-    field = ""# PO IDEE VOZVRASHAET DB RAZNOGO DERMA
+    # field = ""#
     db_to_search = []
-    object = ""#saves object from db
+    # object = ""#saves object from db
     type = ""
     pin = ""
     temp_user_date = dict()
