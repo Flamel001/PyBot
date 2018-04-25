@@ -55,19 +55,19 @@ def get_buttoms(name: str):
         return result
     elif name == "Book":
         result = []
-        temp = ['Author', 'Publisher', 'Year', 'Edition', 'Genre', 'Bestseller', 'Reference', 'Price']#'Title',
+        temp = ['Author', 'Publisher', 'Year', 'Edition', 'Genre', 'Bestseller', 'Reference','Price', 'Copies']#'Title',
         for x in temp:
             result.append([x, "$" + x])
         return result
     elif name == "Article":
         result = []
-        temp = [ 'Author', 'Journal', 'Pub_Date', 'Editor', 'Price', 'Url']#'Title',
+        temp = [ 'Author', 'Journal', 'Pub_Date', 'Editor', 'Price', 'Url','Price','Copies']#'Title',
         for x in temp:
             result.append([x, "$" + x])
         return result
     elif name == "AV":
         result = []
-        temp = ['Author', 'Price']#'Title',
+        temp = ['Author', 'Price','Copies']#'Title',
         for x in temp:
             result.append([x, "$" + x])
         return result
