@@ -148,3 +148,6 @@ check(alias)| check wheter user exists in system
 
 ### Search method
 It uses devide and conquer strategy to find the best possible docs depending on the search query.
+
+### Screen shot:
+![alt text](https://github.com/homycdev/PyBot/blob/master/screenies.png)
