@@ -21,7 +21,7 @@ keyboard_buttons_library = [["Books", "Book"], ["Articles", "Article"], ["Audio/
                             ["Back", "Back"]]
 
 "LIBRARIAN"
-keyboard_librarian_buttons_home = [["Actions with Patrons", "Actions with Patrons"], ["Manage Docs", "Library"]]#,["Docs on hands", "Docs on hands"]
+keyboard_librarian_buttons_home = [["Actions with Patrons", "Actions with Patrons"], ["Manage Docs", "Library"],["Smart search","Smart search"],]#,["Docs on hands", "Docs on hands"]
 keyboard_librarian_buttons_library = [["Add", "Add doc"], ["Manage docs", "Library"]]
 keyboard_librarian_buttons_manage = [["Get information", "Get information"], ["Edit", "Edit"],  ["Delete", "Delete"]]
 keyboard_librarian_buttons_edit = [["Name", "Name"], ["Surname", "Surname"], ["mail", "mail"], ["number", "number"],
@@ -30,7 +30,7 @@ keyboard_librarian_buttons_confirmation = [["Add", "Add"], ["Back", "Back"]]
 keyboard_librarian_buttons_add_new_type = [["Student","Student"], ["Professor","Professor"], ["TA","TA"], ["VP","VP"], ["Instructor","Instructor"], ["Book", "Book"], ["Article", "Article"], ["Audio/Video", "AV"]]
 
 "PATRON"
-keyboard_patron_buttons_home = [["Library", "Library"], ["My docs", "My docs"], ["Tech support", "Tech support"]]
+keyboard_patron_buttons_home = [["Library", "Library"], ["My docs", "My docs"], ["Smart search","Smart search"], ["Tech support", "Tech support"]]
 # keyboard_patron_buttons_library = [["Books", "Book"], ["Articles", "Article"], ["Audio/Video", "AV"],
 #                                    ["Back", "Back"]]
 keyboard_patron_buttons_reserve = [["Reserve", "Reserve"], ["Back", "Back"]]
@@ -55,19 +55,19 @@ def get_buttoms(name: str):
         return result
     elif name == "Book":
         result = []
-        temp = ['Author', 'Publisher', 'Year', 'Edition', 'Genre', 'Bestseller', 'Reference','Price', 'Copies']#'Title',
+        temp = ['Author', 'Publisher', 'Year', 'Edition', 'Genre', 'Url', 'Bestseller',  'Reference', 'Copies' ]#'Title',,'Price'
         for x in temp:
             result.append([x, "$" + x])
         return result
     elif name == "Article":
         result = []
-        temp = [ 'Author', 'Journal', 'Pub_Date', 'Editor', 'Price', 'Url','Price','Copies']#'Title',
+        temp = [ 'Author', 'Journal', 'Pub_Date', 'Editor','Url','Copies']#'Title',,'Price'
         for x in temp:
             result.append([x, "$" + x])
         return result
     elif name == "AV":
         result = []
-        temp = ['Author', 'Price','Copies']#'Title',
+        temp = ['Author','Price', 'Url', 'Copies']#'Title',
         for x in temp:
             result.append([x, "$" + x])
         return result
