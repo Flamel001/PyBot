@@ -79,7 +79,7 @@ def log(call):
     doc = open('log.txt', mode='rb')
     bot.send_document(chat_id=call.message.chat.id, data=doc)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Log for: " + date,  # TODO: выводить лог файлом
+                          text="Log for: " + date,
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
@@ -164,6 +164,7 @@ def address(call):
 def my_docs(call):
     # u.field = "Patron docs"  # TODO: проверить работоспособность метода
     user[call.message.chat.id].list_of_objects = db.get(id=call.message.chat.id)[0].get_docs_list()
+    print(type(user[call.message.chat.id].list_of_objects)==dict)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Enter doc from list {}".format(user[call.message.chat.id].list_of_objects),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -309,11 +310,18 @@ def search_doc(call):
 
 def search(call):  # TODO: пройтись по if связанным с букингом
     user[call.chat.id].title_or_name = call.text
+
     exist = False
     for i in user[call.chat.id].list_of_objects:
         if user[call.chat.id].type == "Librarian" or user[call.chat.id].type == "Emails":
             if i.get_mail() == call.text:
                 exist = True
+                user[call.chat.id].object = i
+        elif type(user[call.chat.id].list_of_objects)==dict:
+            if i == call.text:
+                exist = True
+                i = db.get(title=i)
+                print(i)
                 user[call.chat.id].object = i
         else:
             print(i.get_title(), call.text)
@@ -363,10 +371,10 @@ def search(call):  # TODO: пройтись по if связанным с бук
             message = "Do you want to add {} to database?".format(call.text)
             markup = u.keyboard_librarian_buttons_confirmation# + [["Return to home page", "Back"]]
 
-        elif facbase.is_librarian(db.get(id=call.chat.id)[0]):
+        elif type(user[call.chat.id].me) == Librarian:
             message = "Sorry, you don't have permissions for addition".format(call.text)
             markup = u.keyboard_button_back
-        else:
+        else:#TODO: fix 2 if's below
             if user[call.chat.id].list_of_objects == "Patron docs":  # eto ne to, menyai
                 message = "Sorry, {} is not in your list, but you can try to find it in the Library".format(call.text)
                 markup = u.keyboard_patron_buttons_home
@@ -480,10 +488,8 @@ def adding(call):
             user[call.chat.id].me.new_student(int(array_of_values[1]), array_of_values[2], array_of_values[3], user[call.chat.id].title_or_name,
                           array_of_values[4], array_of_values[5])
 
-    # db.insert(doc.summary())
 
     print('SUCCESS')
-    # print(doc.summary()["type"])
     bot.send_message(call.chat.id, "Addition to database was successful",
                      reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
