@@ -70,28 +70,37 @@ Method|Description
  pop_from_queue(waiting_list)| pops a user from waiting list
 
 
-## Telebot2.py:
-There are methods for all the buttons from GUI
-```@bot.message_handler```  
-Used for catch commands and callback data from buttons perform actions according to them
-
-```bot.send_message(message.chat.id, "text", reply_markup=bot_features.get_inline_markup(markup))```
-Used to send new messages to user. 
-__Message.chat.id__ holds id of chat to answer,
-“text” is a text of message, 
-__reply_markup=__ used to show what buttons are needed under textmessage “text”
-
-```
-bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                      text="text”))
-bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,                             reply_markup=bot_features.get_inline_markup(markup))
-```
-__bot.edit_message_text__ – used to change text of needed message(using message_id) from needed chat(using chat_id)  to “text”
-__bot.edit_message_reply_markup__ used to update butons from need chat of needed message to “markup”
-
-
-```bot.register_next_step_handler(call, auth)```
-used to catch some information from user and use it in one of the other program methods
+## Main_bot.py:
+Method|Description
+------|-----------
+greeting(message)| sends greetings message
+admin(call)| let in to admins GUI
+man_lib(call)| method that manages librarians
+log(call)| returns log file
+auth(call)| initializes authentification
+pin_checker(call)| checks the pin, calls pin_checker.py
+name(call)| relates to authentification, saves user name
+number(call)| relates to authentification, saves user numb
+address(call)| relates to authentification, saves user address
+my_docs(call)| shows user's docs
+reserve(call)| reserves a doc
+return_doc(call)| returns a doc
+tech_sup(call)| calls tech support
+library(call)| gui of librarian
+initialize_librarian(call)| initializes librarian
+search_patron(call)| relates to search(call), searches patron through database
+search_doc(call)| relates to search(call), searches doc
+search(call)| searches everything
+edit(call)| Edit button
+editing(call)| enters parameter to edit
+edited(call)| pops up a message that patron/doc edited
+delete(call)| deletes patron/doc
+add(call)| adds patron/doc
+adding(call)| adds patron/doc
+get_info(call)| pops up a message with detailed info of user/doc
+back(call)| Back button
+edit_attr(attr, new_attr, id)| main edit that does all background work
+is_human(id)| checks user's type
 
 
 ## DataBase.py:
@@ -136,3 +145,4 @@ Stores default keys for arguments of user, document classes.
 Method|Description
 ------|-----------
 check(alias)| check wheter user exists in system
+
