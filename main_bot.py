@@ -162,7 +162,7 @@ def address(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "My docs")
 def my_docs(call):
-    # u.field = "Patron docs"  # TODO: проверить работоспособность метода
+    user[call.message.chat.id].type = "Emails"
     user[call.message.chat.id].list_of_objects = db.get(id=call.message.chat.id)[0].get_docs_list()
     print(type(user[call.message.chat.id].list_of_objects)==dict)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -195,7 +195,9 @@ def reserve(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Return")
 def return_doc(call):
     libs = db.get(type_user="Librarian")
+    print(libs)
     for i in libs:
+        print(i.summary())
         bot.send_message(chat_id=i.get_id(),
                          text="User with alias {} will return book soon".format(call.from_user.username))
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -314,15 +316,19 @@ def search(call):  # TODO: пройтись по if связанным с бук
     exist = False
     for i in user[call.chat.id].list_of_objects:
         if user[call.chat.id].type == "Librarian" or user[call.chat.id].type == "Emails":
-            if i.get_mail() == call.text:
+            if type(user[call.chat.id].list_of_objects)==dict:
+                if i == call.text:
+                    exist = True
+                    i = db.get(title=i)[0]
+                    user[call.chat.id].object = i
+            elif i.get_mail() == call.text:
                 exist = True
                 user[call.chat.id].object = i
-        elif type(user[call.chat.id].list_of_objects)==dict:
-            if i == call.text:
-                exist = True
-                i = db.get(title=i)
-                print(i)
-                user[call.chat.id].object = i
+        # elif type(user[call.chat.id].list_of_objects)==dict:
+        #     if i == call.text:
+        #         exist = True
+        #         i = db.get(title=i)[0]
+        #         user[call.chat.id].object = i
         else:
             print(i.get_title(), call.text)
             if i.get_title() == call.text:
@@ -348,16 +354,19 @@ def search(call):  # TODO: пройтись по if связанным с бук
                 markup = u.keyboard_librarian_buttons_manage.copy()
                 if (user[call.chat.id].type == "Book" or user[call.chat.id].type == "Article" or user[call.chat.id].type == "AV"):
                     markup += [["Waiting list", "Waiting list"]]
-                    if len(user[call.chat.id].object.get_list_of_copies()) < 1:
+                    print(user[call.chat.id].object.get_count_of_copies())
+                    if user[call.chat.id].object.get_count_of_copies() < 1:
                         markup += [["Outstanding Request", "Outstanding Request"]]
             markup += [["Return to home page", "Back"]]
 
         else:
+            print(user[call.chat.id].type)
+            print("asdsad")
             if user[call.chat.id].type == "Emails":
                 message = "What do you want to do with {}?".format(call.text)
                 markup = u.keyboard_patron_buttons_doc
             else:
-                if len(user[call.chat.id].object.get_list_of_copies()) > 0:  # TODO: проверить работоспособность
+                if user[call.chat.id].object.get_count_of_copies() > 0:
                     message = "Do you want to reserve {}?".format(call.text)
                     button = "Reserve"
                 else:
@@ -424,11 +433,18 @@ def delete(call):
     print(user[call.message.chat.id].object)
     print(user[call.message.chat.id].object.summary())
     if is_human(call.message.chat.id):
-        u.current.name = user[call.message.chat.id].object.get_id()
-        db.delete(id=user[call.message.chat.id].object.get_id())
+        if type(user[call.message.chat.id].me) == Admin:
+            u.current.name = user[call.message.chat.id].object.get_id()
+            Admin().remove(user[call.message.chat.id].object.get_id())
+        else:
+            u.current.name = user[call.message.chat.id].object.get_id()
+            print(u.current.name)
+            user[call.message.chat.id].me.remove(user[call.message.chat.id].object.get_id())
+            # db.delete(id=user[call.message.chat.id].object.get_id())
     else:
         u.current.name = user[call.message.chat.id].object.get_title()
-        db.delete(title=user[call.message.chat.id].object.get_title())
+        user[call.message.chat.id].me.remove_document(user[call.message.chat.id].object.get_title())
+        # db.delete(title=user[call.message.chat.id].object.get_title())
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="{} is deleted from list of {}".format(u.current.name, user[call.message.chat.id].type),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -459,13 +475,15 @@ def adding(call):
     while len(array_of_values) < 10:
         array_of_values.append("0")
     if user[call.chat.id].type == "Book":
-        user[call.chat.id].me.new_book(title=user[call.chat.id].title_or_name, author=array_of_values[0], publisher=array_of_values[1],
-                   year=array_of_values[2], edition=array_of_values[3], genre=array_of_values[4],)
+        user[call.chat.id].me.new_book(user[call.chat.id].title_or_name, array_of_values[0], array_of_values[1],
+                   array_of_values[2], array_of_values[3], array_of_values[4],array_of_values[5], array_of_values[6],
+                                       array_of_values[7], int(array_of_values[8]))
     elif user[call.chat.id].type == "AV":
-        user[call.chat.id].me.new_AV_material(title=user[call.chat.id].title_or_name, author=array_of_values[0], price=array_of_values[1])
+        user[call.chat.id].me.new_AV_material(user[call.chat.id].title_or_name, array_of_values[0], array_of_values[1],
+                                              array_of_values[2], int(array_of_values[3]))
     elif user[call.chat.id].type == "Article":
-        user[call.chat.id].me.new_article(title=user[call.chat.id].title_or_name, author=array_of_values[0], journal=array_of_values[1],
-                      publication_date=array_of_values[2], editor=array_of_values[3], url="")
+        user[call.chat.id].me.new_article(user[call.chat.id].title_or_name, array_of_values[0], array_of_values[1],
+                      array_of_values[2], array_of_values[3], array_of_values[4], int(array_of_values[5]))
     elif user[call.chat.id].type == "Librarian":
         user[call.chat.id].me.add_librarian(id=array_of_values[0], alias=array_of_values[1], name=array_of_values[2],
                         mail=user[call.chat.id].title_or_name, number=array_of_values[3], address=array_of_values[4],

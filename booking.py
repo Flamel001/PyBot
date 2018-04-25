@@ -92,7 +92,8 @@ def add_to_waiting_list(user, document):
 
 def give_on_hands(usr, document, exp_date):
     copy = document.pop_copy()
-    usr.add_document(copy, str(exp_date))
+    print("asdasd")
+    usr.add_document(document.get_title(), str(exp_date.date()))
     return success + " " + str(exp_date)
 
 
