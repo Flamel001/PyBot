@@ -336,8 +336,9 @@ def search(message):
                     markup = u.keyboard_buttons_library
             users[message.chat.id].object = doc
         else:
-            bot.edit_message_text("Please look through suggestions and select one", message.chat.id, message.message_id)
+            bot.send_message(text="Please look through suggestions and select one. These are suggestions " + str(docs), chat_id=message.chat.id)
             bot.register_next_step_handler(message, search)
+            return
     elif users[message.chat.id].action == "My docs":
         if message.text in users[message.chat.id].user.get_docs_list().keys():
             message_text = "What do you want to do with this document?"
@@ -359,8 +360,9 @@ def search(message):
                 users[message.chat.id].type_to_add = "Librarian"
             users[message.chat.id].object = lib
         else:
-            bot.edit_message_text("Please look through suggestions and select one", message.chat.id, message.message_id)
+            bot.send_message(text="Please look through suggestions and select one. These are suggestions " + str(libs), chat_id=message.chat.id)
             bot.register_next_step_handler(message, search)
+            return
     elif users[message.chat.id].action == "Actions with Patrons":
         patrons = find(message, 1)
         if len(patrons) <= 1:
@@ -374,14 +376,24 @@ def search(message):
                 users[message.chat.id].type_to_add = "Student"
             users[message.chat.id].object = patron
         else:
-            bot.edit_message_text("Please look through suggestions and select one", message.chat.id, message.message_id)
+            bot.send_message(text="Please look through suggestions and select one. These are suggestions " + str(patrons), chat_id=message.chat.id)
             bot.register_next_step_handler(message, search)
+            return
     bot.send_message(message.chat.id, message_text, reply_markup=bot_features.get_inline_markup(markup))
 
 
 def find(message, code: int):
     object_list = users[message.chat.id].list_of_object_to_search
-    return db.search(message.text.split(", ")[0], [get_property(object_list[i], code) for i in range(0, len(object_list))])
+    object_titles = db.search(message.text.split(", ")[0], [get_property(object_list[i], code) for i in range(0, len(object_list))])
+    if len(object_titles) == 1:
+        for object in object_list:
+            if get_property(object, code) == object_titles[0]:
+                return [object]
+    elif len(object_titles) == 0:
+        return list()
+    else:
+        return object_titles
+
 
 
 def get_property(obj, code):

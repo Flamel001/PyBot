@@ -269,41 +269,41 @@ def get(id=None, alias=None, name=None, mail=None, number=None, address=None, ty
     if counter == 1:
         cursor = __cnxn.cursor()
         if id:
-            cursor = __search_query(cursor, __users_name, __key_user_id, id)
+            cursor = __search_query(cursor, __users_name, __key_user_id, id, False)
         elif alias:
-            cursor = __search_query(cursor, __users_name, __key_user_alias, alias)
+            cursor = __search_query(cursor, __users_name, __key_user_alias, alias, False)
         elif name:
-            cursor = __search_query(cursor, __users_name, __key_user_name, name)
+            cursor = __search_query(cursor, __users_name, __key_user_name, name, False)
         elif mail:
-            cursor = __search_query(cursor, __users_name, __key_user_mail, mail)
+            cursor = __search_query(cursor, __users_name, __key_user_mail, mail, False)
         elif number:
-            cursor = __search_query(cursor, __users_name, __key_user_number, number)
+            cursor = __search_query(cursor, __users_name, __key_user_number, number, False)
         elif address:
-            cursor = __search_query(cursor, __users_name, __key_user_address, address)
+            cursor = __search_query(cursor, __users_name, __key_user_address, address, False)
         elif type_user:
-            cursor = __search_query(cursor, __users_name, __key_user_type, type_user)
+            cursor = __search_query(cursor, __users_name, __key_user_type, type_user, False)
         elif title:
-            cursor = __search_query(cursor, __docs_name, __key_doc_title, title)
+            cursor = __search_query(cursor, __docs_name, __key_doc_title, title, False)
         elif author:
-            cursor = __search_query(cursor, __docs_name, __key_doc_author, author)
+            cursor = __search_query(cursor, __docs_name, __key_doc_author, author, False)
         elif owner:
-            cursor = __search_query(cursor, __docs_name, __key_doc_author, owner)
+            cursor = __search_query(cursor, __docs_name, __key_doc_author, owner, False)
         elif type_book:
-            cursor = __search_query(cursor, __docs_name, __key_doc_type, type_book)
+            cursor = __search_query(cursor, __docs_name, __key_doc_type, type_book, False)
         elif publisher:
-            cursor = __search_query(cursor, __docs_name, __key_doc_publisher, publisher)
+            cursor = __search_query(cursor, __docs_name, __key_doc_publisher, publisher, False)
         elif year:
-            cursor = __search_query(cursor, __docs_name, __key_doc_year, year)
+            cursor = __search_query(cursor, __docs_name, __key_doc_year, year, False)
         elif journal:
-            cursor = __search_query(cursor, __docs_name, __key_doc_journal, journal)
+            cursor = __search_query(cursor, __docs_name, __key_doc_journal, journal, False)
         elif editor:
-            cursor = __search_query(cursor, __docs_name, __key_doc_editor, editor)
+            cursor = __search_query(cursor, __docs_name, __key_doc_editor, editor, False)
         elif genre:
-            cursor = __search_query(cursor, __docs_name, __key_doc_genre, genre)
+            cursor = __search_query(cursor, __docs_name, __key_doc_genre, genre, False)
         elif bestseller:
-            cursor = __search_query(cursor, __docs_name, __key_doc_bestseller, int(bestseller))
+            cursor = __search_query(cursor, __docs_name, __key_doc_bestseller, int(bestseller), False)
         elif reference:
-            cursor = __search_query(cursor, __docs_name, __key_doc_reference, int(reference))
+            cursor = __search_query(cursor, __docs_name, __key_doc_reference, int(reference), False)
         result_list = list()
         rows = cursor.fetchall()
         for row in rows:
@@ -314,8 +314,11 @@ def get(id=None, alias=None, name=None, mail=None, number=None, address=None, ty
         raise Exception("DATABASE, Fetching. One argument should be provided")
 
 
-def __search_query(cursor, table, column, arg):
-    search_query = "select * from " + table + " where " + column + " like '" + str(arg).replace("\'", "\"") + "'"
+def __search_query(cursor, table, column, arg, dont_replace):
+    if dont_replace:
+        search_query = "select * from " + table + " where " + column + " like '" + str(arg) + "'"
+    else:
+        search_query = "select * from " + table + " where " + column + " like '" + str(arg).replace("\'", "\"") + "'"
     return cursor.execute(search_query)
 
 
@@ -522,11 +525,54 @@ def __search_similar_query(cursor, table, arg):
     search_similar_query = "select " + str(arg) + " from " + table
     return cursor.execute(search_similar_query)
 
+
 def search(search_title, list_of_titles):
     result = list()
-    for title in list_of_titles:
-        if search_title in title:
-            result.append(title)
+    splitted_titles = list()
+    print("Search title " + str(search_title))
+    if "AND" in search_title:
+        splitted_titles = search_title.split(" AND ")
+        print("This is splitted titles " + str(search_title))
+        temp_list = list()
+        for title in list_of_titles:
+            for spl_title in splitted_titles:
+                if spl_title in title:
+                    temp_list.append(True)
+                else:
+                    temp_list.append(False)
+            do_add = True
+            print("This is title in search " + str(title))
+            print("Here are bools " + str(temp_list))
+            for i in range(0, len(temp_list)):
+                if not temp_list[i]:
+                    do_add = False
+                    break
+            if do_add:
+                result.append(title)
+            temp_list = list()
+    elif "OR" in search_title:
+        splitted_titles = search_title.split(" OR ")
+        temp_list = list()
+        print("This is splitted title " + str(splitted_titles))
+        for title in list_of_titles:
+            for spl_title in splitted_titles:
+                if spl_title in title:
+                    temp_list.append(True)
+                else:
+                    temp_list.append(False)
+            do_add = False
+            for i in range(0, len(temp_list)):
+                if temp_list[i]:
+                    do_add = True
+                    break
+            if do_add:
+                result.append(title)
+            temp_list = list()
+    else:
+        for title in list_of_titles:
+            if search_title == title:
+                result.append(title)
+    print("This is from search method " + str(result))
     if not result:
         for title in list_of_titles:
             if match(search_title, 0, title, 0, 0):
