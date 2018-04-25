@@ -28,11 +28,12 @@ class Admin(User):
     def get_mail(self):
         return self.__mail
 
-    def give_priv(self, librarian_id, priv):
-        db.get(id=librarian_id)[0].set_priv(priv)
+    def set_lib_priv(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_priv(new)
 
-        lib_id = str(librarian_id)
-        priv_str = str(priv)
+        lib_id = str(Lib.get_id())
+        priv_str = str(new)
         date = get_date()
         db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") priveleg: " + priv_str)
 
