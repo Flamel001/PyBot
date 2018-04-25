@@ -32,6 +32,20 @@ class user_info():
     attr = ""
 
 
+@bot.callback_query_handler(func=lambda call: call.data == "Manage Librarians")
+def man_lib(call):
+
+    pass
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+                          text="type email of Librarian from list\n{}".format(list_of_libs),
+                          reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
+    bot.register_next_step_handler(call.message, search)
+
+
+def smart_search():
+    pass
+
+
 @bot.message_handler(commands=["start"])
 def greeting(message):
     user[message.chat.id] = user_info()
