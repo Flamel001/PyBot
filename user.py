@@ -6,7 +6,7 @@ from utilities import get_date
 
 
 def get_log():
-    log = db.get_all_similar_info(log="kek")
+    log = reversed(db.get_all_similar_info(log="kek"))
     log_file = open("log.txt", 'w')
     for record in log:
         log_file.write(record + " \n")
@@ -28,18 +28,19 @@ class Admin(User):
     def get_mail(self):
         return self.__mail
 
-    def give_priv(self, librarian_id, priv):
-        db.get(id=librarian_id)[0].set_priv(priv)
+    def set_lib_priv(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_priv(new)
 
-        lib_id = str(librarian_id)
-        priv_str = str(priv)
+        lib_id = str(Lib.get_id())
+        priv_str = str(new)
         date = get_date()
         db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") priveleg: " + priv_str)
 
     def add_librarian(self, id, alias, name, mail, number, address, priv):
         new = Librarian(id, alias, name, mail, number, address, priv)
         db.insert(new.summary())
-
+        print("SZD;LK;LDSZHVFJ;LKDSAJF;")
         id_str = str(id)
         date = get_date()
         db.insert_log(date + " | Admin added Librarian with ID: " + id_str)
@@ -51,7 +52,65 @@ class Admin(User):
         date = get_date()
         db.insert_log(date + " | Admin deleted Librarian with ID: " + id_str)
 
+    def set_lib_name(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_name(new)
 
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") name: " + priv_str)
+
+    def set_lib_mail(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_mail(new)
+
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") mail: " + priv_str)
+
+    def set_lib_number(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_number(new)
+
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") number: " + priv_str)
+
+    def set_lib_address(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_address(new)
+
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") address: " + priv_str)
+
+    def set_lib_id(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_id(new)
+
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") ID: " + priv_str)
+
+    def set_lib_alias(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_alias(new)
+
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") aliasq: " + priv_str)
 
 
 class Librarian(User):

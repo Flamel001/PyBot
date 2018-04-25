@@ -94,28 +94,28 @@ def search_doc(call):
     bot.register_next_step_handler(call.message, search)
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "Reserve")#TODO: объединить эти метода 3 в один
+@bot.callback_query_handler(func=lambda call: call.data == "Reserve" or call.data == "To waiting list" or call.data == "Renew")
 def reserve(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object,
-                                               "Hello", 0),#ZDAROVA
+                                               call.data),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
-def patron_waiting_list(call):
-    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object,
-                                               "Hello", 1),
-                          reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
-
-
-@bot.callback_query_handler(func=lambda call: call.data == "Renew")
-def renew(call):
-    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object,
-                                               "Hello", 2),#ZDAROVA
-                          reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
+# @bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
+# def patron_waiting_list(call):
+#     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+#                           text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object,
+#                                                "Hello", 1),
+#                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
+#
+#
+# @bot.callback_query_handler(func=lambda call: call.data == "Renew")
+# def renew(call):
+#     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+#                           text=booking.booking(users[call.message.chat.id].user, users[call.message.chat.id].object,
+#                                                "Hello", 2),#ZDAROVA
+#                           reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Return")

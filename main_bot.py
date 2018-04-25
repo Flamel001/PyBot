@@ -20,19 +20,52 @@ userName = ""
 userSurname = ""
 userNumber = ""
 
+user = dict()
+
+class user_info():
+    list_of_objects = list()
+    object = None
+    me = None
+    action = ""
+    title_or_name = ""
+    type = ""
+    attr = ""
+
+
+@bot.message_handler(commands=["start"])
+def greeting(message):
+    user[message.chat.id] = user_info()
+    exist = aut.check(message.from_user.username)
+    print(db.get(alias=message.from_user.username))
+    if not exist:
+        print(message)
+        message = bot.send_message(message.chat.id, "Please send your e-mail with @innopolis.ru")
+        bot.register_next_step_handler(message, auth)
+    else:
+        user[message.chat.id].me = db.get(alias=message.from_user.username)[0]
+        print(type(user[message.chat.id].me))
+        if type(user[message.chat.id].me) == Librarian:
+            bot.send_message(message.chat.id, "Now choose what you want to do",
+                             reply_markup=bot_features.get_inline_markup(u.keyboard_librarian_buttons_home))
+        else:
+            bot.send_message(message.chat.id, "Now choose what you want to do",
+                             reply_markup=bot_features.get_inline_markup(u.keyboard_patron_buttons_home))
 
 @bot.message_handler(commands=["admin"])
 def admin(call):
-    u.current.user = Admin()
+    user[call.chat.id] = user_info()
+    user[call.chat.id].me = Admin()
     bot.send_message(call.chat.id, "Choose action",
                      reply_markup=bot_features.get_inline_markup(u.keyboard_admin_buttons_home))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Manage Librarians")
 def man_lib(call):
-    u.current.field = db.get(type_user="Librarian")  # TODO: Проверить, работает ли с пустым списком лайбрерианов
-    u.current.type = "Librarian"
-    list_of_libs = [u.current.field[i].get_mail() for i in range(len(u.current.field))]
+
+    user[call.message.chat.id].list_of_objects = db.get(type_user="Librarian")  # TODO: Проверить, работает ли с пустым списком лайбрерианов
+    user[call.message.chat.id].type = "Librarian"
+    list_of_libs = [user[call.message.chat.id].list_of_objects[i].get_mail() for i in
+                    range(len(user[call.message.chat.id].list_of_objects))]
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="type email of Librarian from list\n{}".format(list_of_libs),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -43,29 +76,12 @@ def man_lib(call):
 def log(call):
     date = get_date()
     get_log()
+    doc = open('log.txt', mode='rb')
+    bot.send_document(chat_id=call.message.chat.id, data=doc)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Log for: " + date,  # TODO: пофиксить отображение лога
+                          text="Log for: " + date,
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
-    with open('log.txt', encoding='utf-8') as doc:
-        bot.send_document(chat_id=call.message.chat.id, data=doc)
 
-
-@bot.message_handler(commands=["start"])
-def greeting(message):
-    exist = aut.check(message.chat.id)
-    ya = db.get(id=message.chat.id)[0]
-    print(ya.get_type())
-    if not exist:
-        print(message)
-        message = bot.send_message(message.chat.id, "Please send your e-mail with @innopolis.ru")
-        bot.register_next_step_handler(message, auth)
-    else:
-        if facbase.is_librarian(db.get(id=message.chat.id)[0]):
-            bot.send_message(message.chat.id, "Now choose what you want to do",
-                             reply_markup=bot_features.get_inline_markup(u.keyboard_librarian_buttons_home))
-        else:
-            bot.send_message(message.chat.id, "Now choose what you want to do",
-                             reply_markup=bot_features.get_inline_markup(u.keyboard_patron_buttons_home))
 
 
 def auth(call):
@@ -139,7 +155,7 @@ def address(call):
     db.insert(usr.summary())
     db.insert_log(date + " | " + temp_type + "with ID: " + str(id) + " added")
     print(temp)
-
+    user[id].me = usr
     bot.send_message(call.chat.id, "Congratulations, registration is finished. Now choose, what do you want to do",
                      reply_markup=bot_features.get_inline_markup(u.keyboard_patron_buttons_home))
 
@@ -147,37 +163,33 @@ def address(call):
 @bot.callback_query_handler(func=lambda call: call.data == "My docs")
 def my_docs(call):
     # u.field = "Patron docs"  # TODO: проверить работоспособность метода
-    u.current.field = db.get(id=call.message.chat.id)[0].get_docs_list()
+    user[call.message.chat.id].list_of_objects = db.get(id=call.message.chat.id)[0].get_docs_list()
+    print(type(user[call.message.chat.id].list_of_objects)==dict)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter doc from list {}".format(u.current.field),
+                          text="Enter doc from list {}".format(user[call.message.chat.id].list_of_objects),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "Reserve")
+@bot.callback_query_handler(func=lambda call: call.data == "Reserve" or call.data == "To waiting list" or call.data == "Renew")
 def reserve(call):
-    # u.field = "Patron docs"  # TODO: обратиться в дб по полю                  DEFUNCT
-    print(u.current.field)
-    print(type(u.current.field))
-    # msg = (call.message.text).split(", ")#TODO: сделать нормально
-    # u.current.field = db.get(title=msg[0])
-    result_text = "{} is added to your list".format(u.current.object.get_title())  # this text is redundant
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=b.booking(db.get(id=call.message.chat.id), u.current.field, msg[1], 0),
+                          text=b.booking(user[call.message.chat.id].me, user[call.message.chat.id].object,
+                                               call.data),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
-def patron_waiting_list(call):
-    # TODO:прикрутить сам вейтинг лист и какое то уведомление молодого о том, когда появится книга
-    doc = u.current.object
-    print(u.current.object)
-    print(u.current.object.get_title())
-    usr = db.get(id=call.message.chat.id)[0]  # TODO: подумать, мб можно без обращения к дб и доделать, чтоб работало
-    # result_text = "You are added to the waiting list for {}".format(u.current.object.get_title()) # this text is redundant
-    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=b.booking(usr, doc, "time doesn't matter", 1),
-                          reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
+# @bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
+# def patron_waiting_list(call):
+#     # TODO:прикрутить сам вейтинг лист и какое то уведомление молодого о том, когда появится книга
+#     doc = user[call.chat.id].object
+#     print(user[call.chat.id].object)
+#     print(user[call.chat.id].object.get_title())
+#     usr = db.get(id=call.message.chat.id)[0]  # TODO: подумать, мб можно без обращения к дб и доделать, чтоб работало
+#     # result_text = "You are added to the waiting list for {}".format(user[call.chat.id].object.get_title()) # this text is redundant
+#     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+#                           text=b.booking(usr, doc, "time doesn't matter", 1),
+#                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Return")
@@ -191,16 +203,16 @@ def return_doc(call):
                           reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "Renew")
-def renew(call):
-    # TODO: update time
-    usr = db.get(id=call.message.chat.id)
-    msg = (call.message.text).split(", ")  # eto ne to
-    doc = u.current.object
-    # result_text = "Time for your doc updated" # this is text is redundant
-    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=b.booking(usr, doc, msg[1], 2),
-                          reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
+# @bot.callback_query_handler(func=lambda call: call.data == "Renew")
+# def renew(call):
+#     # TODO: update time
+#     usr = db.get(id=call.message.chat.id)
+#     msg = (call.message.text).split(", ")  # eto ne to
+#     doc = user[call.chat.id].object
+#     # result_text = "Time for your doc updated" # this is text is redundant
+#     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+#                           text=b.booking(usr, doc, msg[1], 2),
+#                           reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Tech support")
@@ -218,7 +230,7 @@ def docs_on_hands(call):
     u.field = "Patron docs"  # TODO: обратиться по типу                 DEFUNCT (slojna)
     # u.db_to_search = get_db(id=call.message.chat.id)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="docs of user users are {}".format(u.current.db_to_search),
+                          text="docs of user users are {}".format(),
                           reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
 
@@ -232,19 +244,22 @@ def library(call):
 @bot.callback_query_handler(func=lambda call: call.data == "Waiting list")
 def initialize_librarian(call):
     # TODO: прикрутить метод waiting list   DEFUNCT
-    list = ["patron1", "faculty2", "Ramil-pezduk999"]
+    queue = user[call.message.chat.id].object.get_queue()
+    if not queue:
+        message = "There are no patrons in waiting list"
+        markup = [["OK", "Back"]]
+    else:
+        message = "{} now in the waiting list".format(queue)
+        markup = [["Make outstanding request", "Outstanding Request"],["OK", "Back"]]
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="{} now in the waiting list".format(list),
-                          reply_markup=bot_features.get_inline_markup(
-                              [["Make request", "Outstanding Request"],
-                               ["OK", "Back"]]))
+                          text=message,
+                          reply_markup=bot_features.get_inline_markup(markup))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Outstanding Request")
 def initialize_librarian(call):
     # TODO: проверить работоспособность
-    db.get(id=call.message.chat.id)[0].set_outstanding(u.current.object.get_title())
-
+    user[call.message.chat.id].me.set_outstanding(user[call.message.chat.id].object.get_title())
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="Request is done",
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -255,15 +270,15 @@ def initialize_librarian(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Actions with Patrons")
 def search_patron(call):
-    u.current.type = "Emails"
-    u.current.field = db.get(type_user="Student") + db.get(type_user="Instructor") + db.get(
+    user[call.message.chat.id].type = "Emails"
+    user[call.message.chat.id].list_of_objects = db.get(type_user="Student") + db.get(type_user="Instructor") + db.get(
         type_user="Professor") + db.get(type_user="TA") + db.get(type_user="VP")
-    if u.current.field == []:
+    if user[call.message.chat.id].list_of_objects == []:
         list_of_patrons = "Now list of patrons is empty. They can be added by typing email"
     else:
         list_of_patrons = "Enter email from list:\n"
-        for i in range(len(u.current.field)):
-            list_of_patrons += ("{}\n".format(u.current.field[i].get_mail()))
+        for i in range(len(user[call.message.chat.id].list_of_objects)):
+            list_of_patrons += ("{}\n".format(user[call.message.chat.id].list_of_objects[i].get_mail()))
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=list_of_patrons,
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -272,19 +287,20 @@ def search_patron(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Book" or call.data == "Article" or call.data == "AV")
 def search_doc(call):
-    u.current.type = call.data
-    u.current.field = db.get(type_book=call.data)
+    user[call.message.chat.id].type = call.data
+    user[call.message.chat.id].list_of_objects = db.get(type_book=call.data)
 
-    if not u.current.field:
-        if facbase.is_librarian(db.get(id=call.chat.id)[0]):
+    if not user[call.message.chat.id].list_of_objects:
+        if user[call.message.chat.id].me.get_type() == "Librarian":
             msg = "They can be added by typing title"
         else:
             msg = "Try to check later"
         list_of_docs = "Now list of {}s is empty. {}".format(call.data, msg)
     else:
         list_of_docs = "Enter title of doc from list\nTitle              -                                     Author\n"
-        for i in range(len(u.current.field)):
-            list_of_docs += ("{}-{}\n".format(u.current.field[i].get_title(),u.current.field[i].get_author()))
+        for i in range(len(user[call.message.chat.id].list_of_objects)):
+            list_of_docs += ("{}-{}\n".format(user[call.message.chat.id].list_of_objects[i].get_title(),
+                                              user[call.message.chat.id].list_of_objects[i].get_author()))
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text=list_of_docs,
                           reply_markup=bot_features.get_inline_markup(
@@ -293,44 +309,55 @@ def search_doc(call):
 
 
 def search(call):  # TODO: пройтись по if связанным с букингом
-    u.current.title_or_name = call.text
+    user[call.chat.id].title_or_name = call.text
+
     exist = False
-    for i in u.current.field:
-        if u.current.type == "Librarian" or u.current.type == "Emails":
+    for i in user[call.chat.id].list_of_objects:
+        if user[call.chat.id].type == "Librarian" or user[call.chat.id].type == "Emails":
             if i.get_mail() == call.text:
                 exist = True
-                u.current.object = i
+                user[call.chat.id].object = i
+        elif type(user[call.chat.id].list_of_objects)==dict:
+            if i == call.text:
+                exist = True
+                i = db.get(title=i)
+                print(i)
+                user[call.chat.id].object = i
         else:
             print(i.get_title(), call.text)
             if i.get_title() == call.text:
                 exist = True
-                u.current.object = i
+                user[call.chat.id].object = i
     if exist:
-        if type(u.current.user) == Admin:
+        if type(user[call.chat.id].me) == Admin:
             message = "Choose action to do with {}".format(call.text)
             markup = u.keyboard_librarian_buttons_manage
-        elif facbase.is_librarian(db.get(id=call.chat.id)[0]):
+        elif type(user[call.chat.id].me) == Librarian:
             message = "Choose action to do with {}".format(call.text)
-            priv = db.get(call.chat.id)[0].get_priv()
-            if priv == 2:  # TODO: ==1, пока так для простоты, в финальной версии заменить
-                markup = u.keyboard_librarian_buttons_manage[0:2].copy()
+            priv = user[call.chat.id].me.get_priv()
+            markup = u.keyboard_librarian_buttons_manage[0:1].copy()
+            if priv == 1:
+                if user[call.chat.id].type == "Book" or user[call.chat.id].type == "Article" or user[call.chat.id].type == "AV":
+                    markup += [["Waiting list", "Waiting list"]]
+            elif priv == 2:
+                if user[call.chat.id].type == "Book" or user[call.chat.id].type == "Article" or user[call.chat.id].type == "AV":
+                    markup += [["Waiting list", "Waiting list"]]
+                    if len(user[call.chat.id].object.get_list_of_copies()) < 1:
+                        markup += [["Outstanding Request", "Outstanding Request"]]
             else:
                 markup = u.keyboard_librarian_buttons_manage.copy()
-            print("{} is current type".format(u.current.type))
-            print(u.keyboard_librarian_buttons_manage)
-            print(markup)
-            if u.current.type == "Book" or u.current.type == "Article" or u.current.type == "AV":
-                markup += [["Waiting list", "Waiting list"]]
-                if priv > 0:  # TODO: >1, пока так для простоты, в финальной версии заменить
-                    markup += [["Outstanding Request", "Outstanding Request"]]
+                if (user[call.chat.id].type == "Book" or user[call.chat.id].type == "Article" or user[call.chat.id].type == "AV"):
+                    markup += [["Waiting list", "Waiting list"]]
+                    if len(user[call.chat.id].object.get_list_of_copies()) < 1:
+                        markup += [["Outstanding Request", "Outstanding Request"]]
             markup += [["Return to home page", "Back"]]
 
         else:
-            if u.current.type == "Emails":
+            if user[call.chat.id].type == "Emails":
                 message = "What do you want to do with {}?".format(call.text)
                 markup = u.keyboard_patron_buttons_doc
             else:
-                if len(u.current.object.get_list_of_copies()) > 0:  # TODO: проверить работоспособность
+                if len(user[call.chat.id].object.get_list_of_copies()) > 0:  # TODO: проверить работоспособность
                     message = "Do you want to reserve {}?".format(call.text)
                     button = "Reserve"
                 else:
@@ -339,16 +366,16 @@ def search(call):  # TODO: пройтись по if связанным с бук
                     button = "To waiting list"
                 markup = [[button, button]]
     else:
-        if type(u.current.user) == Admin or (facbase.is_librarian(db.get(id=call.chat.id)[0]) and
-                                             db.get(call.chat.id)[0].get_priv() > 1):
+        if type(user[call.chat.id].me) == Admin or (type(user[call.chat.id].me) == Librarian and
+                                                    user[call.chat.id].me.get_priv() > 1):
             message = "Do you want to add {} to database?".format(call.text)
-            markup = u.keyboard_librarian_buttons_confirmation + [["Return to home page", "Back"]]
+            markup = u.keyboard_librarian_buttons_confirmation# + [["Return to home page", "Back"]]
 
-        elif facbase.is_librarian(db.get(id=call.chat.id)[0]):
+        elif type(user[call.chat.id].me) == Librarian:
             message = "Sorry, you don't have permissions for addition".format(call.text)
             markup = u.keyboard_button_back
-        else:
-            if u.current.field == "Patron docs":  # eto ne to, menyai
+        else:#TODO: fix 2 if's below
+            if user[call.chat.id].list_of_objects == "Patron docs":  # eto ne to, menyai
                 message = "Sorry, {} is not in your list, but you can try to find it in the Library".format(call.text)
                 markup = u.keyboard_patron_buttons_home
             else:
@@ -362,7 +389,8 @@ def search(call):  # TODO: пройтись по if связанным с бук
 
 @bot.callback_query_handler(func=lambda call: call.data == "Edit")
 def edit(call):
-    buttons = u.get_buttoms(u.current.type)
+    print(user[call.message.chat.id].type)
+    buttons = u.get_buttoms(user[call.message.chat.id].type)
     buttons += [["Back","Back"]]
     print(buttons)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -372,16 +400,16 @@ def edit(call):
 
 @bot.callback_query_handler(func=lambda call: call.data[0] == "$")
 def editing(call):
-    u.current.attr = call.data[1:]
+    user[call.message.chat.id].attr = call.data[1:]
 
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter new parameter for {} of {}".format(call.data[1:], u.current.title_or_name),
+                          text="Enter new parameter for {} of {}".format(call.data[1:], user[call.message.chat.id].title_or_name),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, edited)
 
 
 def edited(call):
-    u.edit_attr(u.current.attr, call.text)
+    edit_attr(user[call.chat.id].attr, call.text, call.chat.id)
     bot.send_message(call.chat.id,
                      text="This field is now equals to {}".format(call.text),
                      reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
@@ -392,27 +420,29 @@ def edited(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Delete")
 def delete(call):
-    print(u.current.type)
-    print(u.current.object)
-    print(u.current.object.summary())
-    print(u.current.object.get_id())  # TODO: починить ДБ, не удаляет, не edit
-    if u.is_human():
-        u.current.name = u.current.object.get_id()
-        db.delete(id=u.current.object.get_id())
+    print(user[call.message.chat.id].type)
+    print(user[call.message.chat.id].object)
+    print(user[call.message.chat.id].object.summary())
+    if is_human(call.message.chat.id):
+        u.current.name = user[call.message.chat.id].object.get_id()
+        db.delete(id=user[call.message.chat.id].object.get_id())
     else:
-        u.current.name = u.current.object.get_title()
-        db.delete(title=u.current.object.get_title())
+        u.current.name = user[call.message.chat.id].object.get_title()
+        db.delete(title=user[call.message.chat.id].object.get_title())
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="{} is deleted from list of {}".format(u.current.name, u.current.type),
+                          text="{} is deleted from list of {}".format(u.current.name, user[call.message.chat.id].type),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Add")
 def add(call):
     list = ""
-    attr = u.get_buttoms(u.current.type)
+    if is_human(call.message.chat.id):
+        attr = u.get_buttoms(user[call.message.chat.id].type)[0:-1]
+    else:
+        attr = u.get_buttoms(user[call.message.chat.id].type)
     print(attr)
-    for i in range(1, len(attr)):
+    for i in range(len(attr)):
         list += "{}, ".format(attr[i][0])
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           # TODO:возможно сделать более приятный интерфейс
@@ -425,50 +455,48 @@ def adding(call):
     # TODO: Вроде норм, но возможно лучше отрефакторить
     array_of_values = call.text.split("\n")
     print(array_of_values)
-    print(u.current.type)
+    print(user[call.chat.id].type)
     while len(array_of_values) < 10:
         array_of_values.append("0")
-    if u.current.type == "Book":
-        doc = Book(title=u.current.title_or_name, author=array_of_values[0], publisher=array_of_values[1],
-                   year=array_of_values[2], edition=array_of_values[3], genre=array_of_values[4])
-    elif u.current.type == "AV":
-        doc = AV_Materials(title=u.current.title_or_name, author=array_of_values[0], price=array_of_values[1])
-    elif u.current.type == "Article":
-        doc = Article(title=u.current.title_or_name, author=array_of_values[0], journal=array_of_values[1],
-                      publication_date=array_of_values[2], editor=array_of_values[3])
-    elif u.current.type == "Librarians":
-        doc = Librarian(id=array_of_values[0], alias=array_of_values[1], name=u.current.title_or_name,
-                        mail=array_of_values[2], number=array_of_values[3], address=array_of_values[4],
+    if user[call.chat.id].type == "Book":
+        user[call.chat.id].me.new_book(title=user[call.chat.id].title_or_name, author=array_of_values[0], publisher=array_of_values[1],
+                   year=array_of_values[2], edition=array_of_values[3], genre=array_of_values[4],)
+    elif user[call.chat.id].type == "AV":
+        user[call.chat.id].me.new_AV_material(title=user[call.chat.id].title_or_name, author=array_of_values[0], price=array_of_values[1])
+    elif user[call.chat.id].type == "Article":
+        user[call.chat.id].me.new_article(title=user[call.chat.id].title_or_name, author=array_of_values[0], journal=array_of_values[1],
+                      publication_date=array_of_values[2], editor=array_of_values[3], url="")
+    elif user[call.chat.id].type == "Librarian":
+        user[call.chat.id].me.add_librarian(id=array_of_values[0], alias=array_of_values[1], name=array_of_values[2],
+                        mail=user[call.chat.id].title_or_name, number=array_of_values[3], address=array_of_values[4],
                         priv=int(array_of_values[5]))
     else:
 
         if array_of_values[0] == "Instructor":
-            doc = Instructor(int(array_of_values[1]), array_of_values[2], array_of_values[3], u.current.title_or_name,
+            user[call.chat.id].me.new_instructor(int(array_of_values[1]), array_of_values[2], array_of_values[3], user[call.chat.id].title_or_name,
                              array_of_values[4], array_of_values[5])
         elif array_of_values[0] == "TA":
-            doc = TA(int(array_of_values[1]), array_of_values[2], array_of_values[3], u.current.title_or_name,
+            user[call.chat.id].me.new_ta(int(array_of_values[1]), array_of_values[2], array_of_values[3], user[call.chat.id].title_or_name,
                      array_of_values[4], array_of_values[5])
         elif array_of_values[0] == "Professor":
-            doc = Professor(int(array_of_values[1]), array_of_values[2], array_of_values[3], u.current.title_or_name,
+            user[call.chat.id].me.new_professor(int(array_of_values[1]), array_of_values[2], array_of_values[3], user[call.chat.id].title_or_name,
                             array_of_values[4], array_of_values[5])
         elif array_of_values[0] == "VP":
-            doc = VP(int(array_of_values[1]), array_of_values[2], array_of_values[3], u.current.title_or_name,
+            user[call.chat.id].me.new_vp(int(array_of_values[1]), array_of_values[2], array_of_values[3], user[call.chat.id].title_or_name,
                      array_of_values[4], array_of_values[5])
         else:
-            doc = Student(int(array_of_values[1]), array_of_values[2], array_of_values[3], u.current.title_or_name,
+            user[call.chat.id].me.new_student(int(array_of_values[1]), array_of_values[2], array_of_values[3], user[call.chat.id].title_or_name,
                           array_of_values[4], array_of_values[5])
 
-    db.insert(doc.summary())
 
     print('SUCCESS')
-    print(doc.summary()["type"])
     bot.send_message(call.chat.id, "Addition to database was successful",
                      reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Get information")
 def get_info(call):
-    temp = u.current.object.summary()
+    temp = user[call.message.chat.id].object.summary()
     obj = ""
     for i in temp:
         if i != "queue":
@@ -484,9 +512,10 @@ def get_info(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Back")
 def back(call):
-    if type(u.current.user) == Admin:
+    print(type(user[call.message.chat.id].me))
+    if type(user[call.message.chat.id].me) == Admin:
         markup = bot_features.get_inline_markup(u.keyboard_admin_buttons_home)
-    elif not facbase.is_librarian(db.get(id=call.message.chat.id)[0]):
+    elif not type(user[call.message.chat.id].me) == Librarian:
         markup = bot_features.get_inline_markup(u.keyboard_patron_buttons_home)
     else:
         markup = bot_features.get_inline_markup(u.keyboard_librarian_buttons_home)
@@ -494,6 +523,82 @@ def back(call):
                           text="Now choose what you want to do",
                           reply_markup=markup)
 
+
+def edit_attr(attr, new_attr, id):
+    "BOOK"
+    if attr == "Title":
+        user[id].me.set_title(new_attr)
+    elif attr == "Author":
+        user[id].me.set_author(new_attr)
+    elif attr == "Publisher":
+        user[id].me.set_publisher(new_attr)
+    elif attr == "Year":
+        user[id].me.set_year(new_attr)
+    elif attr == "Edition":
+        user[id].me.set_edition(new_attr)
+    elif attr == "Genre":
+        user[id].me.set_genre(new_attr)
+    elif attr == "Bestseller":
+        user[id].me.set_bestseller(new_attr)
+    elif attr == "Reference":
+        user[id].me.set_reference(new_attr)
+    elif attr == "Price":
+        print(new_attr)
+        user[id].me.set_price(new_attr)
+
+        "ARTICLE"
+    elif attr == "Journal":
+        user[id].me.set_journal(new_attr)
+    elif attr == "Pub_Date":
+        user[id].me.set_pub_date(new_attr)
+    elif attr == "Editor":
+        user[id].me.set_editor(new_attr)
+    elif attr == "Url":
+        user[id].me.set_url(new_attr)
+
+        "HUMANS"
+    elif type(user[id].me) == Admin:
+        alias = user[id].object.get_alias()
+        print(alias)
+        if attr == "id":
+            user[id].me.set_lib_id(alias,new_attr)
+        elif attr == "Alias":
+            user[id].me.set_lib_alias(alias,new_attr)
+        elif attr == "Name":
+            user[id].me.set_lib_name(alias,new_attr)
+        elif attr == "Mail":
+            user[id].me.set_lib_mail(alias,new_attr)
+        elif attr == "Phone_number":
+            user[id].me.set_lib_number(alias,new_attr)
+        elif attr == "Address":
+            user[id].me.set_lib_address(alias,new_attr)
+
+            "LIBRARIAN"
+        elif attr == "Privilege":
+            user[id].me.set_lib_priv(alias,new_attr)
+    else:
+        if attr == "id":
+            user[id].me.set_id(new_attr)
+        elif attr == "Alias":
+            user[id].me.set_alias(new_attr)
+        elif attr == "Name":
+            user[id].me.set_name(new_attr)
+        elif attr == "Mail":
+            user[id].me.set_mail(new_attr)
+        elif attr == "Phone_number":
+            user[id].me.set_number(new_attr)
+        elif attr == "Address":
+            user[id].me.set_address(new_attr)
+
+        #     "LIBRARIAN"
+        # elif attr == "Privilege":
+        #     user[id].me.set_priv(new_attr)
+
+def is_human(id):
+    if user[id].type == "Emails" or user[id].type == "Librarian":
+        return True
+    else:
+        return False
 
 if __name__ == '__main__':
     bot.polling(none_stop=True)
