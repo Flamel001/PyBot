@@ -43,7 +43,8 @@ def greeting(message):
         bot.register_next_step_handler(message, auth)
     else:
         user[message.chat.id].me = db.get(alias=message.from_user.username)[0]
-        if user[message.chat.id].me.get_type():
+        print(type(user[message.chat.id].me))
+        if type(user[message.chat.id].me) == Librarian:
             bot.send_message(message.chat.id, "Now choose what you want to do",
                              reply_markup=bot_features.get_inline_markup(u.keyboard_librarian_buttons_home))
         else:
@@ -162,36 +163,32 @@ def address(call):
 @bot.callback_query_handler(func=lambda call: call.data == "My docs")
 def my_docs(call):
     # u.field = "Patron docs"  # TODO: проверить работоспособность метода
-    user[call.message.chat.id] = db.get(id=call.message.chat.id)[0].get_docs_list()
+    user[call.message.chat.id].list_of_objects = db.get(id=call.message.chat.id)[0].get_docs_list()
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text="Enter doc from list {}".format(user[call.message.chat.id]),
+                          text="Enter doc from list {}".format(user[call.message.chat.id].list_of_objects),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
     bot.register_next_step_handler(call.message, search)
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "Reserve")
+@bot.callback_query_handler(func=lambda call: call.data == "Reserve" or call.data == "To waiting list" or call.data == "Renew")
 def reserve(call):
-    # u.field = "Patron docs"  # TODO: обратиться в дб по полю                  DEFUNCT
-
-    # msg = (call.message.text).split(", ")#TODO: сделать нормально
-    # user[call.chat.id].list_of_objects = db.get(title=msg[0])
-    result_text = "{} is added to your list".format(user[call.message.chat.id].object.get_title())  # this text is redundant
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=b.booking(db.get(id=call.message.chat.id), user[call.chat.id].list_of_objects, msg[1], 0),
+                          text=b.booking(user[call.message.chat.id].me, user[call.message.chat.id].object,
+                                               call.data),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
-def patron_waiting_list(call):
-    # TODO:прикрутить сам вейтинг лист и какое то уведомление молодого о том, когда появится книга
-    doc = user[call.chat.id].object
-    print(user[call.chat.id].object)
-    print(user[call.chat.id].object.get_title())
-    usr = db.get(id=call.message.chat.id)[0]  # TODO: подумать, мб можно без обращения к дб и доделать, чтоб работало
-    # result_text = "You are added to the waiting list for {}".format(user[call.chat.id].object.get_title()) # this text is redundant
-    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=b.booking(usr, doc, "time doesn't matter", 1),
-                          reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
+# @bot.callback_query_handler(func=lambda call: call.data == "To waiting list")
+# def patron_waiting_list(call):
+#     # TODO:прикрутить сам вейтинг лист и какое то уведомление молодого о том, когда появится книга
+#     doc = user[call.chat.id].object
+#     print(user[call.chat.id].object)
+#     print(user[call.chat.id].object.get_title())
+#     usr = db.get(id=call.message.chat.id)[0]  # TODO: подумать, мб можно без обращения к дб и доделать, чтоб работало
+#     # result_text = "You are added to the waiting list for {}".format(user[call.chat.id].object.get_title()) # this text is redundant
+#     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+#                           text=b.booking(usr, doc, "time doesn't matter", 1),
+#                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Return")
@@ -205,16 +202,16 @@ def return_doc(call):
                           reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "Renew")
-def renew(call):
-    # TODO: update time
-    usr = db.get(id=call.message.chat.id)
-    msg = (call.message.text).split(", ")  # eto ne to
-    doc = user[call.chat.id].object
-    # result_text = "Time for your doc updated" # this is text is redundant
-    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                          text=b.booking(usr, doc, msg[1], 2),
-                          reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
+# @bot.callback_query_handler(func=lambda call: call.data == "Renew")
+# def renew(call):
+#     # TODO: update time
+#     usr = db.get(id=call.message.chat.id)
+#     msg = (call.message.text).split(", ")  # eto ne to
+#     doc = user[call.chat.id].object
+#     # result_text = "Time for your doc updated" # this is text is redundant
+#     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+#                           text=b.booking(usr, doc, msg[1], 2),
+#                           reply_markup=bot_features.get_inline_markup([["OK!", "Back"]]))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == "Tech support")
@@ -327,7 +324,7 @@ def search(call):  # TODO: пройтись по if связанным с бук
         if type(user[call.chat.id].me) == Admin:
             message = "Choose action to do with {}".format(call.text)
             markup = u.keyboard_librarian_buttons_manage
-        elif facbase.is_librarian(db.get(id=call.chat.id)[0]):
+        elif type(user[call.chat.id].me) == Librarian:
             message = "Choose action to do with {}".format(call.text)
             priv = user[call.chat.id].me.get_priv()
             markup = u.keyboard_librarian_buttons_manage[0:1].copy()
@@ -509,9 +506,10 @@ def get_info(call):
 
 @bot.callback_query_handler(func=lambda call: call.data == "Back")
 def back(call):
+    print(type(user[call.message.chat.id].me))
     if type(user[call.message.chat.id].me) == Admin:
         markup = bot_features.get_inline_markup(u.keyboard_admin_buttons_home)
-    elif not facbase.is_librarian(db.get(id=call.message.chat.id)[0]):
+    elif not type(user[call.message.chat.id].me) == Librarian:
         markup = bot_features.get_inline_markup(u.keyboard_patron_buttons_home)
     else:
         markup = bot_features.get_inline_markup(u.keyboard_librarian_buttons_home)
