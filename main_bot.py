@@ -39,7 +39,7 @@ def man_lib(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                           text="type email of Librarian from list\n{}".format(list_of_libs),
                           reply_markup=bot_features.get_inline_markup(u.keyboard_button_back))
-    bot.register_next_step_handler(call.message, search)
+    bot.register_next_step_handler(call.message, smart_search)
 
 
 def smart_search():
