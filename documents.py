@@ -13,7 +13,7 @@ class Document:
         self.__info[document_url] = ""
         self.__info[document_type] = ""
         self.__info[document_queue] = queue
-        self.__info[document_copies] = list()
+        self.__info[document_copies] = 0
 
     def set_title(self, new_title):
         if new_title != "" or new_title != None:
@@ -51,30 +51,23 @@ class Document:
         db.update(title=self.get_title(), owner=None)
         self.__info[document_owner] = None
 
-    def add_copy(self, id):
-        print("this is id " + id)
-        self.__info[document_copies].append(str(id))
-        new_copies = self.get_list_of_copies()
+    def add_copy(self, count):
+        self.__info[document_copies] = self.get_count_of_copies() + count
+        new_copies = self.get_count_of_copies()
         db.update(title=self.get_title(), copies=new_copies)
 
     def pop_copy(self):
-        new_copies = self.get_list_of_copies()
-        print("new_copies1 " + str(new_copies))
-        copy = new_copies.pop(0)
-        print("new_copies2 " + str(new_copies))
+        self.__info[document_copies] = self.get_count_of_copies() - 1
+        new_copies = self.get_count_of_copies()
         db.update(title=self.get_title(), copies=new_copies)
-        return copy
 
-    def get_list_of_copies(self):
+    def get_count_of_copies(self):
         return self.__info[document_copies]
 
-    def get_number_of_copies(self):
-        return len(self.__info[document_copies])
-
-    def set_list_of_copies(self, copies):
-        if copies != "" or copies != None:
-            db.update(title=self.get_title(), copies=copies)
-        self.__info[document_copies] = copies
+    def set_count_of_copies(self, count):
+        if count != "" or count != None:
+            db.update(title=self.get_title(), copies=count)
+        self.__info[document_copies] = count
 
     def set_url(self, url):
         if url != "" or url != None:
@@ -98,7 +91,7 @@ class Document:
 
 class Book(Document):
     def __init__(self, title=None, author="", publisher="", year="", edition="", genre="", url="",
-                 bestseller=False, reference=False, copies=list(), queue=list()):
+                 bestseller=False, reference=False, copies=0, queue=list()):
         super().__init__(title, author, queue)
         self.__info = super().summary()
         self.__info[book_publisher] = publisher
@@ -191,7 +184,7 @@ class Book(Document):
 
 class Article(Document):
     def __init__(self, title=None, author="", journal="", publication_date="", editor="", url="",
-                 copies=list(), queue=list()):
+                 copies=0, queue=list()):
         super().__init__(title, author, queue)
         self.__info = super().summary()
         self.__info[article_journal] = journal
@@ -241,7 +234,7 @@ class Article(Document):
 
 
 class AV_Materials(Document):
-    def __init__(self, title=None, author="", price="", url="", copies=list()):
+    def __init__(self, title=None, author="", price="", url="", copies=0):
         super().__init__(title, author)
         self.__info = super().summary()
         self.__info[document_price] = price

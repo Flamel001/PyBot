@@ -13,6 +13,7 @@ def get_log():
     log_file.close()
     return log_file
 
+
 class User:
     pass
 
@@ -126,11 +127,11 @@ class Librarian(User):
         self.__info[user_type] = "Librarian"
         self.__info[librarian_priv] = priv
 
-    def new_book(self, title, author, publisher, year, edition, genre, url, bestseller, reference):
+    def new_book(self, title, author, publisher, year, edition, genre, url, bestseller, reference, cop_count):
         if self.get_priv() >= 2:
             print(
                 "these are the fields " + title + ", " + author + ", " + publisher + ", " + year + "," + edition + ", " + genre + ", " + url)
-            new = dc.Book(title, author, publisher, year, edition, genre, url, bestseller, reference)
+            new = dc.Book(title, author, publisher, year, edition, genre, url, bestseller, reference, copies=cop_count)
             print("this is book summary " + str(new.summary()))
             db.insert(new.summary())
 
@@ -142,10 +143,10 @@ class Librarian(User):
             return
             # return new
 
-    def add_copy_for_doc(self, original: dc.Document, copy_id):
+    def add_copy_for_doc(self, original: dc.Document, copy_count):
         if self.get_priv() == 3:
-            original.add_copy(copy_id)
-            db.update(title=original.get_title(), copies=original.get_list_of_copies())
+            original.add_copy(copy_count)
+            db.update(title=original.get_title(), copies=original.get_count_of_copies())
 
             id_str = str(self.get_id())
             date = get_date()
@@ -157,9 +158,9 @@ class Librarian(User):
     def set_book_bestseller(self, book, is_not):
         book.set_bestseller(is_not)
 
-    def new_article(self, title, author, journal, publication_date, editor, url):
+    def new_article(self, title, author, journal, publication_date, editor, url, copies):
         if self.get_priv() >= 2:
-            new = dc.Article(title, author, journal, publication_date, editor, url)
+            new = dc.Article(title, author, journal, publication_date, editor, url, copies=copies)
             db.insert(new.summary())
 
             id_str = str(self.get_id())
@@ -170,9 +171,9 @@ class Librarian(User):
             return
             # return new
 
-    def new_AV_material(self, title, author, value, url):
+    def new_AV_material(self, title, author, value, url, copies):
         if self.get_priv() >= 2:
-            new = dc.AV_Materials(title, author, value, url)
+            new = dc.AV_Materials(title, author, value, url, copies=copies)
             print("avmaterial " + str(new.summary()))
             db.insert(new.summary())
 
@@ -343,7 +344,8 @@ class Librarian(User):
 
 class Patron(User):
 
-    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="",
+                 reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
         self.__info = dict()
         self.__info[user_id] = id
@@ -481,7 +483,7 @@ class Patron(User):
         if title in self.__info[user_document_list].keys():
             splitted_date = self.__info[user_document_list][title].split(";")
             print("This is splitted date " + str(splitted_date))
-            if len(splitted_date)<=1:
+            if len(splitted_date) <= 1:
                 return True
             else:
                 return False
@@ -491,7 +493,8 @@ class Patron(User):
 
 class Student(Patron):
 
-    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="",
+                 reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
         if reg_date:
             super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
@@ -507,14 +510,16 @@ class Student(Patron):
 
 class Faculty(Patron):
 
-    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="",
+                 reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
         super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
         self.__info = super().summary()
 
 
 class Instructor(Faculty):
-    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="",
+                 reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
         super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
         self.__info = super().summary()
@@ -523,15 +528,18 @@ class Instructor(Faculty):
 
 
 class TA(Faculty):
-    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="",
+                 reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
         super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
         self.__info = super().summary()
         self.__info[user_type] = "TA"
         self.__info[user_priority] = 3
 
+
 class Professor(Faculty):
-    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="",
+                 reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
         super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
         self.__info = super().summary()
@@ -540,7 +548,8 @@ class Professor(Faculty):
 
 
 class VP(Faculty):
-    def __init__(self, id=None, alias="", name="", mail="", number="", address="", reg_date=str(datetime.datetime.now()), debt=0,
+    def __init__(self, id=None, alias="", name="", mail="", number="", address="",
+                 reg_date=str(datetime.datetime.now()), debt=0,
                  doc_list=dict()):
         super().__init__(id, alias, name, mail, number, address, reg_date, debt, doc_list)
         self.__info = super().summary()
