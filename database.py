@@ -592,4 +592,3 @@ def match(search_string:str, search_string_i:int, title:str, i:int, miss:int):
         b1 = match(search_string, search_string_i + 1, title, i + 1, miss + 1)
         b2 = match(search_string, search_string_i, title, i + 1, miss)
         return True if b1 else b2
-
