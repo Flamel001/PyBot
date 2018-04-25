@@ -6,7 +6,7 @@ from utilities import get_date
 
 
 def get_log():
-    log = reversed(db.get_all_similar_info(log="kek"))
+    log = db.get_all_similar_info(log="kek")
     log_file = open("log.txt", 'w')
     for record in log:
         log_file.write(record + " \n")
@@ -61,7 +61,7 @@ class Admin(User):
         lib_id = str(librarian_id)
         priv_str = str(new)
         date = get_date()
-        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") name: " + priv_str)
+        db.insert_log(date + " | " + "Admin set to Librarian(" + lib_id + ") name: " + priv_str)
 
     def set_lib_mail(self, alias, new):
         Lib = db.get(alias=alias)[0]
