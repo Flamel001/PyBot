@@ -460,7 +460,7 @@ def adding(call):
         array_of_values.append("0")
     if user[call.chat.id].type == "Book":
         user[call.chat.id].me.new_book(title=user[call.chat.id].title_or_name, author=array_of_values[0], publisher=array_of_values[1],
-                   year=array_of_values[2], edition=array_of_values[3], genre=array_of_values[4])
+                   year=array_of_values[2], edition=array_of_values[3], genre=array_of_values[4],)
     elif user[call.chat.id].type == "AV":
         user[call.chat.id].me.new_AV_material(title=user[call.chat.id].title_or_name, author=array_of_values[0], price=array_of_values[1])
     elif user[call.chat.id].type == "Article":
@@ -547,7 +547,6 @@ def edit_attr(attr, new_attr, id):
         user[id].me.set_price(new_attr)
 
         "ARTICLE"
-
     elif attr == "Journal":
         user[id].me.set_journal(new_attr)
     elif attr == "Pub_Date":
@@ -557,24 +556,43 @@ def edit_attr(attr, new_attr, id):
     elif attr == "Url":
         user[id].me.set_url(new_attr)
 
-        "PATRON"
+        "HUMANS"
+    elif type(user[id].me) == Admin:
+        alias = user[id].object.get_alias()
+        print(alias)
+        if attr == "id":
+            user[id].me.set_lib_id(alias,new_attr)
+        elif attr == "Alias":
+            user[id].me.set_lib_alias(alias,new_attr)
+        elif attr == "Name":
+            user[id].me.set_lib_name(alias,new_attr)
+        elif attr == "Mail":
+            user[id].me.set_lib_mail(alias,new_attr)
+        elif attr == "Phone_number":
+            user[id].me.set_lib_number(alias,new_attr)
+        elif attr == "Address":
+            user[id].me.set_lib_address(alias,new_attr)
 
-    elif attr == "id":
-        user[id].me.set_id(new_attr)
-    elif attr == "Alias":
-        user[id].me.set_alias(new_attr)
-    elif attr == "Name":
-        user[id].me.set_name(new_attr)
-    elif attr == "Mail":
-        user[id].me.set_mail(new_attr)
-    elif attr == "Phone_number":
-        user[id].me.set_number(new_attr)
-    elif attr == "Address":
-        user[id].me.set_address(new_attr)
+            "LIBRARIAN"
+        elif attr == "Privilege":
+            user[id].me.set_lib_priv(alias,new_attr)
+    else:
+        if attr == "id":
+            user[id].me.set_id(new_attr)
+        elif attr == "Alias":
+            user[id].me.set_alias(new_attr)
+        elif attr == "Name":
+            user[id].me.set_name(new_attr)
+        elif attr == "Mail":
+            user[id].me.set_mail(new_attr)
+        elif attr == "Phone_number":
+            user[id].me.set_number(new_attr)
+        elif attr == "Address":
+            user[id].me.set_address(new_attr)
 
-        "LIBRARIAN"
-    elif attr == "Privilege":
-        user[id].me.set_priv(new_attr)
+        #     "LIBRARIAN"
+        # elif attr == "Privilege":
+        #     user[id].me.set_priv(new_attr)
 
 def is_human(id):
     if user[id].type == "Emails" or user[id].type == "Librarian":
