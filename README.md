@@ -118,3 +118,21 @@ Method|Description
 ------|-----------
 pin_generator()| generates a random pin (used for authentification)
 pin_sender(email,pin) | calls pin_generator() and sends pin to email
+
+
+
+## Parsing.py
+Method|Description
+------|-----------
+__parse_str_to_dict(dict_str)|parses string line to dictionary
+__parse_str_to_list(list_str)|parses string line to list
+__parse_str_to_queue(queue_str)|parses string line to queue
+__parse|parses dict to string and tuples
+
+## Dictkeys.py
+Stores default keys for arguments of user, document classes.
+
+## Authentification.py
+Method|Description
+------|-----------
+check(alias)| check wheter user exists in system
