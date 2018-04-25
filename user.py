@@ -51,7 +51,65 @@ class Admin(User):
         date = get_date()
         db.insert_log(date + " | Admin deleted Librarian with ID: " + id_str)
 
+    def set_lib_name(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_name(new)
 
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") name: " + priv_str)
+
+    def set_lib_mail(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_mail(new)
+
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") mail: " + priv_str)
+
+    def set_lib_number(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_number(new)
+
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") number: " + priv_str)
+
+    def set_lib_address(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_address(new)
+
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") address: " + priv_str)
+
+    def set_lib_id(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_id(new)
+
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") ID: " + priv_str)
+
+    def set_lib_alias(self, alias, new):
+        Lib = db.get(alias=alias)[0]
+        Lib.set_alias(new)
+
+        librarian_id = Lib.get_id()
+        lib_id = str(librarian_id)
+        priv_str = str(new)
+        date = get_date()
+        db.insert_log(date + " |  " + "Admin set to Librarian(" + lib_id + ") aliasq: " + priv_str)
 
 
 class Librarian(User):
