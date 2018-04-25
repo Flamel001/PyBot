@@ -44,7 +44,7 @@ Bot is developed for Library use.
 ## Running:
 To run the application with default parameters just typing the command below in command line.
 
-      ``` python3 telebot2.py ```
+      ``` python3 main_bot.py ```
 
 # DOCUMENTATION:
 ## Authentication
@@ -146,3 +146,5 @@ Method|Description
 ------|-----------
 check(alias)| check wheter user exists in system
 
+### Search method
+It uses devide and conquer strategy to find the best possible docs depending on the search query.
